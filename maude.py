@@ -107,5 +107,14 @@ conditionfragment << term + "=" + term | \
                      term + ":=" + term | \
                      term + ":" + sort
 
+# Condition
+condition = conditionfragment + pp.ZeroOrMore("/\\" + conditionfragment)
+conditionprime = conditionfragmentprime + pp.ZeroOrMore("/\\" + conditionfragmentprime)
+
+# Label
+label = "[" + labelid + "]" + ":"
+
+# Statement
+
 test = "[comm ditto frozen(1)]"
 print (test, "->", attr.parseString(test))
