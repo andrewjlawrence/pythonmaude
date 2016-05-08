@@ -1,5 +1,7 @@
 # Copyright 2016 Andrew Lawrence
 import pyparsing as pp
+import ast as ast
+
 
 # Label identifier. Simple identifier
 labelid = pp.Word(pp.alphanums)
@@ -134,7 +136,7 @@ kind = "[" + sort + pp.ZeroOrMore("," + sort) + "]"
 type = sort | kind
 
 # Arrow
-arrow = "->" | "~>"
+arrow = pp.Literal("->") | pp.Literal("~>")
 
 # To part renaming item
 topartrenamingitem = "to" + opform + pp.Optional(attr)
@@ -193,10 +195,12 @@ module = "fmod" + modid + pp.Optional(parameterlist) + "is" + pp.ZeroOrMore(mode
          "mod" + modid + pp.Optional(parameterlist) + "is" + pp.ZeroOrMore(modeltprime) + "endfm"
 
 # Debugger command
-debuggercommand = "resume ." | "abort ." | "step ." | "where ."
+debuggercommand = pp.Literal("resume .") | pp.Literal("abort .") | pp.Literal("step .") | pp.Literal("where .")
 
 # Trace option
-traceoption = "condition" | "whole" | "substitution" | "select" | "mbs" | "eqs" | "rls" | "rewrite" | "body"
+traceoption = pp.Literal("condition") | pp.Literal("whole") | pp.Literal("substitution") |\
+              pp.Literal("select") | pp.Literal("mbs") | pp.Literal("eqs") | \
+              pp.Literal("rls") | pp.Literal("rewrite") | pp.Literal("body")
 
 # Print option
 printoption = "mixfix" | "flat" | "with parentheses" | "with aliases" | "conceal" | "number" | "rat" | "color" | \
@@ -257,15 +261,19 @@ command = "select" + modid + "." | \
           "set" + setoption + ("on" | "off") + "."
 
 # System command
-systemcommand = "in" + filename | \
-                "load" + filename | \
-                "quit" | "eof" | "popd" | "pwd" | \
-                "cd" + directory |  "push" + directory | \
-                "ls" + pp.Optional(lsflags) + pp.Optional(directory)
+systemcommand = pp.Group("in" + filename).addParseAction(lambda x: ast.InCommand(x[1])) | \
+                pp.Group("load" + filename).addParseAction(lambda x: ast.LoadCommand(x[1])) | \
+                pp.Literal("quit").addParseAction(ast.QuitCommand) | \
+                pp.Literal("eof").addParseAction(ast.EofCommand) | \
+                pp.Literal("popd").addParseAction(ast.PopDCommand) | \
+                pp.Literal("pwd").addParseAction(ast.PwdCommand) | \
+                pp.Group("cd" + directory).addParseAction(lambda x: ast.CdCommand(x[1])) |\
+                pp.Group("push" + directory).addParseAction(lambda x: ast.PushCommand(x[1])) | \
+                pp.Group("ls" + pp.Optional(lsflags) + pp.Optional(directory)).addParseAction(lambda x: ast.LsCommand(x[1], x[2]))
 
 # Maude top
 maudetop = pp.OneOrMore(systemcommand | command | debuggercommand | module | theory | view)
 
 
-test = "[comm ditto frozen(1)]"
-print (test, "->", attr.parseString(test))
+test = "load meh.txt"
+print (test, "->", systemcommand.parseString(test))
