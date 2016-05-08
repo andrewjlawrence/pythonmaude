@@ -136,12 +136,108 @@ type = sort | kind
 # Arrow
 arrow = "->" | "~>"
 
-# To part remaining item
-topartremainingitem = "to" + opform + pp.Optional(attr)
+# To part renaming item
+topartrenamingitem = "to" + opform + pp.Optional(attr)
 
-# Remaining Item
+# Renaming Item
+renamingitem = "sort" + sort + "to" + sort | \
+                "label" + labelid + "to" + labelid | \
+                "op" + opform + topartrenamingitem | \
+                "op" + opform + ":" + pp.ZeroOrMore(type) + arrow + type + topartrenamingitem
+# Renaming
+renaming = "(" + renamingitem + pp.ZeroOrMore("," + renamingitem) + ")"
 
-# Remaining
+# Mod Exp
+modexp = pp.Forward()
+modexp << modid | \
+         "(" + modexp + ")" | \
+         modexp + "+" + modexp | \
+         modexp + "*" + renaming | \
+         modexp + "{" + viewid + pp.ZeroOrMore("," + viewid) + "}"
+
+# View Elt
+viewelt = "var" + pp.OneOrMore(varid) + ":" + type + "." | \
+          "sort" + sort + "to" + sort + "." | \
+          "label" + labelid + "to" + labelid + "." | \
+          "op" + opform + "to" + opform + "." | \
+          "op" + opform + ":" + pp.ZeroOrMore(type) + arrow + type + "to" + opform + "." | \
+          "op" + term + "to" + term + "."
+
+# Mod Elt
+modelt = "including" + modexp + "." | \
+         "extending" + modexp + "." | \
+         "protecting" + modexp + "." | \
+         "sorts" + pp.OneOrMore(sort) + "." | \
+         "subsorts" + pp.OneOrMore(sort) + pp.OneOrMore("<" + pp.OneOrMore(sort)) + "." | \
+         "op" + opform + ":" + pp.ZeroOrMore(type) + arrow + type + pp.Optional(attr)  + "." | \
+         "ops" + pp.OneOrMore( opid | pp.Literal("(") + opform + pp.Literal(")")) + ":" \
+                + pp.ZeroOrMore(type) + arrow + type + pp.Optional(attr) + "." | \
+         "vars" + pp.OneOrMore(varid) + ":" + type + "." | \
+         statement + pp.Optional(statementattr) + "."
+
+# ParameterDecl
+parameterdecl = parameterid + "::" + modexp
+
+# Parameter List
+parameterlist = "{" + parameterdecl + pp.ZeroOrMore("," + parameterdecl) + "}"
+
+# View
+view = "view" + viewid + "from" + modexp + "to" + modexp + "is" + pp.ZeroOrMore(viewelt) + "endv"
+
+# Theory
+theory = "fth" + modid + "is" + pp.ZeroOrMore(modelt) + "endfth" | \
+         "th" + modid + "is" + pp.ZeroOrMore(modeltprime) + "endth"
+
+# Module
+module = "fmod" + modid + pp.Optional(parameterlist) + "is" + pp.ZeroOrMore(modelt) + "endfm" | \
+         "mod" + modid + pp.Optional(parameterlist) + "is" + pp.ZeroOrMore(modeltprime) + "endfm"
+
+# Debugger command
+debuggercommand = "resume ." | "abort ." | "step ." | "where ."
+
+# Trace option
+traceoption = "condition" | "whole" | "substitution" | "select" | "mbs" | "eqs" | "rls" | "rewrite" | "body"
+
+# Print option
+printoption = "mixfix" | "flat" | "with parentheses" | "with aliases" | "conceal" | "number" | "rat" | "color" | \
+              "format" | "graph" | "attribute" | "attribute newline"
+
+# Show option
+showoption = "advise" | "stats" | "loop stats" | "timing" | "loop timing" | "breakdown" | "command" | "gc"
+
+# Set option
+setoption = "show" + showoption | \
+            "print" + printoption | \
+            "trace" + traceoption | \
+            "break" | "verbose" | "profile" | \
+            "clear" + ("memo" | "rules" | "profile") | \
+            "protect" + modid | \
+            "extend" + modid | \
+            "include" + modid
+
+# Show item
+showitem = "module" | "all" | "sorts" | "ops" | "vars" | "mbs" | "eqs" | "rls" | "summary" | "kinds" | "profile"
+
+# Unification Equation
+unificationequation = term + "=?" + term
+
+# Command
+
+inmodid = pp.Optional("in" + modid + ":")
+optionaldebug = pp.Optional("debug")
+optionalnat = pp.Optional("[" + nat + "]")
+command = "select" + modid + "." | \
+          "parse" + inmodid + term + "." | \
+          optionaldebug + "reduce" + inmodid + term + "." | \
+          optionaldebug + "rewrite" + optionalnat + inmodid + term + "." |\
+          optionaldebug + "frewrite " + pp.Optional("[" + nat + pp.Optional("," + nat) + "]") + inmodid + term + "." | \
+          optionaldebug + "erewrite " + pp.Optional("[" + nat + pp.Optional("," + nat) + "]") + inmodid + term + "." | \
+          ("match" | "xmatch") + optionalnat + inmodid + term + "<=?" + term + pp.Optional("such that" + condition) + "." | \
+          "unify" + optionalnat + inmodid + unificationequation + pp.ZeroOrMore("/\\" + unificationequation) + "." | \
+          optionaldebug + "variant unify" + optionalnat + inmodid + unificationequation + pp.ZeroOrMore("/\\" + unificationequation) + "." | \
+          optionaldebug + "get variants" + optionalnat + inmodid + term + "." | \
+          "search" + optionalnat + inmodid + term
+## What is search type? It seems to be missing from the grammar.
 
 test = "[comm ditto frozen(1)]"
 print (test, "->", attr.parseString(test))
