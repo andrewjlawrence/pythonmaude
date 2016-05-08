@@ -221,23 +221,51 @@ showitem = "module" | "all" | "sorts" | "ops" | "vars" | "mbs" | "eqs" | "rls" |
 # Unification Equation
 unificationequation = term + "=?" + term
 
-# Command
+# Search type
+searchtype = "=>!" | "=>+" | "=>*" | "=>1"
 
+# Command
 inmodid = pp.Optional("in" + modid + ":")
+suchthatcondition = pp.Optional("such that" + condition)
 optionaldebug = pp.Optional("debug")
 optionalnat = pp.Optional("[" + nat + "]")
+opidformlist = pp.OneOrMore(opid | ("(" + opform + ")"))
 command = "select" + modid + "." | \
           "parse" + inmodid + term + "." | \
           optionaldebug + "reduce" + inmodid + term + "." | \
           optionaldebug + "rewrite" + optionalnat + inmodid + term + "." |\
           optionaldebug + "frewrite " + pp.Optional("[" + nat + pp.Optional("," + nat) + "]") + inmodid + term + "." | \
           optionaldebug + "erewrite " + pp.Optional("[" + nat + pp.Optional("," + nat) + "]") + inmodid + term + "." | \
-          ("match" | "xmatch") + optionalnat + inmodid + term + "<=?" + term + pp.Optional("such that" + condition) + "." | \
+          ("match" | "xmatch") + optionalnat + inmodid + term + "<=?" + term + suchthatcondition + "." | \
           "unify" + optionalnat + inmodid + unificationequation + pp.ZeroOrMore("/\\" + unificationequation) + "." | \
           optionaldebug + "variant unify" + optionalnat + inmodid + unificationequation + pp.ZeroOrMore("/\\" + unificationequation) + "." | \
           optionaldebug + "get variants" + optionalnat + inmodid + term + "." | \
-          "search" + optionalnat + inmodid + term
-## What is search type? It seems to be missing from the grammar.
+          "search" + optionalnat + inmodid + term + searchtype + term + suchthatcondition + "." | \
+          optionaldebug + "continue" + nat + "." | \
+          "loop" + inmodid + term + "." | \
+          "(" + tokenstring + ")" | \
+          "trace" + ("select" | "deselect" | "include" | "exclude") + opidformlist + "." | \
+          "print" + ("conceal" | "reveal") + opidformlist + "." | \
+          "break" + ("select" | "deselect") + opidformlist + "." | \
+          "show" + showitem + pp.Optional(modid) + "." | \
+          "show" + "view" + pp.Optional(viewid) + "." | \
+          "show" + "modules" + "." | \
+          "show" + "views" + "." | \
+          "show" + "search" + "graph" + "." | \
+          "show" + "path" + pp.Optional("labels") + nat + "." | \
+          "do" + "clear" + "memo" + "." | \
+          "set" + setoption + ("on" | "off") + "."
+
+# System command
+systemcommand = "in" + filename | \
+                "load" + filename | \
+                "quit" | "eof" | "popd" | "pwd" | \
+                "cd" + directory |  "push" + directory | \
+                "ls" + pp.Optional(lsflags) + pp.Optional(directory)
+
+# Maude top
+maudetop = pp.OneOrMore(systemcommand | command | debuggercommand | module | theory | view)
+
 
 test = "[comm ditto frozen(1)]"
 print (test, "->", attr.parseString(test))
