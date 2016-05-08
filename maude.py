@@ -115,6 +115,33 @@ conditionprime = conditionfragmentprime + pp.ZeroOrMore("/\\" + conditionfragmen
 label = "[" + labelid + "]" + ":"
 
 # Statement
+statement = "mb" + pp.Optional(label) + term + ":" + sort | \
+            pp.Literal("cmb") + pp.Optional(label) + term + ":" + sort + "if" + condition | \
+            pp.Literal("eq") + pp.Optional(label) + term + "=" + term | \
+            pp.Literal("ceq") + pp.Optional(label) + term + "=" + term + "if" + condition
+
+statementprime = "rl" + pp.Optional(label) + term + "=>" + term | \
+                 pp.Literal("crl") + pp.Optional(label) + term + "=>" + term + "if" + condition
+
+# Mod elt
+modelt = pp.Forward()
+modeltprime = modelt | statementprime + pp.Optional(statementattr) + "."
+
+# Kind
+kind = "[" + sort + pp.ZeroOrMore("," + sort) + "]"
+
+# Type
+type = sort | kind
+
+# Arrow
+arrow = "->" | "~>"
+
+# To part remaining item
+topartremainingitem = "to" + opform + pp.Optional(attr)
+
+# Remaining Item
+
+# Remaining
 
 test = "[comm ditto frozen(1)]"
 print (test, "->", attr.parseString(test))
