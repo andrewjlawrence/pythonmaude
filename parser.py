@@ -54,7 +54,7 @@ stringid = pp.dblQuotedString
 # File name. OS dependent
 windowsfilename = pp.Word(pp.alphanums) + "." + pp.Word(pp.alphanums,max=3)
 linuxfilename = pp.Word(pp.alphanums)
-filename = windowsfilename | linuxfilename
+filename = pp.Word(pp.alphanums)
 
 # directory. OS dependent.
 directory = pp.Word(pp.alphanums)
@@ -203,62 +203,70 @@ traceoption = pp.Literal("condition") | pp.Literal("whole") | pp.Literal("substi
               pp.Literal("rls") | pp.Literal("rewrite") | pp.Literal("body")
 
 # Print option
-printoption = "mixfix" | "flat" | "with parentheses" | "with aliases" | "conceal" | "number" | "rat" | "color" | \
-              "format" | "graph" | "attribute" | "attribute newline"
+printoption = pp.Literal("mixfix") | pp.Literal("flat") | pp.Literal("with parentheses") | \
+              pp.Literal("with aliases") | pp.Literal("conceal") | pp.Literal("number") | pp.Literal("rat") | \
+              pp.Literal("color") | pp.Literal("format") | pp.Literal("graph") | \
+              pp.Literal("attribute") | pp.Literal("attribute newline")
 
 # Show option
-showoption = "advise" | "stats" | "loop stats" | "timing" | "loop timing" | "breakdown" | "command" | "gc"
+showoption = pp.Literal("advise") | pp.Literal("stats") | pp.Literal("loop stats") | \
+             pp.Literal("timing") | pp.Literal("loop timing") | pp.Literal("breakdown") | \
+             pp.Literal("command") | pp.Literal("gc")
 
 # Set option
-setoption = "show" + showoption | \
-            "print" + printoption | \
-            "trace" + traceoption | \
-            "break" | "verbose" | "profile" | \
-            "clear" + ("memo" | "rules" | "profile") | \
-            "protect" + modid | \
-            "extend" + modid | \
-            "include" + modid
+setoption = pp.Literal("show") + showoption | \
+            pp.Literal("print") + printoption | \
+            pp.Literal("trace") + traceoption | \
+            pp.Literal("break") | pp.Literal("verbose") | pp.Literal("profile") | \
+            pp.Literal("clear") + (pp.Literal("memo") | pp.Literal("rules") | pp.Literal("profile")) | \
+            pp.Literal("protect") + modid | \
+            pp.Literal("extend") + modid | \
+            pp.Literal("include") + modid
 
 # Show item
-showitem = "module" | "all" | "sorts" | "ops" | "vars" | "mbs" | "eqs" | "rls" | "summary" | "kinds" | "profile"
+showitem = pp.Literal("module") | pp.Literal("all") | pp.Literal("sorts") | \
+           pp.Literal("ops") | pp.Literal("vars") | pp.Literal("mbs") | pp.Literal("eqs") |\
+           pp.Literal("rls") | pp.Literal("summary") | pp.Literal("kinds") | pp.Literal("profile")
 
 # Unification Equation
 unificationequation = term + "=?" + term
 
 # Search type
-searchtype = "=>!" | "=>+" | "=>*" | "=>1"
+searchtype = pp.Literal("=>!") | pp.Literal("=>+") | pp.Literal("=>*") | pp.Literal("=>1")
 
 # Command
 inmodid = pp.Optional("in" + modid + ":")
 suchthatcondition = pp.Optional("such that" + condition)
 optionaldebug = pp.Optional("debug")
 optionalnat = pp.Optional("[" + nat + "]")
+fullstop = pp.Literal(".")
+show = pp.Literal("show")
 opidformlist = pp.OneOrMore(opid | ("(" + opform + ")"))
-command = "select" + modid + "." | \
-          "parse" + inmodid + term + "." | \
-          optionaldebug + "reduce" + inmodid + term + "." | \
-          optionaldebug + "rewrite" + optionalnat + inmodid + term + "." |\
-          optionaldebug + "frewrite " + pp.Optional("[" + nat + pp.Optional("," + nat) + "]") + inmodid + term + "." | \
-          optionaldebug + "erewrite " + pp.Optional("[" + nat + pp.Optional("," + nat) + "]") + inmodid + term + "." | \
-          ("match" | "xmatch") + optionalnat + inmodid + term + "<=?" + term + suchthatcondition + "." | \
-          "unify" + optionalnat + inmodid + unificationequation + pp.ZeroOrMore("/\\" + unificationequation) + "." | \
-          optionaldebug + "variant unify" + optionalnat + inmodid + unificationequation + pp.ZeroOrMore("/\\" + unificationequation) + "." | \
-          optionaldebug + "get variants" + optionalnat + inmodid + term + "." | \
-          "search" + optionalnat + inmodid + term + searchtype + term + suchthatcondition + "." | \
-          optionaldebug + "continue" + nat + "." | \
-          "loop" + inmodid + term + "." | \
+command = pp.Literal("select") + modid + fullstop | \
+          pp.Literal("parse") + inmodid + term + fullstop | \
+          optionaldebug + pp.Literal("reduce") + inmodid + term + fullstop | \
+          optionaldebug + pp.Literal("rewrite") + optionalnat + inmodid + term + fullstop |\
+          optionaldebug + pp.Literal("frewrite") + pp.Optional("[" + nat + pp.Optional("," + nat) + "]") + inmodid + term + fullstop | \
+          optionaldebug + pp.Literal("erewrite") + pp.Optional("[" + nat + pp.Optional("," + nat) + "]") + inmodid + term + fullstop | \
+          (pp.Literal("match") | pp.Literal("xmatch")) + optionalnat + inmodid + term + "<=?" + term + suchthatcondition + fullstop | \
+          "unify" + optionalnat + inmodid + unificationequation + pp.ZeroOrMore("/\\" + unificationequation) + fullstop | \
+          optionaldebug + "variant unify" + optionalnat + inmodid + unificationequation + pp.ZeroOrMore("/\\" + unificationequation) + fullstop | \
+          optionaldebug + "get variants" + optionalnat + inmodid + term + fullstop | \
+          "search" + optionalnat + inmodid + term + searchtype + term + suchthatcondition + fullstop | \
+          optionaldebug + "continue" + nat + fullstop | \
+          "loop" + inmodid + term + fullstop | \
           "(" + tokenstring + ")" | \
-          "trace" + ("select" | "deselect" | "include" | "exclude") + opidformlist + "." | \
-          "print" + ("conceal" | "reveal") + opidformlist + "." | \
-          "break" + ("select" | "deselect") + opidformlist + "." | \
-          "show" + showitem + pp.Optional(modid) + "." | \
-          "show" + "view" + pp.Optional(viewid) + "." | \
-          "show" + "modules" + "." | \
-          "show" + "views" + "." | \
-          "show" + "search" + "graph" + "." | \
-          "show" + "path" + pp.Optional("labels") + nat + "." | \
-          "do" + "clear" + "memo" + "." | \
-          "set" + setoption + ("on" | "off") + "."
+          "trace" + (pp.Literal("select") | pp.Literal("deselect") | pp.Literal("include") | pp.Literal("exclude")) + opidformlist + fullstop | \
+          "print" + (pp.Literal("conceal") | pp.Literal("reveal")) + opidformlist + fullstop | \
+          "break" + (pp.Literal("select") | pp.Literal("deselect")) + opidformlist + fullstop | \
+          show + showitem + pp.Optional(modid) + fullstop | \
+          show + "view" + pp.Optional(viewid) + fullstop | \
+          show + "modules" + fullstop | \
+          show + "views" + fullstop | \
+          show + "search" + "graph" + fullstop | \
+          pp.Literal("show") + pp.Literal("path") + pp.Optional("labels") + nat + fullstop | \
+          pp.Literal("do") + pp.Literal("clear") + pp.Literal("memo") + fullstop | \
+          pp.Literal("set") + setoption + (pp.Literal("on") | pp.Literal("off")) + fullstop
 
 # System command
 systemcommand = pp.Group("in" + filename).addParseAction(lambda x: ast.InCommand(x[1])) | \
@@ -274,6 +282,5 @@ systemcommand = pp.Group("in" + filename).addParseAction(lambda x: ast.InCommand
 # Maude top
 maudetop = pp.OneOrMore(systemcommand | command | debuggercommand | module | theory | view)
 
-
-test = "load meh.txt"
+test = "in meh"
 print (test, "->", systemcommand.parseString(test))
