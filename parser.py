@@ -269,15 +269,15 @@ command = pp.Literal("select") + modid + fullstop | \
           pp.Literal("set") + setoption + (pp.Literal("on") | pp.Literal("off")) + fullstop
 
 # System command
-systemcommand = pp.Group("in" + filename).addParseAction(lambda x: ast.InCommand(x[1])) | \
-                pp.Group("load" + filename).addParseAction(lambda x: ast.LoadCommand(x[1])) | \
+systemcommand = pp.Group("in" + filename).addParseAction(lambda x: ast.InCommand(x[0][1])) | \
+                pp.Group("load" + filename).addParseAction(lambda x: ast.LoadCommand(x[0][1])) | \
                 pp.Literal("quit").addParseAction(ast.QuitCommand) | \
                 pp.Literal("eof").addParseAction(ast.EofCommand) | \
                 pp.Literal("popd").addParseAction(ast.PopDCommand) | \
                 pp.Literal("pwd").addParseAction(ast.PwdCommand) | \
-                pp.Group("cd" + directory).addParseAction(lambda x: ast.CdCommand(x[1])) |\
-                pp.Group("push" + directory).addParseAction(lambda x: ast.PushCommand(x[1])) | \
-                pp.Group("ls" + pp.Optional(lsflags) + pp.Optional(directory)).addParseAction(lambda x: ast.LsCommand(x[1], x[2]))
+                pp.Group("cd" + directory).addParseAction(lambda x: ast.CdCommand(x[0][1])) |\
+                pp.Group("push" + directory).addParseAction(lambda x: ast.PushCommand(x[0][1])) | \
+                pp.Group("ls" + pp.Optional(lsflags) + pp.Optional(directory)).addParseAction(lambda x: ast.LsCommand(x[0][1], x[0][2]))
 
 # Maude top
 maudetop = pp.OneOrMore(systemcommand | command | debuggercommand | module | theory | view)
