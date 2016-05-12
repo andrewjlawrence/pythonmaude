@@ -268,19 +268,18 @@ command = pp.Literal("select") + modid + fullstop | \
           pp.Literal("do") + pp.Literal("clear") + pp.Literal("memo") + fullstop | \
           pp.Literal("set") + setoption + (pp.Literal("on") | pp.Literal("off")) + fullstop
 
+space = pp.Literal(" ").leaveWhitespace().suppress()
+
 # System command
-systemcommand = pp.Group("in" + filename).addParseAction(lambda x: ast.InCommand(x[0][1])) | \
-                pp.Group("load" + filename).addParseAction(lambda x: ast.LoadCommand(x[0][1])) | \
-                pp.Literal("quit").addParseAction(ast.QuitCommand) | \
-                pp.Literal("eof").addParseAction(ast.EofCommand) | \
-                pp.Literal("popd").addParseAction(ast.PopDCommand) | \
-                pp.Literal("pwd").addParseAction(ast.PwdCommand) | \
-                pp.Group("cd" + directory).addParseAction(lambda x: ast.CdCommand(x[0][1])) |\
-                pp.Group("push" + directory).addParseAction(lambda x: ast.PushCommand(x[0][1])) | \
-                pp.Group("ls" + pp.Optional(lsflags) + pp.Optional(directory)).addParseAction(lambda x: ast.LsCommand(x[0][1], x[0][2]))
+systemcommand = pp.Group(pp.Literal("in").suppress() + space + filename).addParseAction(lambda x: ast.InCommand(x[0][0])) | \
+                pp.Group(pp.Literal("load").suppress() + space + filename).addParseAction(lambda x: ast.LoadCommand(x[0][0])) | \
+                pp.Literal("quit").suppress().addParseAction(ast.QuitCommand) | \
+                pp.Literal("eof").suppress().addParseAction(ast.EofCommand) | \
+                pp.Literal("popd").suppress().addParseAction(ast.PopDCommand) | \
+                pp.Literal("pwd").suppress().addParseAction(ast.PwdCommand) | \
+                pp.Group(pp.Literal("cd").suppress() + space + directory).addParseAction(lambda x: ast.CdCommand(x[0][0])) |\
+                pp.Group(pp.Literal("push").suppress() + space + directory).addParseAction(lambda x: ast.PushCommand(x[0][0])) | \
+                pp.Group(pp.Literal("ls").suppress() + space + pp.Optional(lsflags) + space + pp.Optional(directory)).addParseAction(lambda x: ast.LsCommand(x[0][0], x[0][0]))
 
 # Maude top
 maudetop = pp.OneOrMore(systemcommand | command | debuggercommand | module | theory | view)
-
-test = "in meh"
-print (test, "->", systemcommand.parseString(test))
