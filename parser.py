@@ -2,7 +2,6 @@
 import pyparsing as pp
 import ast as ast
 
-
 # Label identifier. Simple identifier
 labelid = pp.Word(pp.alphanums)
 

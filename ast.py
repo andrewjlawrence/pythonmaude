@@ -1,4 +1,16 @@
 # Copyright 2016 Andrew Lawrence
+from enum import Enum
+
+class CommandType(Enum):
+    incommand = 1
+    loadcommand = 2
+    quitcommand = 3
+    eofcommand = 4
+    popdcommand = 5
+    pwdcommand = 6
+    cdcommand = 7
+    pushcommand = 8
+    lscommand = 9
 
 # Abstract syntax tree
 class AST:
@@ -12,37 +24,48 @@ class InCommand(AST):
         return self.filename == other.filename
     def __ne__(self, other):
         return not self.__eq__(other)
+    def commandtype(self):
+        return CommandType.incommand
 
 class LoadCommand(AST):
     def __init__(self, filename):
         self.filename = filename
     def __eq__(self, other):
         return self.filename == other.filename
+    def commandtype(self):
+        return CommandType.loadcommand
 
 class QuitCommand(AST):
-    pass
+    def commandtype(self):
+        return CommandType.quitcommand
+
 class EofCommand(AST):
-    pass
+    def commandtype(self):
+        return CommandType.eofcommand
 
 class PopDCommand(AST):
-    pass
+    def commandtype(self):
+        return CommandType.popdcommand
 
 class PwdCommand(AST):
-    pass
+    def commandtype(self):
+        return CommandType.pwdcommand
 
 class CdCommand(AST):
     def __init__(self, directory):
         self.directory = directory
     def __eq__(self, other):
         return self.filename == other.filename
-
+    def commandtype(self):
+        return CommandType.cdcommand
 
 class PushCommand(AST):
     def __init__(self, directory):
         self.directory = directory
     def __eq__(self, other):
         return self.filename == other.filename
-
+    def commandtype(self):
+        return CommandType.pushcommand
 
 class LsCommand(AST):
     def __init__(self, lsflags="", directory=""):
@@ -50,4 +73,5 @@ class LsCommand(AST):
         self.directory = directory
     def __eq__(self, other):
         return self.directory == other.directory and self.lsflags == other.lsflags
-
+    def commandtype(self):
+        return CommandType.lscommand
