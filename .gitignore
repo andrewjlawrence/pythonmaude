@@ -12,3 +12,7 @@
 __pycache__/ast.cpython-35.pyc
 
 *.pyc
+
+*.pyc
+
+__pycache__/parser.cpython-35.pyc
