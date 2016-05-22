@@ -34,6 +34,8 @@ class TestSystemCommands(unittest.TestCase):
     def testPushCommand(self):
         self.assertEqual(parser.systemcommand.parseString("push meh")[0], ast.PushCommand("meh"))
     def testLsCommand(self):
+        self.assertEqual(parser.systemcommand.parseString("ls")[0], ast.LsCommand(""))
+    def testLsCommand2(self):
         self.assertEqual(parser.systemcommand.parseString("ls meh")[0], ast.LsCommand("meh"))
     def testCommandFailure(self):
         self.assert_(failureFun("meh"))

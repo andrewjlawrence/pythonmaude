@@ -20,7 +20,7 @@ class AST:
 class InCommand(AST):
     def __init__(self, filename):
         self.filename = filename
-    def __eq__(self, other):
+    def __eq__(self,other):
         return self.filename == other.filename
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -38,24 +38,33 @@ class LoadCommand(AST):
 class QuitCommand(AST):
     def commandtype(self):
         return CommandType.quitcommand
+    def __eq__(self,other):
+        return True
 
 class EofCommand(AST):
     def commandtype(self):
         return CommandType.eofcommand
+    def __eq__(self,other):
+        return True
 
 class PopDCommand(AST):
     def commandtype(self):
         return CommandType.popdcommand
+    def __eq__(self,other):
+        return True
+
 
 class PwdCommand(AST):
     def commandtype(self):
         return CommandType.pwdcommand
+    def __eq__(self,other):
+        return True
 
 class CdCommand(AST):
     def __init__(self, directory):
         self.directory = directory
     def __eq__(self, other):
-        return self.filename == other.filename
+        return self.directory == other.directory
     def commandtype(self):
         return CommandType.cdcommand
 
@@ -63,7 +72,7 @@ class PushCommand(AST):
     def __init__(self, directory):
         self.directory = directory
     def __eq__(self, other):
-        return self.filename == other.filename
+        return self.directory == other.directory
     def commandtype(self):
         return CommandType.pushcommand
 

@@ -56,7 +56,7 @@ linuxfilename = pp.Word(pp.alphanums)
 filename = pp.Word(pp.alphanums)
 
 # directory. OS dependent.
-directory = pp.Word(pp.alphanums)
+directory = pp.Word(pp.alphanums + "./")
 
 # LS flags. OS dependent.
 lsflags = pp.Word(pp.alphanums)
@@ -278,7 +278,7 @@ systemcommand = pp.Group(pp.Literal("in").suppress() + space + filename).addPars
                 pp.Literal("pwd").suppress().addParseAction(ast.PwdCommand) | \
                 pp.Group(pp.Literal("cd").suppress() + space + directory).addParseAction(lambda x: ast.CdCommand(x[0][0])) |\
                 pp.Group(pp.Literal("push").suppress() + space + directory).addParseAction(lambda x: ast.PushCommand(x[0][0])) | \
-                pp.Group(pp.Literal("ls").suppress() + space + pp.Optional(lsflags) + space + pp.Optional(directory)).addParseAction(lambda x: ast.LsCommand(x[0][0], x[0][0]))
+                pp.Group(pp.Literal("ls").suppress() + pp.Optional(space + lsflags) + pp.Optional(space + directory)).addParseAction(lambda x: ast.LsCommand(x[0][0], x[0][1]))
 
 # Maude top
 maudetop = pp.OneOrMore(systemcommand | command | debuggercommand | module | theory | view)
