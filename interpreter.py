@@ -1,12 +1,18 @@
 # Copyright 2016 Andrew Lawrence
-import ast,parser,pyparsing,sys,string
+import ast,maudeparser,pyparsing,sys,string
 import os
+
+directorystack = []
 
 def onQuit(quitcommand):
     sys.exit(0)
 
 def onChangeDirectory(cdcommand):
-    os.chdir(cdcommand.directory)
+    if (os.path.exists(cdcommand.path)):
+        os.chdir(cdcommand.path)
+    else:
+        print("Error invalid path")
+
 
 def onLoad(loadcommand):
     pass
@@ -18,7 +24,13 @@ def onPopd(popdcommand):
     pass
 
 def onLs(lscommand):
-    print(*os.listdir(os.getcwd()), sep='\n')
+    if lscommand.path:
+        if os.path.dirn(lscommand.path):
+            print(*os.listdir(lscommand.path), sep='\n')
+        else:
+            print("Error invalid path")
+    else:
+        print(*os.listdir(os.getcwd()), sep='\n')
 
 def onPwd(pwdcommand):
     print(os.getcwd())
@@ -56,6 +68,6 @@ class CommandEvaluator:
 evaluator = CommandEvaluator()
 while (True):
     try:
-        evaluator.eval(parser.systemcommand.parseString(input("Maude> "))[0])
+        evaluator.eval(maudeparser.systemcommand.parseString(input("Maude> "))[0])
     except pyparsing.ParseException:
         print("Unknown command")

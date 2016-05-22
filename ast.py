@@ -61,26 +61,26 @@ class PwdCommand(AST):
         return True
 
 class CdCommand(AST):
-    def __init__(self, directory):
-        self.directory = directory
+    def __init__(self, path):
+        self.path = path
     def __eq__(self, other):
-        return self.directory == other.directory
+        return self.path == other.path
     def commandtype(self):
         return CommandType.cdcommand
 
 class PushCommand(AST):
-    def __init__(self, directory):
-        self.directory = directory
+    def __init__(self, path):
+        self.path = path
     def __eq__(self, other):
-        return self.directory == other.directory
+        return self.path == other.path
     def commandtype(self):
         return CommandType.pushcommand
 
 class LsCommand(AST):
-    def __init__(self, lsflags="", directory=""):
+    def __init__(self, lsflags="", path=""):
         self.lsflags = lsflags
-        self.directory = directory
+        self.path = path
     def __eq__(self, other):
-        return self.directory == other.directory and self.lsflags == other.lsflags
+        return self.path == other.path and self.lsflags == other.lsflags
     def commandtype(self):
         return CommandType.lscommand
