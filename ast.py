@@ -16,6 +16,95 @@ class CommandType(Enum):
 class AST:
     pass
 
+# Identifier
+class Ident(AST):
+    def __init__(self, name):
+        self.name = name
+    def __eq__(self,other):
+        return self.name == other.name
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+# Literal
+class Literal(AST):
+    def __init__(self,value):
+        self.value = value
+
+
+# Attributes
+#
+class AttributeType(Enum):
+    assoc = 1
+    comm = 2
+    left = 3
+    right = 4
+    idem = 5
+    iter = 6
+    memo = 7
+    ditto = 8
+    config = 9
+    obj = 10
+    msg = 11
+    metadata = 12
+    strat = 13
+    poly = 14
+    frozen = 15
+    prec = 16
+    gather = 17
+    format = 18
+    special = 19
+
+class Attributes(AST):
+    def __init__(self, attributelist):
+        self.attributelist = attributelist
+
+class Attribute(AST):
+    def __init__(self, attributetype):
+        self.attributetype = attributetype
+
+class Left(Attribute):
+    def __init__(self,tree):
+        Attribute.__init__(self, AttributeType.left)
+        self.tree = tree
+
+class Right(Attribute):
+    def __init__(self,tree):
+        Attribute.__init__(self, AttributeType.right)
+        self.tree = tree
+
+class MetaData(Attribute):
+    def __init__(self,tree):
+        Attribute.__init__(self, AttributeType.metadata)
+        self.tree = tree
+
+class Strat(Attribute):
+    def __init__(self, listtree):
+        Attribute.__init__(self, AttributeType.strat)
+        self.listtree = listtree
+
+class Poly(Attribute):
+    def __init__(self, listtree):
+        Attribute.__init__(self, AttributeType.poly)
+        self.listtree = listtree
+
+class Prec(Attribute):
+    def __init__(self, tree):
+        Attribute.__init__(self, AttributeType.prec)
+        self.tree = tree
+
+class Gather(Attribute):
+    def __init__(self,listtree):
+        Attribute.__init__(self, AttributeType.gather)
+        self.listtree = listtree
+
+class Format(Attribute):
+    def __init__(self,listtree):
+        Attribute.__init__(self, AttributeType.format)
+        self.listtree = listtree
+
+
+
+
 # System commands
 class InCommand(AST):
     def __init__(self, filename):
@@ -52,7 +141,6 @@ class PopDCommand(AST):
         return CommandType.popdcommand
     def __eq__(self,other):
         return True
-
 
 class PwdCommand(AST):
     def commandtype(self):

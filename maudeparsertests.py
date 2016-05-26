@@ -13,7 +13,6 @@ def failureFun(string):
     return result
 
 class TestSystemCommands(unittest.TestCase):
-
     def testInCommand(self):
         self.assertEqual(systemcommand.parseString("in meh")[0], ast.InCommand("meh"))
     def testInCommandFailure(self):
@@ -40,6 +39,12 @@ class TestSystemCommands(unittest.TestCase):
         self.assertEqual(systemcommand.parseString("ls meh")[0], ast.LsCommand("meh"))
     def testCommandFailure(self):
         self.assert_(failureFun("meh"))
+
+from maudeparser import attr
+
+class TestAttribute(unittest.TestCase):
+    def testAssoc(self):
+        self.assertEqual(attr.parseString("[assoc]"), ast.Attribute(ast.AttributeType.assoc))
 
 if __name__ == '__main__':
     unittest.main()

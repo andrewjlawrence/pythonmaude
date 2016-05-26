@@ -77,11 +77,11 @@ statementattr = "[" + pp.OneOrMore(pp.Literal("nonexec") |
                                    pp.Group(pp.Literal("print") + pp.ZeroOrMore(printitem))) + "]"
 
 # Attribute
-attr = "[" + pp.OneOrMore(pp.Literal("assoc") |
-                               pp.Literal("comm") |
+attr = "[" + pp.OneOrMore(pp.Literal("assoc").suppress().addParseAction(ast.Attribute(ast.AttributeType.assoc)) |
+                          pp.Literal("comm").suppress().addParseAction(ast.Attribute(ast.AttributeType.comm)) |
                                pp.Group(pp.Optional(pp.Literal("left") | pp.Literal("right")) + "id:" + term )|
-                               pp.Literal("idem") |
-                               pp.Literal("iter") |
+                               pp.Literal("idem").suppress().addParseAction(ast.AttributeType.idem) |
+                               pp.Literal("iter").suppress().addParseAction(ast.AttributeType.iter) |
                                pp.Literal("memo") |
                                pp.Literal("ditto") |
                                pp.Literal("config") |
