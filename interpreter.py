@@ -1,62 +1,73 @@
 # Copyright 2016 Andrew Lawrence
-import ast,maudeparser,pyparsing,sys,string
+import ast, maudeparser, pyparsing, sys, string
 import os
 
 directorystack = []
 
-def onQuit(quitcommand):
+
+def onquit(quitcommand):
     sys.exit(0)
 
-def onChangeDirectory(cdcommand):
-    if (os.path.exists(cdcommand.path)):
+
+def onchangedirectory(cdcommand):
+    if os.path.exists(cdcommand.path):
         os.chdir(cdcommand.path)
     else:
         print("Error invalid path")
 
 
-def onLoad(loadcommand):
+def onload(loadcommand):
     pass
 
-def onIn(incommand):
+
+def onin(incommand):
     pass
 
-def onPopd(popdcommand):
+
+def onpopd(popdcommand):
     pass
 
-def onLs(lscommand):
+
+def onls(lscommand):
     if lscommand.path:
-        if os.path.dirn(lscommand.path):
+        if os.path.dirname(lscommand.path):
             print(*os.listdir(lscommand.path), sep='\n')
         else:
             print("Error invalid path")
     else:
         print(*os.listdir(os.getcwd()), sep='\n')
 
-def onPwd(pwdcommand):
+
+def onpwd(pwdcommand):
     print(os.getcwd())
 
-def onPushD(pushdcommand):
+
+def onpushd(pushdcommand):
     pass
 
-def onEOF(eofcommand):
+
+def oneof(eofcommand):
     pass
+
 
 def unimplemented():
     print("Unimplemented")
 
-case = {ast.CommandType.quitcommand: onQuit,
-        ast.CommandType.cdcommand:   onChangeDirectory,
-        ast.CommandType.loadcommand: onLoad,
-        ast.CommandType.incommand:   onIn,
-        ast.CommandType.popdcommand: onPopd,
-        ast.CommandType.pwdcommand:  onPwd,
-        ast.CommandType.pushcommand: onPushD,
-        ast.CommandType.lscommand:   onLs,
-        ast.CommandType.eofcommand:  onEOF}
+case = {ast.CommandType.quitcommand: onquit,
+        ast.CommandType.cdcommand:   onchangedirectory,
+        ast.CommandType.loadcommand: onload,
+        ast.CommandType.incommand:   onin,
+        ast.CommandType.popdcommand: onpopd,
+        ast.CommandType.pwdcommand:  onpwd,
+        ast.CommandType.pushcommand: onpushd,
+        ast.CommandType.lscommand:   onls,
+        ast.CommandType.eofcommand:  oneof}
+
 
 class CommandEvaluator:
     def __init__(self):
         self.lasterror = ""
+
     def eval(self, x):
         try:
             case[x.commandtype()](x)
@@ -66,7 +77,7 @@ class CommandEvaluator:
             self.lasterror = ""
 
 evaluator = CommandEvaluator()
-while (True):
+while True:
     try:
         evaluator.eval(maudeparser.systemcommand.parseString(input("Maude> "))[0])
     except pyparsing.ParseException:
