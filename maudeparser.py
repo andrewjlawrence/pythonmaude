@@ -81,9 +81,15 @@ def idparseaction(direction, term):
     if direction == "left":
         return ast.LeftID(term)
     elif direction == "right":
-        return
+        return ast.RightID(term)
     else:
         raise pp.ParseException("invalid direction in ID attribute")
+
+
+bracketnatlist = pp.Literal("(").suppress() + pp.OneOrMore(nat) + pp.Literal(")").suppress()
+brackettokenlist = pp.Literal("(").suppress() + pp.OneOrMore(token) + pp.Literal(")").suppress()
+brackethooklist = pp.Literal("(").suppress() + pp.OneOrMore(hook) + pp.Literal(")").suppress()
+bracketgatherlist = pp.Literal("(").suppress() + pp.OneOrMore(pp.Literal("e") | pp.Literal("E") | pp.Literal("&")) + pp.Literal(")").suppress()
 
 # Attribute
 attr = pp.Literal("[").suppress() + pp.OneOrMore(pp.Literal("assoc").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.assoc)) |
@@ -95,16 +101,15 @@ attr = pp.Literal("[").suppress() + pp.OneOrMore(pp.Literal("assoc").suppress().
                           pp.Literal("ditto").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.ditto)) |
                           pp.Literal("config").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.config)) |
                           pp.Literal("obj").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
-                          pp.Literal("msg").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
-                          pp.Group(pp.Literal("metadata") + stringid).suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
-                          pp.Group(pp.Literal("strat") + "(" + pp.OneOrMore(nat) + ")").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
-                          pp.Group(pp.Literal("poly") + "(" + pp.OneOrMore(nat) + ")").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
-                          pp.Group(pp.Literal("frozen") + pp.Optional("(" + pp.OneOrMore(nat) + ")")).suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
-                          pp.Group(pp.Literal("prec") + nat).suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
-                          pp.Group(pp.Literal("gather") + "(" + pp.OneOrMore(
-                              pp.Literal("e") | pp.Literal("E") | pp.Literal("&")) + ")").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
-                          pp.Group(pp.Literal("format") + "(" + pp.OneOrMore(token) + ")").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
-                          pp.Group(pp.Literal("special") + "(" + pp.OneOrMore(hook) + ")").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj))) \
+                          pp.Literal("msg").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.msg)) |
+                          pp.Group(pp.Literal("metadata").suppress() + stringid).addParseAction(lambda x: ast.MetaData(x[0][0])) |
+                          pp.Group(pp.Literal("strat").suppress() + bracketnatlist).addParseAction(lambda x: ast.Strat(x[0][0])) |
+                          pp.Group(pp.Literal("poly").suppress() + bracketnatlist).addParseAction(lambda x: ast.Poly(x[0][0])) |
+                          pp.Group(pp.Literal("frozen").suppress() + pp.Optional(bracketnatlist)).addParseAction(lambda x: ast.Frozen(x[0][0])) |
+                          pp.Group(pp.Literal("prec").suppress() + nat).addParseAction(lambda x: ast.Prec(x[0][0])) |
+                          pp.Group(pp.Literal("gather").suppress() + bracketgatherlist).addParseAction(lambda x: ast.Gather(x[0][0])) |
+                          pp.Group(pp.Literal("format").suppress() + brackettokenlist).addParseAction(lambda x: ast.Format(x[0][0])) |
+                          pp.Group(pp.Literal("special").suppress() + brackethooklist).addParseAction(lambda x: ast.Special(x[0][0]))) \
        + pp.Literal("]").suppress()
 
 # Sort

@@ -57,7 +57,6 @@ class TestSystemCommands(unittest.TestCase):
 
 class TestAttribute(unittest.TestCase):
     def testAssoc(self):
-        print(mp.attr.parseString("[assoc]")[0])
         self.assertEqual(mp.attr.parseString("[assoc]")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
 
     def testComm(self):
@@ -70,8 +69,59 @@ class TestAttribute(unittest.TestCase):
         self.assert_(failureFun("[commassoc]"))
 
     def testRightID(self):
-        self.assertEqual(mp.attr.parseString("[right id: meh meh]"), ast.RightID("meh meh"))
+        self.assertEqual(mp.attr.parseString("[right id: meh meh]")[0], ast.RightID("meh meh"))
 
+    def testLeftID(self):
+        self.assertEqual(mp.attr.parseString("[left id: meh meh]")[0], ast.LeftID("meh meh"))
+
+    def testIdem(self):
+        self.assertEqual(mp.attr.parseString("[idem]")[0], ast.MaudeAttribute(ast.AttributeType.idem))
+
+    def testIter(self):
+        self.assertEqual(mp.attr.parseString("[iter]")[0], ast.MaudeAttribute(ast.AttributeType.iter))
+
+    def testMemo(self):
+        self.assertEqual(mp.attr.parseString("[memo]")[0], ast.MaudeAttribute(ast.AttributeType.memo))
+
+    def testDitto(self):
+        self.assertEqual(mp.attr.parseString("[ditto]")[0], ast.MaudeAttribute(ast.AttributeType.ditto))
+
+    def testConfig(self):
+        self.assertEqual(mp.attr.parseString("[config]")[0], ast.MaudeAttribute(ast.AttributeType.config))
+
+    def testObj(self):
+        self.assertEqual(mp.attr.parseString("[obj]")[0], ast.MaudeAttribute(ast.AttributeType.obj))
+
+    def testMsg(self):
+        self.assertEqual(mp.attr.parseString("[msg]")[0], ast.MaudeAttribute(ast.AttributeType.msg))
+
+    def testMetadata(self):
+        self.assertEqual(mp.attr.parseString("[metadata \"meh\"]")[0], ast.MetaData("meh"))
+
+    def testStrat(self):
+        self.assertEqual(mp.attr.parseString("[strat (0 1 2)]")[0], ast.Strat([0,1,2]))
+
+    def testPoly(self):
+        self.assertEqual(mp.attr.parseString("[poly (0 1 2)]"), ast.Poly([0,1,2]))
+
+    def testFrozen(self):
+        ###self.assertEqual(mp.attr.parseString("[frozen]"), ast.Frozen([]))
+        self.assertEqual(mp.attr.parseString("[frozen (0 1 2)]"), ast.Frozen([0,1,2]))
+
+    def testPrec(self):
+        self.assertEqual(mp.attr.parseString("[prec 0]"), ast.Prec(0))
+
+    def testPrecNoNum(self):
+        self.assert_(failureFun("[prec]"))
+
+    def testGather(self):
+        self.assertEqual(mp.attr.parseString("[gather (e)]"), ast.Gather("e"))
+
+    def testFormat(self):
+        self.assertEqual(mp.attr.parseString("[format (meh)]"), ast.Format("meh"))
+
+    def testSpecial(self):
+        self.assertEqual(mp.attr.parseString("[special (meh)]"), ast.Special("meh"))
 
 if __name__ == '__main__':
     unittest.main()

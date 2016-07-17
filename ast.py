@@ -95,11 +95,16 @@ class LeftID(MaudeAttribute):
         MaudeAttribute.__init__(self, AttributeType.left)
         self.tree = tree
 
+    def __eq__(self, other):
+        return self.attrtype == other.attrtype and self.tree == other.tree
 
 class RightID(MaudeAttribute):
     def __init__(self, tree):
         MaudeAttribute.__init__(self, AttributeType.right)
         self.tree = tree
+
+    def __eq__(self, other):
+        return self.attrtype == other.attrtype and self.tree == other.tree
 
 
 class MetaData(MaudeAttribute):
@@ -107,17 +112,34 @@ class MetaData(MaudeAttribute):
         MaudeAttribute.__init__(self, AttributeType.metadata)
         self.tree = tree
 
+    def __eq__(self, other):
+        return self.attrtype == other.attrtype and self.tree == other.tree
+
 
 class Strat(MaudeAttribute):
     def __init__(self, listtree):
         MaudeAttribute.__init__(self, AttributeType.strat)
         self.listtree = listtree
 
+    def __eq__(self, other):
+        return self.attrtype == other.attrtype and self.listtree == other.listtree
 
 class Poly(MaudeAttribute):
     def __init__(self, listtree):
         MaudeAttribute.__init__(self, AttributeType.poly)
         self.listtree = listtree
+
+    def __eq__(self, other):
+        return self.attrtype == other.attrtype and self.listtree == other.listtree
+
+
+class Frozen(MaudeAttribute):
+    def __init__(self, listtree):
+        MaudeAttribute.__init__(self, AttributeType.frozen)
+        self.listtree = listtree
+
+    def __eq__(self, other):
+        return self.attrtype == other.attrtype and self.listtree == other.listtree
 
 
 class Prec(MaudeAttribute):
@@ -125,11 +147,17 @@ class Prec(MaudeAttribute):
         MaudeAttribute.__init__(self, AttributeType.prec)
         self.tree = tree
 
+    def __eq__(self, other):
+        return self.attrtype == other.attrtype and self.tree == other.tree
+
 
 class Gather(MaudeAttribute):
     def __init__(self, listtree):
         MaudeAttribute.__init__(self, AttributeType.gather)
         self.listtree = listtree
+
+    def __eq__(self, other):
+        return self.attrtype == other.attrtype and self.listtree == other.listtree
 
 
 class Format(MaudeAttribute):
@@ -137,6 +165,17 @@ class Format(MaudeAttribute):
         MaudeAttribute.__init__(self, AttributeType.format)
         self.listtree = listtree
 
+    def __eq__(self, other):
+        return self.attrtype == other.attrtype and self.listtree == other.listtree
+
+
+class Special(MaudeAttribute):
+    def __init__(self, listtree):
+        MaudeAttribute.__init__(self, AttributeType.special)
+        self.listtree = listtree
+
+    def __eq__(self, other):
+        return self.attrtype == other.attrtype and self.listtree == other.listtree
 
 # System commands
 class InCommand(AST):
