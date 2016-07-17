@@ -69,6 +69,9 @@ class TestAttribute(unittest.TestCase):
     def testCommAssocNoSpace(self):
         self.assert_(failureFun("[commassoc]"))
 
+    def testRightID(self):
+        self.assertEqual(mp.attr.parseString("[right id: meh meh]"), ast.RightID("meh meh"))
+
 
 if __name__ == '__main__':
     unittest.main()

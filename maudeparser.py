@@ -10,7 +10,7 @@ labelid = pp.Word(pp.alphanums)
 nat = pp.Word(pp.nums)
 
 # Token
-token = pp.Word(pp.alphanums + '!"#$%&*+,-./:;<=>?@[\\]^_`{|}~')
+token = pp.Word(pp.alphanums + '!"#$%&*+,-./:;<=>?@^_`{|}~')
 
 # Token string definition
 tokenstring = pp.Forward()
@@ -77,10 +77,18 @@ statementattr = "[" + pp.OneOrMore(pp.Literal("nonexec") |
                                    pp.Group(pp.Literal("label") + labelid) |
                                    pp.Group(pp.Literal("print") + pp.ZeroOrMore(printitem))) + "]"
 
+def idparseaction(direction, term):
+    if direction == "left":
+        return ast.LeftID(term)
+    elif direction == "right":
+        return
+    else:
+        raise pp.ParseException("invalid direction in ID attribute")
+
 # Attribute
 attr = pp.Literal("[").suppress() + pp.OneOrMore(pp.Literal("assoc").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.assoc)) |
                           pp.Literal("comm").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.comm)) |
-                          pp.Group(pp.Optional(pp.Literal("left") | pp.Literal("right")) + pp.Literal("id:") + term).suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.assoc)) |
+                          pp.Group(pp.Optional(pp.Literal("left") | pp.Literal("right")) + pp.Literal("id:").suppress() + term).addParseAction(lambda x: idparseaction(x[0][0], x[0][1])) |
                           pp.Literal("idem").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.idem)) |
                           pp.Literal("iter").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.iter)) |
                           pp.Literal("memo").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.memo)) |

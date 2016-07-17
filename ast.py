@@ -90,13 +90,13 @@ class MaudeAttribute(AST):
         return "From str method of MaudeAttribute: attrtype is %s" % (self.attrtype.value)
 
 
-class Left(MaudeAttribute):
+class LeftID(MaudeAttribute):
     def __init__(self, tree):
         MaudeAttribute.__init__(self, AttributeType.left)
         self.tree = tree
 
 
-class Right(MaudeAttribute):
+class RightID(MaudeAttribute):
     def __init__(self, tree):
         MaudeAttribute.__init__(self, AttributeType.right)
         self.tree = tree
