@@ -69,18 +69,25 @@ class Attributes(AST):
 
     def __eq__(self, other):
         if type(other) is type(self):
-            return self.__dict__ == other.__dict__
+            return self.attributelist == other.attributelist
         return False
 
 
 class MaudeAttribute(AST):
-    def __init__(self, intype: AttributeType):
+    def __init__(self, intype):
         self.attrtype = intype
 
     def __eq__(self, other):
-        if type(other) is type(self):
-            return self.__dict__ == other.__dict__
-        return False
+        return self.attrtype == other.attrtype
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<MaudeAttribute attrtype:%s>" % (self.attrtype.value)
+
+    def __str__(self):
+        return "From str method of MaudeAttribute: attrtype is %s" % (self.attrtype.value)
 
 
 class Left(MaudeAttribute):

@@ -80,23 +80,24 @@ statementattr = "[" + pp.OneOrMore(pp.Literal("nonexec") |
 # Attribute
 attr = pp.Literal("[").suppress() + pp.OneOrMore(pp.Literal("assoc").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.assoc)) |
                           pp.Literal("comm").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.comm)) |
-                          pp.Group(pp.Optional(pp.Literal("left") | pp.Literal("right")) + "id:" + term) |
+                          pp.Group(pp.Optional(pp.Literal("left") | pp.Literal("right")) + pp.Literal("id:") + term).suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.assoc)) |
                           pp.Literal("idem").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.idem)) |
                           pp.Literal("iter").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.iter)) |
                           pp.Literal("memo").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.memo)) |
                           pp.Literal("ditto").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.ditto)) |
                           pp.Literal("config").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.config)) |
                           pp.Literal("obj").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
-                          pp.Literal("msg") |
-                          pp.Group(pp.Literal("metadata") + stringid) |
-                          pp.Group(pp.Literal("strat") + "(" + pp.OneOrMore(nat) + ")") |
-                          pp.Group(pp.Literal("poly") + "(" + pp.OneOrMore(nat) + ")") |
-                          pp.Literal("frozen") + pp.Optional("(" + pp.OneOrMore(nat) + ")") |
-                          pp.Literal("prec") + nat |
-                          pp.Literal("gather") + "(" + pp.OneOrMore(
-                              pp.Literal("e") | pp.Literal("E") | pp.Literal("&")) + ")" |
-                          pp.Literal("format") + "(" + pp.OneOrMore(token) + ")" |
-                          pp.Literal("special") + "(" + pp.OneOrMore(hook) + ")") + pp.Literal("]").suppress()
+                          pp.Literal("msg").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
+                          pp.Group(pp.Literal("metadata") + stringid).suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
+                          pp.Group(pp.Literal("strat") + "(" + pp.OneOrMore(nat) + ")").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
+                          pp.Group(pp.Literal("poly") + "(" + pp.OneOrMore(nat) + ")").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
+                          pp.Group(pp.Literal("frozen") + pp.Optional("(" + pp.OneOrMore(nat) + ")")).suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
+                          pp.Group(pp.Literal("prec") + nat).suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
+                          pp.Group(pp.Literal("gather") + "(" + pp.OneOrMore(
+                              pp.Literal("e") | pp.Literal("E") | pp.Literal("&")) + ")").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
+                          pp.Group(pp.Literal("format") + "(" + pp.OneOrMore(token) + ")").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj)) |
+                          pp.Group(pp.Literal("special") + "(" + pp.OneOrMore(hook) + ")").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.obj))) \
+       + pp.Literal("]").suppress()
 
 # Sort
 sort = pp.Forward()
@@ -296,4 +297,3 @@ systemcommand = pp.Group(pp.Literal("in").suppress() + space + filename).addPars
 # Maude top
 maudetop = pp.OneOrMore(systemcommand | command | debuggercommand | module | theory | view)
 
-print(attr.parseString("[assoc]"))

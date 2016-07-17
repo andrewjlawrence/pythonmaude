@@ -57,13 +57,14 @@ class TestSystemCommands(unittest.TestCase):
 
 class TestAttribute(unittest.TestCase):
     def testAssoc(self):
-        self.assertEqual(mp.attr.parseString("[assoc]"), ast.MaudeAttribute(ast.AttributeType.assoc))
+        print(mp.attr.parseString("[assoc]")[0])
+        self.assertEqual(mp.attr.parseString("[assoc]")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
 
     def testComm(self):
-        self.assertEqual(mp.attr.parseString("[comm]"), ast.MaudeAttribute(ast.AttributeType.comm))
+        self.assertEqual(mp.attr.parseString("[comm]")[0], ast.MaudeAttribute(ast.AttributeType.comm))
 
     def testCommAssoc(self):
-        self.assertEqual(mp.attr.parseString("[comm assoc]"), ast.MaudeAttribute(ast.AttributeType.comm))
+        self.assertEqual(mp.attr.parseString("[comm assoc]").asList(), [ast.MaudeAttribute(ast.AttributeType.comm), ast.MaudeAttribute(ast.AttributeType.assoc)])
 
     def testCommAssocNoSpace(self):
         self.assert_(failureFun("[commassoc]"))
