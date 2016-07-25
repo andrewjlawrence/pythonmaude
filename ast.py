@@ -36,6 +36,26 @@ class Literal(AST):
     def __init__(self, value):
         self.value = value
 
+# Hooks
+class Hook(AST):
+    def __init__(self, name, tree):
+        self.name = name
+        self.tree = tree
+
+
+class IDHook(Hook):
+    def __init__(self, name, tree):
+        Hook.__init__(self, name, tree)
+
+
+class OPHook(Hook):
+    def __init__(self, name, tree):
+        Hook.__init__(self, name, tree)
+
+
+class TermHook(Hook):
+    def __init__(self, name, tree):
+        Hook.__init__(self, name, tree)
 
 #
 # Attributes
@@ -217,6 +237,12 @@ class Special(MaudeAttribute):
 
     def __eq__(self, other):
         return self.attrtype == other.attrtype and self.listtree == other.listtree
+
+    def __repr__(self):
+        return "<Special attrtype:%s, listtree: %s>" % (self.attrtype.value, self.listtree)
+
+    def __str__(self):
+        return "From str method of Special: attrtype is %s" % (self.attrtype.value)
 
 # System commands
 class InCommand(AST):

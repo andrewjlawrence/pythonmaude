@@ -63,8 +63,12 @@ path = pp.Word(pp.alphanums + "./")
 lsflags = pp.Word(pp.alphanums)
 
 # Hook.
-hook = (pp.Literal("id-hook") + token + pp.Optional(pp.Group("(" + tokenstring + ")"))) | \
-       ((pp.Literal("op-hook") | pp.Literal("term-hook")) + pp.Group("(" + tokenstring + ")"))
+# In the Maude Grammar it says that only an id-hook has a following token.
+# This seems to be wrong as there are examples of all hooks having following tokens.
+# There also seems to be detail missing
+hook = pp.Group(pp.Literal("id-hook").suppress() + pp.Optional(term) + pp.Group("(" + tokenstring + ")")).addParseAction(lambda x: ast.IDHook(x.asList()[0], x.asList()[1])) | \
+       pp.Group(pp.Literal("op-hook").suppress() + pp.Optional(term) + pp.Group("(" + tokenstring + ")")).addParseAction(lambda x: ast.OPHook(x.asList()[0], x.asList()[1])) | \
+       pp.Group(pp.Literal("term-hook").suppress() + pp.Optional(term) + pp.Group("(" + tokenstring + ")")).addParseAction(lambda x: ast.TermHook(x.asList()[0], x.asList()[1]))
 
 # Print Item.
 printitem = stringid | varid | varandsortid

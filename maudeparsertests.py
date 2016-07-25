@@ -69,7 +69,7 @@ class TestAttribute(unittest.TestCase):
         self.assert_(failureFun("[commassoc]"))
 
     def testRightID(self):
-        self.assertEqual(mp.attr.parseString("[right id: meh meh]")[0], ast.RightID("meh meh"))
+        self.assertEqual(mp.attr.parseString("[right id: meh meh]")[0], ast.RightID(["meh", "meh"]))
 
     def testLeftID(self):
         self.assertEqual(mp.attr.parseString("[left id: meh meh]")[0], ast.LeftID(["meh", "meh"]))
@@ -121,7 +121,7 @@ class TestAttribute(unittest.TestCase):
         self.assertEqual(mp.attr.parseString("[format (meh)]")[0], ast.Format("meh"))
 
     def testSpecial(self):
-        self.assertEqual(mp.attr.parseString("[special (meh)]")[0], ast.Special("meh"))
+        self.assertEqual(mp.attr.parseString("[special (id-hook meh (1))]")[0], ast.Special())
 
 if __name__ == '__main__':
     unittest.main()
