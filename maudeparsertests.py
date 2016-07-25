@@ -72,7 +72,7 @@ class TestAttribute(unittest.TestCase):
         self.assertEqual(mp.attr.parseString("[right id: meh meh]")[0], ast.RightID("meh meh"))
 
     def testLeftID(self):
-        self.assertEqual(mp.attr.parseString("[left id: meh meh]")[0], ast.LeftID("meh meh"))
+        self.assertEqual(mp.attr.parseString("[left id: meh meh]")[0], ast.LeftID(["meh", "meh"]))
 
     def testIdem(self):
         self.assertEqual(mp.attr.parseString("[idem]")[0], ast.MaudeAttribute(ast.AttributeType.idem))
@@ -96,32 +96,32 @@ class TestAttribute(unittest.TestCase):
         self.assertEqual(mp.attr.parseString("[msg]")[0], ast.MaudeAttribute(ast.AttributeType.msg))
 
     def testMetadata(self):
-        self.assertEqual(mp.attr.parseString("[metadata \"meh\"]")[0], ast.MetaData("meh"))
+        self.assertEqual(mp.attr.parseString("[metadata \"meh\"]")[0], ast.MetaData("\"meh\""))
 
     def testStrat(self):
         self.assertEqual(mp.attr.parseString("[strat (0 1 2)]")[0], ast.Strat([0,1,2]))
 
     def testPoly(self):
-        self.assertEqual(mp.attr.parseString("[poly (0 1 2)]"), ast.Poly([0,1,2]))
+        self.assertEqual(mp.attr.parseString("[poly (0 1 2)]")[0], ast.Poly([0,1,2]))
 
     def testFrozen(self):
         ###self.assertEqual(mp.attr.parseString("[frozen]"), ast.Frozen([]))
-        self.assertEqual(mp.attr.parseString("[frozen (0 1 2)]"), ast.Frozen([0,1,2]))
+        self.assertEqual(mp.attr.parseString("[frozen (0 1 2)]")[0], ast.Frozen([0, 1, 2]))
 
     def testPrec(self):
-        self.assertEqual(mp.attr.parseString("[prec 0]"), ast.Prec(0))
+        self.assertEqual(mp.attr.parseString("[prec 0]")[0], ast.Prec([0]))
 
     def testPrecNoNum(self):
         self.assert_(failureFun("[prec]"))
 
     def testGather(self):
-        self.assertEqual(mp.attr.parseString("[gather (e)]"), ast.Gather("e"))
+        self.assertEqual(mp.attr.parseString("[gather (e)]")[0], ast.Gather("e"))
 
     def testFormat(self):
-        self.assertEqual(mp.attr.parseString("[format (meh)]"), ast.Format("meh"))
+        self.assertEqual(mp.attr.parseString("[format (meh)]")[0], ast.Format("meh"))
 
     def testSpecial(self):
-        self.assertEqual(mp.attr.parseString("[special (meh)]"), ast.Special("meh"))
+        self.assertEqual(mp.attr.parseString("[special (meh)]")[0], ast.Special("meh"))
 
 if __name__ == '__main__':
     unittest.main()

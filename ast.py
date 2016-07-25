@@ -98,6 +98,13 @@ class LeftID(MaudeAttribute):
     def __eq__(self, other):
         return self.attrtype == other.attrtype and self.tree == other.tree
 
+    def __repr__(self):
+        return "<LeftID attrtype:%s, tree: %s>" % (self.attrtype.value, self.tree)
+
+    def __str__(self):
+        return "From str method of LeftID: attrtype is %s" % (self.attrtype.value)
+
+
 class RightID(MaudeAttribute):
     def __init__(self, tree):
         MaudeAttribute.__init__(self, AttributeType.right)
@@ -105,6 +112,12 @@ class RightID(MaudeAttribute):
 
     def __eq__(self, other):
         return self.attrtype == other.attrtype and self.tree == other.tree
+
+    def __repr__(self):
+        return "<RightID attrtype:%s, tree: %s>" % (self.attrtype.value, self.tree)
+
+    def __str__(self):
+        return "From str method of RightID: attrtype is %s" % (self.attrtype.value)
 
 
 class MetaData(MaudeAttribute):
@@ -115,6 +128,12 @@ class MetaData(MaudeAttribute):
     def __eq__(self, other):
         return self.attrtype == other.attrtype and self.tree == other.tree
 
+    def __repr__(self):
+        return "<MetaData attrtype:%s, tree: %s>" % (self.attrtype.value, self.tree)
+
+    def __str__(self):
+        return "From str method of MetaData: attrtype is %s" % (self.attrtype.value)
+
 
 class Strat(MaudeAttribute):
     def __init__(self, listtree):
@@ -124,6 +143,13 @@ class Strat(MaudeAttribute):
     def __eq__(self, other):
         return self.attrtype == other.attrtype and self.listtree == other.listtree
 
+    def __repr__(self):
+        return "<Strat attrtype:%s, listtree: %s>" % (self.attrtype.value, self.listtree)
+
+    def __str__(self):
+        return "From str method of Strat: attrtype is %s" % (self.attrtype.value)
+
+
 class Poly(MaudeAttribute):
     def __init__(self, listtree):
         MaudeAttribute.__init__(self, AttributeType.poly)
@@ -132,6 +158,12 @@ class Poly(MaudeAttribute):
     def __eq__(self, other):
         return self.attrtype == other.attrtype and self.listtree == other.listtree
 
+    def __repr__(self):
+        return "<Poly attrtype:%s, listtree: %s>" % (self.attrtype.value, self.listtree)
+
+    def __str__(self):
+        return "From str method of Poly: attrtype is %s" % (self.attrtype.value)
+
 
 class Frozen(MaudeAttribute):
     def __init__(self, listtree):
@@ -139,7 +171,16 @@ class Frozen(MaudeAttribute):
         self.listtree = listtree
 
     def __eq__(self, other):
-        return self.attrtype == other.attrtype and self.listtree == other.listtree
+        return MaudeAttribute.__eq__(self,other) and any(i in self.listtree for i in other.listtree)
+
+    def __ne__(self, other):
+        return not self.__eq__(self, other)
+
+    def __repr__(self):
+        return "<Frozen attrtype:%s, listtree: %s>" % (self.attrtype.value, self.listtree)
+
+    def __str__(self):
+        return "From str method of Frozen: attrtype is %s" % (self.attrtype.value)
 
 
 class Prec(MaudeAttribute):
