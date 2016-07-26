@@ -38,24 +38,61 @@ class Literal(AST):
 
 # Hooks
 class Hook(AST):
-    def __init__(self, name, tree):
-        self.name = name
+    def __init__(self, tree):
         self.tree = tree
+
+    def __eq__(self, other):
+        return self.tree == other.tree
+
+    def __repr__(self):
+        return "<Hook tree: %s>" % (self.tree)
+
+    def __str__(self):
+        return "From str method of Hook: tree is %s" % (self.tree)
 
 
 class IDHook(Hook):
     def __init__(self, name, tree):
-        Hook.__init__(self, name, tree)
+        self.name = name
+        Hook.__init__(self, tree)
+
+    def __eq__(self, other):
+        return Hook.__eq__(self,other) and self.name == other.name
+
+    def __repr__(self):
+        return "<IDHook name: %s, tree: %s>" % (self.name, self.tree)
+
+    def __str__(self):
+        return "From str method of IDHook: name is %s" % (self.name)
 
 
 class OPHook(Hook):
-    def __init__(self, name, tree):
-        Hook.__init__(self, name, tree)
+    def __init__(self, tree):
+        Hook.__init__(self, tree)
+
+    def __eq__(self, other):
+        return Hook.__eq__(self,other)
+
+    def __repr__(self):
+        return "<OPHook tree: %s>" % (self.tree)
+
+    def __str__(self):
+        return "From str method of OPHook: tree is %s" % (self.tree)
 
 
 class TermHook(Hook):
-    def __init__(self, name, tree):
-        Hook.__init__(self, name, tree)
+    def __init__(self, tree):
+        Hook.__init__(self, tree)
+
+    def __eq__(self, other):
+        return Hook.__eq__(self,other)
+
+    def __repr__(self):
+        return "<TermHook tree: %s>" % (self.tree)
+
+    def __str__(self):
+        return "From str method of TermHook: tree is %s" % (self.tree)
+
 
 #
 # Attributes

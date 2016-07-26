@@ -14,12 +14,14 @@ token = pp.Word(pp.alphanums + '!"#$%&*+,-./:;<=>?@^_`{|}~')
 
 # Token string definition
 tokenstring = pp.Forward()
-tokenstring << (token | pp.Group("(" + tokenstring + ")")) + pp.ZeroOrMore(tokenstring)
+tokenstring << pp.Group((token | pp.Group(pp.Literal("(").suppress() + tokenstring + pp.Literal(")").suppress())) + pp.ZeroOrMore(tokenstring)).addParseAction(lambda x: x.asList()[0])
 
 # Term definition
-term = pp.Forward()
-termbody = token | pp.Group("(" + term + ")")
-term << pp.Group(termbody + termbody + pp.ZeroOrMore(termbody))
+termaux = pp.Forward()
+termbody = token | pp.Group((pp.Literal("(").suppress() + termaux + pp.Literal(")").suppress()))
+termaux << pp.OneOrMore(termbody)
+term = pp.Group(termaux)
+
 
 # Operation identifier. Simple identifier with possible underscores.
 opid = pp.Word(pp.alphanums + "_")
@@ -62,13 +64,23 @@ path = pp.Word(pp.alphanums + "./")
 # LS flags. OS dependent.
 lsflags = pp.Word(pp.alphanums)
 
+# Auxilary Bracket Lists
+bracketnatlist = pp.Literal("(").suppress() + pp.OneOrMore(nat) + pp.Literal(")").suppress()
+brackettokenlist = pp.Literal("(").suppress() + pp.OneOrMore(token) + pp.Literal(")").suppress()
+bracketgatherlist = pp.Literal("(").suppress() + pp.OneOrMore(pp.Literal("e") | pp.Literal("E") | pp.Literal("&")) + pp.Literal(")").suppress()
+brackettokenstring = pp.Literal("(").suppress() + tokenstring + pp.Literal(")").suppress()
+
 # Hook.
 # In the Maude Grammar it says that only an id-hook has a following token.
 # This seems to be wrong as there are examples of all hooks having following tokens.
 # There also seems to be detail missing
-hook = pp.Group(pp.Literal("id-hook").suppress() + pp.Optional(term) + pp.Group("(" + tokenstring + ")")).addParseAction(lambda x: ast.IDHook(x.asList()[0], x.asList()[1])) | \
-       pp.Group(pp.Literal("op-hook").suppress() + pp.Optional(term) + pp.Group("(" + tokenstring + ")")).addParseAction(lambda x: ast.OPHook(x.asList()[0], x.asList()[1])) | \
-       pp.Group(pp.Literal("term-hook").suppress() + pp.Optional(term) + pp.Group("(" + tokenstring + ")")).addParseAction(lambda x: ast.TermHook(x.asList()[0], x.asList()[1]))
+hook = pp.Group(pp.Literal("id-hook").suppress() + pp.Optional(term) + brackettokenstring).addParseAction(lambda x: ast.IDHook("meh", ["meh"]))
+
+#| \
+#       pp.Group(pp.Literal("op-hook").suppress() + pp.Optional(term) + brackettokenstring).addParseAction(lambda x: ast.OPHook(x.asList())) | \
+#       pp.Group(pp.Literal("term-hook").suppress() + brackettokenstring).addParseAction(lambda x: ast.TermHook(x.asList()))
+
+brackethooklist = pp.Literal("(").suppress() + pp.OneOrMore(hook) + pp.Literal(")").suppress()
 
 # Print Item.
 printitem = stringid | varid | varandsortid
@@ -89,11 +101,6 @@ def idparseaction(direction, term):
     else:
         raise pp.ParseException("invalid direction in ID attribute")
 
-
-bracketnatlist = pp.Literal("(").suppress() + pp.OneOrMore(nat) + pp.Literal(")").suppress()
-brackettokenlist = pp.Literal("(").suppress() + pp.OneOrMore(token) + pp.Literal(")").suppress()
-brackethooklist = pp.Literal("(").suppress() + pp.OneOrMore(hook) + pp.Literal(")").suppress()
-bracketgatherlist = pp.Literal("(").suppress() + pp.OneOrMore(pp.Literal("e") | pp.Literal("E") | pp.Literal("&")) + pp.Literal(")").suppress()
 
 # Attribute
 attr = pp.Literal("[").suppress() + pp.OneOrMore(pp.Literal("assoc").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.assoc)) |

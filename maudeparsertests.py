@@ -55,6 +55,42 @@ class TestSystemCommands(unittest.TestCase):
         self.assert_(failureFun("meh"))
 
 
+class TestTokenString(unittest.TestCase):
+    def testTokenString(self):
+        self.assertEqual(mp.tokenstring.parseString("meh (meh meh)").asList(), ["meh", ["meh", "meh"]])
+
+    def testTokenString2(self):
+        self.assertEqual(mp.tokenstring.parseString("(meh meh) meh").asList(), [["meh", "meh"], "meh"])
+
+    def testTokenString3(self):
+        self.assertEqual(mp.tokenstring.parseString("meh (meh (meh))").asList(), ["meh", ["meh", ["meh"]]])
+
+    def testTokenString4(self):
+        self.assertEqual(mp.tokenstring.parseString("meh meh").asList(), ["meh", "meh"])
+
+
+class TestBracketTokenString(unittest.TestCase):
+    def testBracketTokenString(self):
+        self.assertEqual(mp.brackettokenstring.parseString("(meh (meh meh))").asList(), ["meh", ["meh", "meh"]])
+
+    def testBracketTokenString(self):
+        self.assertEqual(mp.brackettokenstring.parseString("(meh (meh (meh)))").asList(), ["meh", ["meh", ["meh"]]])
+
+class TestTerm(unittest.TestCase):
+    def testTerm(self):
+        self.assertEqual(mp.term.parseString("meh (meh)").asList(), ["meh", ["meh"]])
+
+class TestHook(unittest.TestCase):
+    def testIDHook(self):
+        self.assertEqual(mp.hook.parseString("id-hook meh (meh) (meh)"), ast.IDHook("meh", ["meh", "meh"]))
+
+    def testOPHook(self):
+        self.assertEqual(mp.hook.parseString("op-hook meh (meh meh)")[0], ast.OPHook(["meh", "meh"]))
+
+    def testTermHook(self):
+        self.assertEqual(mp.hook.parseString("term-hook meh (meh meh)")[0], ast.TermHook(["meh", "meh"]))
+
+
 class TestAttribute(unittest.TestCase):
     def testAssoc(self):
         self.assertEqual(mp.attr.parseString("[assoc]")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
@@ -121,7 +157,7 @@ class TestAttribute(unittest.TestCase):
         self.assertEqual(mp.attr.parseString("[format (meh)]")[0], ast.Format("meh"))
 
     def testSpecial(self):
-        self.assertEqual(mp.attr.parseString("[special (id-hook meh (1))]")[0], ast.Special())
+        self.assertEqual(mp.attr.parseString("[special (id-hook meh meh)]")[0], ast.Special(ast.IDHook("meh", 1)))
 
 if __name__ == '__main__':
     unittest.main()
