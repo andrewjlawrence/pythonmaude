@@ -127,7 +127,9 @@ class TestAttribute(unittest.TestCase):
         self.assertEqual(mp.attr.parseString("[right id: meh meh]")[0], ast.RightID(["meh", "meh"]))
 
     def testLeftID(self):
-        self.assertEqual(mp.attr.parseString("[left id: meh meh]")[0], ast.LeftID(["meh", "meh"]))
+        mp.attr.setDebug()
+        print(mp.attr.parseString("[left id: meh meh]")[0])
+        self.assertEqual(mp.attr.parseString("[left id: meh meh]")[0], ast.LeftID([ast.Token("meh"), ast.Token("meh")]))
 
     def testIdem(self):
         self.assertEqual(mp.attr.parseString("[idem]")[0], ast.MaudeAttribute(ast.AttributeType.idem))
@@ -173,7 +175,7 @@ class TestAttribute(unittest.TestCase):
         self.assertEqual(mp.attr.parseString("[gather (e)]")[0], ast.Gather("e"))
 
     def testFormat(self):
-        self.assertEqual(mp.attr.parseString("[format (meh)]")[0], ast.Format("meh"))
+        self.assertEqual(mp.attr.parseString("[format (meh)]")[0], ast.Format(ast.Token("meh")))
 
     def testSpecial(self):
         self.assertEqual(mp.attr.parseString("[special (id-hook meh meh)]")[0], ast.Special(ast.IDHook("meh", 1)))

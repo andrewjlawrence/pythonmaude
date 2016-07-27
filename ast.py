@@ -65,6 +65,19 @@ class TokenString(AST):
     def __str__(self):
         return "From str method of TokenString: listtree is %s" % (self.listtree)
 
+# Term
+class Term(AST):
+    def __init__(self, listtree):
+        self.listtree = listtree
+
+    def __eq__(self, other):
+        return self.listtree == other.listtree
+
+    def __repr__(self):
+        return "<Term listtree: %s>" % (self.listtree)
+
+    def __str__(self):
+        return "From str method of Term: listtree is %s" % (self.listtree)
 
 # Hooks
 class Hook(AST):
@@ -189,7 +202,7 @@ class LeftID(MaudeAttribute):
         return "<LeftID attrtype:%s, tree: %s>" % (self.attrtype.value, self.tree)
 
     def __str__(self):
-        return "From str method of LeftID: attrtype is %s" % (self.attrtype.value)
+        return "From str method of LeftID: attrtype is %s, tree is %s" % (self.attrtype.value, self.tree)
 
 
 class RightID(MaudeAttribute):
