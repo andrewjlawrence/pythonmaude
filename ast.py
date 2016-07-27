@@ -36,6 +36,7 @@ class Literal(AST):
     def __init__(self, value):
         self.value = value
 
+
 # Token
 class Token(AST):
     def __init__(self, token):

@@ -55,21 +55,26 @@ class TestSystemCommands(unittest.TestCase):
         self.assert_(failureFun("meh"))
 
 
+class TestToken(unittest.TestCase):
+    def testToken(self):
+        self.assertEqual(mp.token.parseString("meh")[0], ast.Token("meh"))
+
+
 class TestTokenString(unittest.TestCase):
     def testTokenString(self):
-        self.assertEqual(mp.tokenstring.parseString("meh (meh meh)").asList(), ["meh", ["meh", "meh"]])
+        self.assertEqual(mp.tokenstring.parseString("meh (meh meh)")[0], ast.TokenString([ast.Token("meh"), ast.TokenString([ast.Token("meh"), ast.Token("meh")])]))
 
     def testTokenString2(self):
-        self.assertEqual(mp.tokenstring.parseString("(meh meh) meh").asList(), [["meh", "meh"], "meh"])
+        self.assertEqual(mp.tokenstring.parseString("(meh meh) meh").asList(), ast.TokenString([ast.TokenString([ast.Token("meh"), ast.Token("meh")]), ast.Token("meh")]))
 
     def testTokenString3(self):
-        self.assertEqual(mp.tokenstring.parseString("meh (meh (meh))").asList(), ["meh", ["meh", ["meh"]]])
+        self.assertEqual(mp.tokenstring.parseString("meh (meh (meh))").asList(), ast.TokenString([ast.Token("meh"), ast.TokenString([ast.Token("meh"), ast.TokenString([ast.Token("meh")])])]))
 
     def testTokenString4(self):
-        self.assertEqual(mp.tokenstring.parseString("meh meh").asList(), ["meh", "meh"])
+        self.assertEqual(mp.tokenstring.parseString("meh meh").asList(), ast.TokenString([ast.Token("meh"), ast.Token("meh")]))
 
     def testTokenString5(self):
-        self.assertEqual(mp.tokenstring.parseString("(meh) (meh)").asList(), [["meh"],["meh"]])
+        self.assertEqual(mp.tokenstring.parseString("(meh) (meh)").asList(), ast.TokenString([ast.TokenString(["meh"]),ast.TokenString(["meh"])]))
 
 
 class TestBracketTokenString(unittest.TestCase):
@@ -86,12 +91,12 @@ class TestBracketTokenString(unittest.TestCase):
 
 class TestTokeBracketTokenString(unittest.TestCase):
     def testTokenBracketTokenString(self):
-        self.assertEqual(mp.tokenbrackettokenstring.parseString("meh ((meh)(meh))").asList(), ["meh",[["meh"],["meh"]]])
+        self.assertEqual(mp.tokenbrackettokenstring.parseString("meh ((meh)(meh))").asList(), [ast.Token("meh"),[[ast.Token("meh")],[ast.Token("meh")]]])
 
 
 class TestTerm(unittest.TestCase):
     def testTerm(self):
-        self.assertEqual(mp.term.parseString("meh (meh)").asList(), ["meh", ["meh"]])
+        self.assertEqual(mp.term.parseString("meh (meh)").asList(), [ast.Token("meh"), [ast.Token("meh")]])
 
 
 class TestHook(unittest.TestCase):

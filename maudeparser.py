@@ -68,7 +68,7 @@ brackettokenlist = pp.Literal("(").suppress() + pp.OneOrMore(token) + pp.Literal
 bracketgatherlist = pp.Literal("(").suppress() + pp.OneOrMore(pp.Literal("e") | pp.Literal("E") | pp.Literal("&")) + pp.Literal(")").suppress()
 brackettokenstring = pp.Literal("(").suppress() + tokenstring + pp.Literal(")").suppress()
 
-tokenbrackettokenstring = pp.Optional(token) + brackettokenstring
+tokenbrackettokenstring = pp.Optional(token, [""]) + brackettokenstring
 
 # Hook.
 # In the Maude Grammar it says that only an id-hook has a following token.
