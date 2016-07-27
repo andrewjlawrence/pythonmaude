@@ -10,12 +10,12 @@ labelid = pp.Word(pp.alphanums)
 nat = pp.Word(pp.nums).addParseAction(lambda x: int(x[0]))
 
 # Token
-token = pp.Word(pp.alphanums + '!"#$%&*+,-./:;<=>?@^_`{|}~')
+token = pp.Word(pp.alphanums + '!"#$%&*+,-./:;<=>?@^_`{|}~').addParseAction(lambda x: ast.Token(x.asList()[0]))
 
 # Token string definition
 # What about the empty token string?
 tokenstring = pp.Forward()
-tokenstring << pp.Group((token | pp.Group(pp.Literal("(").suppress() + tokenstring + pp.Literal(")").suppress())) + pp.ZeroOrMore(tokenstring)).addParseAction(lambda x: x.asList()[0])
+tokenstring << pp.Group((token | pp.Group(pp.Literal("(").suppress() + tokenstring + pp.Literal(")").suppress())) + pp.ZeroOrMore(tokenstring)).addParseAction(lambda x: ast.TokenString(x[0]))
 
 # Term definition
 term = pp.Forward()
@@ -68,11 +68,13 @@ brackettokenlist = pp.Literal("(").suppress() + pp.OneOrMore(token) + pp.Literal
 bracketgatherlist = pp.Literal("(").suppress() + pp.OneOrMore(pp.Literal("e") | pp.Literal("E") | pp.Literal("&")) + pp.Literal(")").suppress()
 brackettokenstring = pp.Literal("(").suppress() + tokenstring + pp.Literal(")").suppress()
 
+tokenbrackettokenstring = pp.Optional(token) + brackettokenstring
+
 # Hook.
 # In the Maude Grammar it says that only an id-hook has a following token.
 # This seems to be wrong as there are examples of all hooks having following tokens.
 # There also seems to be detail missing
-hook = pp.Group(pp.Literal("id-hook").suppress() + pp.Optional(term) + brackettokenstring).addParseAction(lambda x: ast.IDHook("meh", ["meh"]))
+hook = pp.Group(pp.Literal("id-hook").suppress() + pp.Optional(token) + brackettokenstring).addParseAction(lambda x: ast.IDHook(x[0] , x[0]))
 
 #| \
 #       pp.Group(pp.Literal("op-hook").suppress() + pp.Optional(term) + brackettokenstring).addParseAction(lambda x: ast.OPHook(x.asList())) | \

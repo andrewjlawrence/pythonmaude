@@ -36,6 +36,35 @@ class Literal(AST):
     def __init__(self, value):
         self.value = value
 
+# Token
+class Token(AST):
+    def __init__(self, token):
+        self.token = token
+
+    def __eq__(self, other):
+        return self.token == other.token
+
+    def __repr__(self):
+        return "<Token token: %s>" % (self.token)
+
+    def __str__(self):
+        return "From str method of Token: token is %s" % (self.token)
+
+
+class TokenString(AST):
+    def __init__(self, listtree):
+        self.listtree = listtree
+
+    def __eq__(self, other):
+        return self.listtree == other.listtree
+
+    def __repr__(self):
+        return "<TokenString listtree: %s>" % (self.listtree)
+
+    def __str__(self):
+        return "From str method of TokenString: listtree is %s" % (self.listtree)
+
+
 # Hooks
 class Hook(AST):
     def __init__(self, tree):
