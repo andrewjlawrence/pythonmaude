@@ -76,9 +76,11 @@ class TestBracketTokenString(unittest.TestCase):
     def testBracketTokenString(self):
         self.assertEqual(mp.brackettokenstring.parseString("(meh (meh (meh)))").asList(), ["meh", ["meh", ["meh"]]])
 
+
 class TestTerm(unittest.TestCase):
     def testTerm(self):
         self.assertEqual(mp.term.parseString("meh (meh)").asList(), ["meh", ["meh"]])
+
 
 class TestHook(unittest.TestCase):
     def testIDHook(self):

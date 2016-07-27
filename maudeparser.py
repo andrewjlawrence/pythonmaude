@@ -13,15 +13,13 @@ nat = pp.Word(pp.nums).addParseAction(lambda x: int(x[0]))
 token = pp.Word(pp.alphanums + '!"#$%&*+,-./:;<=>?@^_`{|}~')
 
 # Token string definition
+# What about the empty token string?
 tokenstring = pp.Forward()
 tokenstring << pp.Group((token | pp.Group(pp.Literal("(").suppress() + tokenstring + pp.Literal(")").suppress())) + pp.ZeroOrMore(tokenstring)).addParseAction(lambda x: x.asList()[0])
 
 # Term definition
-termaux = pp.Forward()
-termbody = token | pp.Group((pp.Literal("(").suppress() + termaux + pp.Literal(")").suppress()))
-termaux << pp.OneOrMore(termbody)
-term = pp.Group(termaux)
-
+term = pp.Forward()
+term << pp.Group((token | pp.Group(pp.Literal("(").suppress() + term + pp.Literal(")").suppress())) + pp.ZeroOrMore(term)).addParseAction(lambda x: x.asList()[0])
 
 # Operation identifier. Simple identifier with possible underscores.
 opid = pp.Word(pp.alphanums + "_")
