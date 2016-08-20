@@ -101,7 +101,7 @@ class TestTerm(unittest.TestCase):
 
 class TestHook(unittest.TestCase):
     def testIDHook(self):
-        self.assertEqual(mp.hook.parseString("id-hook meh ((meh) (meh))")[0], ast.IDHook("meh", ["meh", "meh"]))
+        self.assertEqual(mp.hook.parseString("id-hook meh ((meh) (meh))")[0], ast.IDHook(ast.Token("meh"), ast.TokenString([ast.Token("meh"), ast.Token("meh")])))
 
 #   def testOPHook(self):
 #       self.assertEqual(mp.hook.parseString("op-hook meh (meh meh)")[0], ast.OPHook(["meh", "meh"]))
