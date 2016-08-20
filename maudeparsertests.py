@@ -140,7 +140,7 @@ class TestAttribute(unittest.TestCase):
         self.assert_(failureFun("[commassoc]"))
 
     def testRightID(self):
-        self.assertEqual(mp.attr.parseString("[right id: meh meh]")[0], ast.ID(ast.IDDirection.right, ["meh", "meh"]))
+        self.assertEqual(mp.attr.parseString("[right id: meh meh]")[0], ast.ID(ast.IDDirection.right, [ast.Token("meh"), ast.Token("meh")]))
 
     def testLeftID(self):
         mp.attr.setDebug()

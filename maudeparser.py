@@ -15,7 +15,8 @@ token = pp.Word(pp.alphanums + '!"#$%&*+,-./:;<=>?@^_`{|}~').setName("token").ad
 # Token string definition
 # What about the empty token string?
 tokenstring = pp.Forward()
-tokenstring << pp.Group((token | pp.Group(pp.Literal("(").suppress() + tokenstring + pp.Literal(")").suppress())) + pp.ZeroOrMore(tokenstring)).setName("tokenstring").addParseAction(lambda x: ast.TokenString(x[0]))
+
+tokenstring << pp.Group((token | pp.Group(pp.Literal("(").suppress() + tokenstring + pp.Literal(")").suppress())) + pp.ZeroOrMore(tokenstring)).setName("tokenstring").addParseAction(lambda x: ast.TokenString(x.astList()[0]))
 
 # Term definition
 term = pp.Forward()
@@ -74,12 +75,13 @@ tokenbrackettokenstring = pp.Optional(token, [""]) + brackettokenstring
 # In the Maude Grammar it says that only an id-hook has a following token.
 # This seems to be wrong as there are examples of all hooks having following tokens.
 # There also seems to be detail missing
-hook = pp.Group(pp.Literal("id-hook").suppress() + pp.Optional(token) + brackettokenstring).addParseAction(lambda x: ast.IDHook(x[0] , x[0]))
 
-#| \
-#       pp.Group(pp.Literal("op-hook").suppress() + pp.Optional(term) + brackettokenstring).addParseAction(lambda x: ast.OPHook(x.asList())) | \
-#       pp.Group(pp.Literal("term-hook").suppress() + brackettokenstring).addParseAction(lambda x: ast.TermHook(x.asList()))
-
+idhook = pp.Group(pp.Literal("id-hook").suppress() + pp.Optional(token) + brackettokenstring).addParseAction(lambda x: ast.IDHook(x[0] , x[0]))
+ophook = pp.Group(pp.Literal("op-hook").suppress() + pp.Optional(term) + brackettokenstring).addParseAction(lambda x: ast.OPHook(x.asList()))
+termhook = pp.Group(pp.Literal("term-hook").suppress() + brackettokenstring).addParseAction(lambda x: ast.TermHook(x.asList()))
+hook = idhook | ophook | termhook
+#        | \
+#
 brackethooklist = pp.Literal("(").suppress() + pp.OneOrMore(hook) + pp.Literal(")").suppress()
 
 # Print Item.
@@ -93,19 +95,20 @@ statementattr = "[" + pp.OneOrMore(pp.Literal("nonexec") |
                                    pp.Group(pp.Literal("label") + labelid) |
                                    pp.Group(pp.Literal("print") + pp.ZeroOrMore(printitem))) + "]"
 
-def idparseaction(direction, term):
+def idparseaction(x):
+    direction = x[0]
     if direction == "left":
-        return ast.LeftID(term)
+        return ast.ID(ast.IDDirection.left, x.asList()[1:])
     elif direction == "right":
-        return ast.RightID(term)
+        return ast.ID(ast.IDDirection.right, x.asList()[1:])
     else:
-        raise pp.ParseException("invalid direction in ID attribute")
+        return ast.ID(direction, x.asList())
 
 # Attributes
 assocattr = pp.Literal("assoc").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.assoc))
 commattr = pp.Literal("comm").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.comm))
 idattr = pp.Group(pp.Optional(pp.Literal("left") | pp.Literal("right")) + pp.Literal("id:").suppress()
-                  + term).addParseAction(lambda x: idparseaction(x[0][0], x.asList()[0][1]))
+                  + term).addParseAction(lambda x: idparseaction(x[0]))
 idemattr = pp.Literal("idem").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.idem))
 iterattr = pp.Literal("iter").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.iter))
 memoattr = pp.Literal("memo").suppress().addParseAction(partial(ast.MaudeAttribute, ast.AttributeType.memo))
