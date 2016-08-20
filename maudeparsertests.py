@@ -110,6 +110,22 @@ class TestHook(unittest.TestCase):
 #        self.assertEqual(mp.hook.parseString("term-hook meh (meh meh)")[0], ast.TermHook(["meh", "meh"]))
 
 
+class TestAssocAttribute(unittest.TestCase):
+    def test(self):
+        self.assertEqual(mp.assocattr.parseString("assoc")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
+
+
+class TestIDAttribute(unittest.TestCase):
+    def testLeftIDAttr(self):
+        self.assertEqual(mp.assocattr.parseString("left id: meh meh")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
+
+    def testEmptyIDAttr(self):
+        self.assertEqual(mp.assocattr.parseString("id: meh meh")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
+
+    def testRightIDAttr(self):
+        self.assertEqual(mp.assocattr.parseString("right id: meh meh")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
+
+
 class TestAttribute(unittest.TestCase):
     def testAssoc(self):
         self.assertEqual(mp.attr.parseString("[assoc]")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
@@ -124,12 +140,12 @@ class TestAttribute(unittest.TestCase):
         self.assert_(failureFun("[commassoc]"))
 
     def testRightID(self):
-        self.assertEqual(mp.attr.parseString("[right id: meh meh]")[0], ast.RightID(["meh", "meh"]))
+        self.assertEqual(mp.attr.parseString("[right id: meh meh]")[0], ast.ID(ast.IDDirection.right, ["meh", "meh"]))
 
     def testLeftID(self):
         mp.attr.setDebug()
         print(mp.attr.parseString("[left id: meh meh]")[0])
-        self.assertEqual(mp.attr.parseString("[left id: meh meh]")[0], ast.LeftID([ast.Token("meh"), ast.Token("meh")]))
+        self.assertEqual(mp.attr.parseString("[left id: meh meh]")[0], ast.ID(ast.IDDirection.left, [ast.Token("meh"), ast.Token("meh")]))
 
     def testIdem(self):
         self.assertEqual(mp.attr.parseString("[idem]")[0], ast.MaudeAttribute(ast.AttributeType.idem))

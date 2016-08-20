@@ -143,24 +143,23 @@ class TermHook(Hook):
 class AttributeType(Enum):
     assoc = 1
     comm = 2
-    left = 3
-    right = 4
-    idem = 5
-    iter = 6
-    memo = 7
-    ditto = 8
-    config = 9
-    obj = 10
-    msg = 11
-    metadata = 12
-    strat = 13
-    poly = 14
-    frozen = 15
-    prec = 16
-    gather = 17
-    format = 18
-    special = 19
-    unknown = 20
+    id = 3
+    idem = 4
+    iter = 5
+    memo = 6
+    ditto = 7
+    config = 8
+    obj = 9
+    msg = 10
+    metadata = 11
+    strat = 12
+    poly = 13
+    frozen = 14
+    prec = 15
+    gather = 16
+    format = 17
+    special = 18
+    unknown = 19
 
 
 class Attributes(AST):
@@ -171,6 +170,12 @@ class Attributes(AST):
         if type(other) is type(self):
             return self.attributelist == other.attributelist
         return False
+
+
+class IDDirection(Enum):
+    left = 1
+    right = 2
+    none = 3
 
 
 class MaudeAttribute(AST):
@@ -190,34 +195,20 @@ class MaudeAttribute(AST):
         return "From str method of MaudeAttribute: attrtype is %s" % (self.attrtype.value)
 
 
-class LeftID(MaudeAttribute):
-    def __init__(self, tree):
-        MaudeAttribute.__init__(self, AttributeType.left)
+class ID(MaudeAttribute):
+    def __init__(self, direction, tree):
+        MaudeAttribute.__init__(self, AttributeType.id)
+        self.direction = direction
         self.tree = tree
 
     def __eq__(self, other):
         return self.attrtype == other.attrtype and self.tree == other.tree
 
     def __repr__(self):
-        return "<LeftID attrtype:%s, tree: %s>" % (self.attrtype.value, self.tree)
+        return "<ID attrtype:%s, tree: %s>" % (self.attrtype.value, self.tree)
 
     def __str__(self):
-        return "From str method of LeftID: attrtype is %s, tree is %s" % (self.attrtype.value, self.tree)
-
-
-class RightID(MaudeAttribute):
-    def __init__(self, tree):
-        MaudeAttribute.__init__(self, AttributeType.right)
-        self.tree = tree
-
-    def __eq__(self, other):
-        return self.attrtype == other.attrtype and self.tree == other.tree
-
-    def __repr__(self):
-        return "<RightID attrtype:%s, tree: %s>" % (self.attrtype.value, self.tree)
-
-    def __str__(self):
-        return "From str method of RightID: attrtype is %s" % (self.attrtype.value)
+        return "From str method of ID: attrtype is %s, tree is %s" % (self.attrtype.value, self.tree)
 
 
 class MetaData(MaudeAttribute):
