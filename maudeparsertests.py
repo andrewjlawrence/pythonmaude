@@ -62,6 +62,7 @@ class TestToken(unittest.TestCase):
 
 class TestTokenString(unittest.TestCase):
     def testTokenString(self):
+        print(mp.tokenstring.parseString("meh (meh meh)"))
         self.assertEqual(mp.tokenstring.parseString("meh (meh meh)")[0], ast.TokenString([ast.Token("meh"), ast.TokenString([ast.Token("meh"), ast.Token("meh")])]))
 
     def testTokenString2(self):
@@ -79,8 +80,8 @@ class TestTokenString(unittest.TestCase):
 
 class TestBracketTokenString(unittest.TestCase):
     def testBracketTokenString(self):
-        print(mp.brackettokenstring.parseString("(meh (meh meh))").asList())
-        self.assertEqual(mp.brackettokenstring.parseString("(meh (meh meh))").asList(), ast.TokenString([ast.Token("meh"), ast.TokenString([ast.Token("meh"), ast.Token("meh")])]))
+        print(mp.brackettokenstring.parseString("(meh (meh meh))")[0])
+        self.assertEqual(mp.brackettokenstring.parseString("(meh (meh meh))")[0], ast.TokenString([ast.Token("meh"), ast.TokenString([ast.Token("meh"), ast.Token("meh")])]))
 
 #    def testBracketTokenString2(self):
 #        self.assertEqual(mp.brackettokenstring.parseString("(meh (meh (meh)))").asList(), ["meh", ["meh", ["meh"]]])

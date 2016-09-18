@@ -10,17 +10,20 @@ labelid = pp.Word(pp.alphanums)
 nat = pp.Word(pp.nums).addParseAction(lambda x: int(x[0]))
 
 # Token
-token = pp.Word(pp.alphanums + '!"#$%&*+,-./:;<=>?@^_`{|}~').setName("token").addParseAction(lambda x: ast.Token(x.asList()[0]))
+token = pp.Word(pp.alphanums + '!"#$%&*+,-./:;<=>?@^_`{|}~').setResultsName("token").addParseAction(lambda x: ast.Token(x.asList()[0]))
 
-# Token string definition
+LPAREN,RPAREN = map(pp.Suppress, "()")
+
+# Token string
 # What about the empty token string?
 tokenstring = pp.Forward()
-
-tokenstring << pp.Group((token | pp.Group(pp.Literal("(").suppress() + tokenstring + pp.Literal(")").suppress())) + pp.ZeroOrMore(tokenstring)).setName("tokenstring").addParseAction(lambda x: ast.TokenString(x.astList()[0]))
+ts_list = LPAREN + pp.ZeroOrMore(tokenstring) + RPAREN
+tokenstring << pp.OneOrMore(token | ts_list).addParseAction(lambda x: ast.TokenString(x.asList()))
 
 # Term definition
 term = pp.Forward()
-term << pp.Group((token | pp.Group(pp.Literal("(").suppress() + term + pp.Literal(")").suppress())) + pp.ZeroOrMore(term)).setName("term").addParseAction(lambda x: x.asList()[0])
+t_list = LPAREN + pp.ZeroOrMore(term) + RPAREN
+term << pp.OneOrMore(token | t_list).addParseAction(lambda x: ast.Term(x.asList()))
 
 # Operation identifier. Simple identifier with possible underscores.
 opid = pp.Word(pp.alphanums + "_")
