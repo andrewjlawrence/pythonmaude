@@ -59,6 +59,8 @@ class TestToken(unittest.TestCase):
     def testToken(self):
         self.assertEqual(mp.token.parseString("meh")[0], ast.Token("meh"))
 
+    def testToken(self):
+        self.assertEqual(mp.token.parseString("meh")[0], ast.Token("meh"))
 
 class TestTokenString(unittest.TestCase):
     def testTokenString(self):
@@ -66,16 +68,19 @@ class TestTokenString(unittest.TestCase):
         self.assertEqual(mp.tokenstring.parseString("meh (meh meh)")[0], ast.TokenString([ast.Token("meh"), ast.TokenString([ast.Token("meh"), ast.Token("meh")])]))
 
     def testTokenString2(self):
-        self.assertEqual(mp.tokenstring.parseString("(meh meh) meh").asList(), ast.TokenString([ast.TokenString([ast.Token("meh"), ast.Token("meh")]), ast.Token("meh")]))
+        print(mp.tokenstring.parseString("(meh meh) meh"))
+        self.assertEqual(mp.tokenstring.parseString("(meh meh) meh")[0], ast.TokenString([ast.TokenString([ast.Token("meh"), ast.Token("meh")]), ast.Token("meh")]))
 
     def testTokenString3(self):
-        self.assertEqual(mp.tokenstring.parseString("meh (meh (meh))").asList(), ast.TokenString([ast.Token("meh"), ast.TokenString([ast.Token("meh"), ast.TokenString([ast.Token("meh")])])]))
+        print(mp.tokenstring.parseString("meh (meh (meh))"))
+        self.assertEqual(mp.tokenstring.parseString("meh (meh (meh))")[0], ast.TokenString([ast.Token("meh"), ast.TokenString([ast.Token("meh"), ast.TokenString([ast.Token("meh")])])]))
 
     def testTokenString4(self):
-        self.assertEqual(mp.tokenstring.parseString("meh meh").asList(), ast.TokenString([ast.Token("meh"), ast.Token("meh")]))
+        self.assertEqual(mp.tokenstring.parseString("meh meh")[0], ast.TokenString([ast.Token("meh"), ast.Token("meh")]))
 
     def testTokenString5(self):
-        self.assertEqual(mp.tokenstring.parseString("(meh) (meh)").asList(), ast.TokenString([ast.TokenString(["meh"]),ast.TokenString(["meh"])]))
+        print(mp.tokenstring.parseString("(meh) (meh)"))
+        self.assertEqual(mp.tokenstring.parseString("(meh) (meh)")[0], ast.TokenString([ast.TokenString([ast.Token("meh")]),ast.TokenString([ast.Token("meh")])]))
 
 
 class TestBracketTokenString(unittest.TestCase):
@@ -83,21 +88,10 @@ class TestBracketTokenString(unittest.TestCase):
         print(mp.brackettokenstring.parseString("(meh (meh meh))")[0])
         self.assertEqual(mp.brackettokenstring.parseString("(meh (meh meh))")[0], ast.TokenString([ast.Token("meh"), ast.TokenString([ast.Token("meh"), ast.Token("meh")])]))
 
-#    def testBracketTokenString2(self):
-#        self.assertEqual(mp.brackettokenstring.parseString("(meh (meh (meh)))").asList(), ["meh", ["meh", ["meh"]]])
-
-#    def testBracketTokenString3(self):
-#        self.assertEqual(mp.brackettokenstring.parseString("((meh)(meh))").asList(), [["meh"],["meh"]])
-
-
-class TestTokeBracketTokenString(unittest.TestCase):
-    def testTokenBracketTokenString(self):
-        self.assertEqual(mp.tokenbrackettokenstring.parseString("meh ((meh)(meh))").asList(), [ast.Token("meh"),[[ast.Token("meh")],[ast.Token("meh")]]])
-
 
 class TestTerm(unittest.TestCase):
     def testTerm(self):
-        self.assertEqual(mp.term.parseString("meh (meh)").asList(), [ast.Token("meh"), [ast.Token("meh")]])
+        self.assertEqual(mp.term.parseString("meh (meh)")[0], ast.Term([ast.Token("meh"), ast.Term([ast.Token("meh")])]))
 
 
 class TestHook(unittest.TestCase):
@@ -109,22 +103,6 @@ class TestHook(unittest.TestCase):
 
 #    def testTermHook(self):
 #        self.assertEqual(mp.hook.parseString("term-hook meh (meh meh)")[0], ast.TermHook(["meh", "meh"]))
-
-
-class TestAssocAttribute(unittest.TestCase):
-    def test(self):
-        self.assertEqual(mp.assocattr.parseString("assoc")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
-
-
-class TestIDAttribute(unittest.TestCase):
-    def testLeftIDAttr(self):
-        self.assertEqual(mp.assocattr.parseString("left id: meh meh")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
-
-    def testEmptyIDAttr(self):
-        self.assertEqual(mp.assocattr.parseString("id: meh meh")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
-
-    def testRightIDAttr(self):
-        self.assertEqual(mp.assocattr.parseString("right id: meh meh")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
 
 
 class TestAttribute(unittest.TestCase):
@@ -141,12 +119,12 @@ class TestAttribute(unittest.TestCase):
         self.assert_(failureFun("[commassoc]"))
 
     def testRightID(self):
-        self.assertEqual(mp.attr.parseString("[right id: meh meh]")[0], ast.ID(ast.IDDirection.right, [ast.Token("meh"), ast.Token("meh")]))
+        self.assertEqual(mp.attr.parseString("[right id: meh meh]")[0], ast.ID(ast.IDDirection.right, [ast.Term([ast.Token("meh"), ast.Token("meh")])]))
 
     def testLeftID(self):
         mp.attr.setDebug()
         print(mp.attr.parseString("[left id: meh meh]")[0])
-        self.assertEqual(mp.attr.parseString("[left id: meh meh]")[0], ast.ID(ast.IDDirection.left, [ast.Token("meh"), ast.Token("meh")]))
+        self.assertEqual(mp.attr.parseString("[left id: meh meh]")[0], ast.ID(ast.IDDirection.left, [ast.Term([ast.Token("meh"), ast.Token("meh")])]))
 
     def testIdem(self):
         self.assertEqual(mp.attr.parseString("[idem]")[0], ast.MaudeAttribute(ast.AttributeType.idem))
