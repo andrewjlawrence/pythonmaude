@@ -77,7 +77,13 @@ brackettokenstring = LPAREN + tokenstring + RPAREN
 # This seems to be wrong as there are examples of all hooks having following tokens.
 # There also seems to be detail missing
 
-idhook = pp.Group(pp.Literal("id-hook").suppress() + token + pp.Optional(brackettokenstring)).addParseAction(lambda x: ast.IDHook(x[0] , x[0]))
+def idhookparseaction(x):
+    if len(x) > 1:
+        return ast.IDHook(x[0], x[1])
+    else:
+        return ast.IDHook(x[0], [])
+
+idhook = pp.Group(pp.Literal("id-hook").suppress() + token + pp.Optional(brackettokenstring)).addParseAction(lambda x: idhookparseaction(x[0]))
 ophook = pp.Group(pp.Literal("op-hook").suppress() + brackettokenstring).addParseAction(lambda x: ast.OPHook(x.asList()))
 termhook = pp.Group(pp.Literal("term-hook").suppress() + brackettokenstring).addParseAction(lambda x: ast.TermHook(x.asList()))
 hook = idhook | ophook | termhook
