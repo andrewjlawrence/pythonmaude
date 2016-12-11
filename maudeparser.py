@@ -164,16 +164,20 @@ condition = conditionfragment + pp.ZeroOrMore(AND + conditionfragment)
 conditionprime = conditionfragmentprime + pp.ZeroOrMore(AND + conditionfragmentprime)
 
 # Label
-label = LSBRACK + labelid + RSBRACK + COLON
+label = LSBRACK + labelid.addParseAction(lambda x: ast.Label(x[0])) + RSBRACK + COLON
 
 # Statement
-statement = pp.Literal("mb") + pp.Optional(label) + term + COLON + sort | \
-            pp.Literal("cmb") + pp.Optional(label) + term + COLON + sort + IF + condition | \
-            pp.Literal("eq") + pp.Optional(label) + term + EQ + term | \
-            pp.Literal("ceq") + pp.Optional(label) + term + EQ + term + IF + condition
+# TODO these statements had optional labels. I have removed them temporarily.
+mbstatement = pp.Group(pp.Literal("mb").suppress() + term + COLON + sort)
+cmbstatement = pp.Group(pp.Literal("cmb").suppress() + term + COLON + sort + IF + condition)
+eqstatement = pp.Group(pp.Literal("eq").suppress() + term + EQ + term).addParseAction(lambda x: ast.EqStatement(x[0], x[1]))
+ceqstatement = pp.Group(pp.Literal("ceq").suppress() + term + EQ + term + IF + condition)
+statement = mbstatement | cmbstatement | eqstatement | ceqstatement
 
-statementprime = pp.Literal("rl") + pp.Optional(label) + term + RIGHTARROW + term | \
-                 pp.Literal("crl") + pp.Optional(label) + term + RIGHTARROW + term + IF + condition
+rlstatement = pp.Group(pp.Literal("rl").suppress() + term + RIGHTARROW + term)
+crlstatement = pp.Group(pp.Literal("crl").suppress() + term + RIGHTARROW + term + IF + condition)
+statementprime = rlstatement | crlstatement
+
 
 # Mod elt
 modelt = pp.Forward()

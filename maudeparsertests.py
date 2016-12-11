@@ -227,6 +227,11 @@ class TestSort(unittest.TestCase):
         self.assertEqual(mp.sort.parseString("LIST{NAT}")[0],
                          ast.Sort(ast.Ident("LIST"), [ast.Sort(ast.Ident("NAT"), [])]))
 
+class TestStatement(unittest.TestCase):
+    def testEqStatement(self):
+        self.assertEqual(mp.eqstatement.parseString("")[0],
+                        )
+
 
 if __name__ == '__main__':
     unittest.main()

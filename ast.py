@@ -38,6 +38,21 @@ class Literal(AST):
 
 
 # Token
+class Label(AST):
+    def __init__(self, id):
+        self.id = id
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def __repr__(self):
+        return "<Label id: %s>" % (self.id)
+
+    def __str__(self):
+        return "From str method of ID: id is %s" % (self.id)
+
+
+# Token
 class Token(AST):
     def __init__(self, token):
         self.token = token
@@ -153,6 +168,25 @@ class TermHook(Hook):
     def __str__(self):
         return "From str method of TermHook: tree is %s" % (self.tree)
 
+#
+# Statements
+#
+class EqStatement(AST):
+    def __init__(self, leftterm, rightterm):
+        self.leftterm = leftterm
+        self.rightterm = rightterm
+
+    def __eq__(self, other):
+        return self.leftterm == other.leftterm and self.rightterm == other.rightterm
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<EqStatement leftterm:%s, rightterm:%s>" % (self.leftterm, self.rightterm)
+
+    def __str__(self):
+        return "From str method of EqStatement: leftterm is %s, rightterm is %s" % (self.leftterm, self.rightterm)
 
 #
 # Statement Attributes
