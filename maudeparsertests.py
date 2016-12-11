@@ -106,11 +106,11 @@ class TestHook(unittest.TestCase):
     def testIDHook2(self):
         self.assertEqual(mp.hook.parseString("id-hook meh (meh)")[0], ast.IDHook(ast.Token("meh"), ast.TokenString([ast.Token("meh")])))
 
-#   def testOPHook(self):
-#       self.assertEqual(mp.hook.parseString("op-hook meh (meh meh)")[0], ast.OPHook(["meh", "meh"]))
+    def testOPHook(self):
+        self.assertEqual(mp.hook.parseString("op-hook(meh meh)")[0], ast.OPHook([ast.TokenString([ast.Token("meh"), ast.Token("meh")])]))
 
-#    def testTermHook(self):
-#        self.assertEqual(mp.hook.parseString("term-hook meh (meh meh)")[0], ast.TermHook(["meh", "meh"]))
+    def testTermHook(self):
+        self.assertEqual(mp.hook.parseString("term-hook(meh meh)")[0], ast.TermHook([ast.Token("meh"), ast.Token("meh")]))
 
 
 class TestAttribute(unittest.TestCase):
@@ -185,6 +185,32 @@ class TestAttribute(unittest.TestCase):
 
     def testSpecial(self):
         self.assertEqual(mp.attr.parseString("[special (id-hook meh)]")[0], ast.Special(ast.IDHook(ast.Token("meh"), [])))
+
+class TestStatementAttribute(unittest.TestCase):
+    def testNonExec(self):
+        self.assertEqual(mp.statementattr.parseString("[nonexec]")[0],
+                         ast.StatementAttribute(ast.StatementAttributeType.nonexec))
+
+    def testOtherwise(self):
+        self.assertEqual(mp.statementattr.parseString("[otherwise]")[0],
+                         ast.StatementAttribute(ast.StatementAttributeType.otherwise))
+
+    def testVariant(self):
+        self.assertEqual(mp.statementattr.parseString("[variant]")[0],
+                         ast.StatementAttribute(ast.StatementAttributeType.variant))
+
+    def testMetadata(self):
+        self.assertEqual(mp.statementattr.parseString("[metadata \"meh\"]")[0],
+                         ast.StatementAttribute(ast.StatementAttributeType.metadata))
+
+    def testLabel(self):
+        self.assertEqual(mp.statementattr.parseString("[label meh]")[0],
+                         ast.StatementAttribute(ast.StatementAttributeType.label))
+
+    def testPrint(self):
+        self.assertEqual(mp.statementattr.parseString("[print MEH]")[0],
+                         ast.StatementAttribute(ast.StatementAttributeType.print))
+
 
 if __name__ == '__main__':
     unittest.main()

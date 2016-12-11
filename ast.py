@@ -65,6 +65,7 @@ class TokenString(AST):
     def __str__(self):
         return "From str method of TokenString: listtree is %s" % (self.listtree)
 
+
 # Term
 class Term(AST):
     def __init__(self, listtree):
@@ -78,6 +79,7 @@ class Term(AST):
 
     def __str__(self):
         return "From str method of Term: listtree is %s" % (self.listtree)
+
 
 # Hooks
 class Hook(AST):
@@ -100,7 +102,7 @@ class IDHook(Hook):
         Hook.__init__(self, tree)
 
     def __eq__(self, other):
-        return Hook.__eq__(self,other) and self.name == other.name
+        return Hook.__eq__(self, other) and self.name == other.name
 
     def __repr__(self):
         return "<IDHook name: %s, tree: %s>" % (self.name, self.tree)
@@ -114,7 +116,7 @@ class OPHook(Hook):
         Hook.__init__(self, tree)
 
     def __eq__(self, other):
-        return Hook.__eq__(self,other)
+        return Hook.__eq__(self, other)
 
     def __repr__(self):
         return "<OPHook tree: %s>" % (self.tree)
@@ -128,7 +130,7 @@ class TermHook(Hook):
         Hook.__init__(self, tree)
 
     def __eq__(self, other):
-        return Hook.__eq__(self,other)
+        return Hook.__eq__(self, other)
 
     def __repr__(self):
         return "<TermHook tree: %s>" % (self.tree)
@@ -137,6 +139,32 @@ class TermHook(Hook):
         return "From str method of TermHook: tree is %s" % (self.tree)
 
 
+#
+# Statement Attributes
+#
+class StatementAttributeType(Enum):
+    nonexec = 1
+    otherwise = 2
+    variant = 3
+    metadata = 4
+    label = 5
+    print = 6
+
+class StatementAttribute(AST):
+    def __init__(self, intype):
+        self.attrtype = intype
+
+    def __eq__(self, other):
+        return self.attrtype == other.attrtype
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<StatementAttribute attrtype:%s>" % (self.attrtype.value)
+
+    def __str__(self):
+        return "From str method of StatementAttribute: attrtype is %s" % (self.attrtype.value)
 #
 # Attributes
 #
@@ -262,7 +290,7 @@ class Frozen(MaudeAttribute):
         self.listtree = listtree
 
     def __eq__(self, other):
-        return MaudeAttribute.__eq__(self,other) and any(i in self.listtree for i in other.listtree)
+        return MaudeAttribute.__eq__(self, other) and any(i in self.listtree for i in other.listtree)
 
     def __ne__(self, other):
         return not self.__eq__(self, other)
@@ -314,6 +342,7 @@ class Special(MaudeAttribute):
 
     def __str__(self):
         return "From str method of Special: attrtype is %s" % (self.attrtype.value)
+
 
 # System commands
 class InCommand(AST):

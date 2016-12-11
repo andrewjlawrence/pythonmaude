@@ -12,7 +12,7 @@ nat = pp.Word(pp.nums).addParseAction(lambda x: int(x[0]))
 # Token
 token = pp.Word(pp.alphanums + '!"#$%&*+,-./:;<=>?@^_`{|}~').setResultsName("token").addParseAction(lambda x: ast.Token(x.asList()[0]))
 
-LPAREN,RPAREN = map(pp.Suppress, "()")
+LPAREN,RPAREN,LCBRACK,RCBRACK,LSBRACK,RSBRACK = map(pp.Suppress, "(){}[]")
 
 # Token string
 # What about the empty token string?
@@ -30,7 +30,7 @@ opid = pp.Word(pp.alphanums + "_")
 
 # Operation formula
 opform = pp.Forward()
-opformbody = opid | pp.Group("(" + opform + ")")
+opformbody = opid | pp.Group(LPAREN + opform + RPAREN)
 opform << opformbody + opformbody + pp.ZeroOrMore(opformbody)
 
 # Variable and Sort ID. An identifier consisting of a variable name
@@ -84,22 +84,23 @@ def idhookparseaction(x):
         return ast.IDHook(x[0], [])
 
 idhook = pp.Group(pp.Literal("id-hook").suppress() + token + pp.Optional(brackettokenstring)).addParseAction(lambda x: idhookparseaction(x[0]))
-ophook = pp.Group(pp.Literal("op-hook").suppress() + brackettokenstring).addParseAction(lambda x: ast.OPHook(x.asList()))
-termhook = pp.Group(pp.Literal("term-hook").suppress() + brackettokenstring).addParseAction(lambda x: ast.TermHook(x.asList()))
+ophook = pp.Group(pp.Literal("op-hook").suppress() + brackettokenstring).addParseAction(lambda x: ast.OPHook(x[0]))
+termhook = pp.Group(pp.Literal("term-hook").suppress() + brackettokenstring).addParseAction(lambda x: ast.TermHook(x[0]))
 hook = idhook | ophook | termhook
 
-brackethooklist = pp.Literal("(").suppress() + pp.OneOrMore(hook) + pp.Literal(")").suppress()
+brackethooklist = LPAREN + pp.OneOrMore(hook) + RPAREN
 
 # Print Item.
 printitem = stringid | varid | varandsortid
 
 # Statement Attribute
-statementattr = "[" + pp.OneOrMore(pp.Literal("nonexec") |
-                                   pp.Literal("otherwise") |
-                                   pp.Literal("variant") |
-                                   pp.Group(pp.Literal("metadata") + stringid) |
-                                   pp.Group(pp.Literal("label") + labelid) |
-                                   pp.Group(pp.Literal("print") + pp.ZeroOrMore(printitem))) + "]"
+# TODO implement metadata, label and print classes
+statementattr = LSBRACK + pp.OneOrMore(pp.Literal("nonexec").suppress().addParseAction(partial(ast.StatementAttribute, ast.StatementAttributeType.nonexec)) |
+                                       pp.Literal("otherwise").suppress().addParseAction(partial(ast.StatementAttribute, ast.StatementAttributeType.otherwise)) |
+                                       pp.Literal("variant").suppress().addParseAction(partial(ast.StatementAttribute, ast.StatementAttributeType.variant)) |
+                                       pp.Group(pp.Literal("metadata").suppress() + stringid).addParseAction(partial(ast.StatementAttribute, ast.StatementAttributeType.metadata)) |
+                                       pp.Group(pp.Literal("label").suppress() + labelid).addParseAction(partial(ast.StatementAttribute, ast.StatementAttributeType.label)) |
+                                       pp.Group(pp.Literal("print").suppress() + pp.ZeroOrMore(printitem)).addParseAction(partial(ast.StatementAttribute, ast.StatementAttributeType.print))) + RSBRACK
 
 def idparseaction(x):
     direction = x[0]
@@ -131,14 +132,14 @@ gatherattr = pp.Group(pp.Literal("gather").suppress() + bracketgatherlist).addPa
 formatattr = pp.Group(pp.Literal("format").suppress() + brackettokenlist).addParseAction(lambda x: ast.Format(x[0][0]))
 specialattr = pp.Group(pp.Literal("special").suppress() + brackethooklist).addParseAction(lambda x: ast.Special(x[0][0]))
 
-attr = pp.Literal("[").suppress() + pp.OneOrMore( assocattr | commattr | idattr | idemattr | iterattr | memoattr
+attr = LSBRACK + pp.OneOrMore( assocattr | commattr | idattr | idemattr | iterattr | memoattr
                                                 | dittoattr | configattr | objattr | msgattr | metadataattr | stratattr
                                                 | polyattr | frozenattr | precattr | gatherattr | formatattr
-                                                | specialattr) + pp.Literal("]").suppress()
+                                                | specialattr) + RSBRACK
 
 # Sort
 sort = pp.Forward()
-sort << sortid | sort + "{" + sort + pp.ZeroOrMore("," + sort) + "}"
+sort << sortid | sort + RCBRACK + sort + pp.ZeroOrMore("," + sort) + RCBRACK
 
 # Condition fragment
 conditionfragment = pp.Forward()
@@ -152,7 +153,7 @@ condition = conditionfragment + pp.ZeroOrMore("/\\" + conditionfragment)
 conditionprime = conditionfragmentprime + pp.ZeroOrMore("/\\" + conditionfragmentprime)
 
 # Label
-label = "[" + labelid + "]" + ":"
+label = LSBRACK + labelid + RSBRACK + ":"
 
 # Statement
 statement = pp.Literal("mb") + pp.Optional(label) + term + ":" + sort | \
@@ -168,7 +169,7 @@ modelt = pp.Forward()
 modeltprime = modelt | statementprime + pp.Optional(statementattr) + "."
 
 # Kind
-kind = "[" + sort + pp.ZeroOrMore("," + sort) + "]"
+kind = LSBRACK + sort + pp.ZeroOrMore("," + sort) + RSBRACK
 
 # Type
 maudetype = sort | kind
@@ -185,15 +186,15 @@ renamingitem = pp.Literal("sort") + sort + pp.Literal("to") + sort | \
                pp.Literal("op") + opform + topartrenamingitem | \
                pp.Literal("op") + opform + ":" + pp.ZeroOrMore(maudetype) + arrow + maudetype + topartrenamingitem
 # Renaming
-renaming = "(" + renamingitem + pp.ZeroOrMore("," + renamingitem) + ")"
+renaming = LPAREN + renamingitem + pp.ZeroOrMore("," + renamingitem) + RPAREN
 
 # Mod Exp
 modexp = pp.Forward()
 modexp << modid | \
-    "(" + modexp + ")" | \
+    LPAREN + modexp + RPAREN | \
     modexp + "+" + modexp | \
     modexp + "*" + renaming | \
-    modexp + "{" + viewid + pp.ZeroOrMore("," + viewid) + "}"
+    modexp + LCBRACK + viewid + pp.ZeroOrMore("," + viewid) + RCBRACK
 
 # View Elt
 viewelt = "var" + pp.OneOrMore(varid) + ":" + maudetype + "." | \
@@ -219,7 +220,7 @@ modelt = "including" + modexp + "." | \
 parameterdecl = parameterid + "::" + modexp
 
 # Parameter List
-parameterlist = "{" + parameterdecl + pp.ZeroOrMore("," + parameterdecl) + "}"
+parameterlist = LCBRACK + parameterdecl + pp.ZeroOrMore("," + parameterdecl) + RCBRACK
 
 # View
 view = "view" + viewid + "from" + modexp + "to" + modexp + "is" + pp.ZeroOrMore(viewelt) + "endv"
