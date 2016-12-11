@@ -212,6 +212,22 @@ class TestStatementAttribute(unittest.TestCase):
                          ast.StatementAttribute(ast.StatementAttributeType.print))
 
 
+class TestIdent(unittest.TestCase):
+    def testSortID(self):
+        self.assertEqual(mp.sortid.parseString("MEHID")[0],
+                         ast.Ident("MEHID"))
+
+class TestSort(unittest.TestCase):
+    def testSort1(self):
+        print(mp.sort.parseString("LIST{NAT}")[0])
+        self.assertEqual(mp.sort.parseString("MEHID")[0],
+                         ast.Sort(ast.Ident("MEHID"), []))
+
+    def testSort2(self):
+        self.assertEqual(mp.sort.parseString("LIST{NAT}")[0],
+                         ast.Sort(ast.Ident("LIST"), [ast.Sort(ast.Ident("NAT"), [])]))
+
+
 if __name__ == '__main__':
     unittest.main()
 

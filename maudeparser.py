@@ -12,7 +12,12 @@ nat = pp.Word(pp.nums).addParseAction(lambda x: int(x[0]))
 # Token
 token = pp.Word(pp.alphanums + '!"#$%&*+,-./:;<=>?@^_`{|}~').setResultsName("token").addParseAction(lambda x: ast.Token(x.asList()[0]))
 
-LPAREN,RPAREN,LCBRACK,RCBRACK,LSBRACK,RSBRACK = map(pp.Suppress, "(){}[]")
+# Special Symbols
+LPAREN,RPAREN,LCBRACK,RCBRACK,LSBRACK,RSBRACK,COMMA,FULLSTOP,EQ,COLON = map(pp.Suppress, "(){}[],.=:")
+
+# Key words
+IF,OP,TO,IS,SHOW,IN,AND = map(pp.Suppress, map(pp.Literal, ["if", "op", "to", "is", "show", "in", "/\\"]))
+RIGHTARROW,EQUAL,ASSIGN = map(pp.Suppress, map(pp.Literal, ["=>", "=", ":="]))
 
 # Token string
 # What about the empty token string?
@@ -35,13 +40,13 @@ opform << opformbody + opformbody + pp.ZeroOrMore(opformbody)
 
 # Variable and Sort ID. An identifier consisting of a variable name
 # followed by a colon followed by a sort name
-varandsortid = pp.Word(pp.alphanums) + ":" + pp.Word(pp.alphanums)
+varandsortid = pp.Word(pp.alphanums) + COLON + pp.Word(pp.alphanums)
 
 # Variable ID. Simple identifier. Capitalised.
 varid = pp.Word(pp.srange("[A-Z]"), pp.alphanums)
 
 # Sort ID.
-sortid = pp.Word(pp.srange("[A-Z]"), pp.alphanums)
+sortid = pp.Word(pp.srange("[A-Z]"), pp.alphanums).addParseAction(lambda x: ast.Ident(x[0]))
 
 # Parameter ID.
 parameterid = pp.Word(pp.srange("[A-Z]"), exact=1)
@@ -50,13 +55,13 @@ parameterid = pp.Word(pp.srange("[A-Z]"), exact=1)
 viewid = pp.Word(pp.srange("[A-Z]"), pp.alphanums)
 
 # Module ID
-modid = pp.Word(pp.srange("[A-Z0-9]"))
+modid = pp.Word(pp.srange("[A-Z0-9]")).addParseAction(lambda x: ast.Ident(x[0]))
 
 # String ID
 stringid = pp.dblQuotedString
 
 # File name. OS dependent
-windowsfilename = pp.Word(pp.alphanums) + "." + pp.Word(pp.alphanums, max=3)
+windowsfilename = pp.Word(pp.alphanums) + FULLSTOP + pp.Word(pp.alphanums, max=3)
 linuxfilename = pp.Word(pp.alphanums)
 filename = pp.Word(pp.alphanums)
 
@@ -95,12 +100,18 @@ printitem = stringid | varid | varandsortid
 
 # Statement Attribute
 # TODO implement metadata, label and print classes
-statementattr = LSBRACK + pp.OneOrMore(pp.Literal("nonexec").suppress().addParseAction(partial(ast.StatementAttribute, ast.StatementAttributeType.nonexec)) |
-                                       pp.Literal("otherwise").suppress().addParseAction(partial(ast.StatementAttribute, ast.StatementAttributeType.otherwise)) |
-                                       pp.Literal("variant").suppress().addParseAction(partial(ast.StatementAttribute, ast.StatementAttributeType.variant)) |
-                                       pp.Group(pp.Literal("metadata").suppress() + stringid).addParseAction(partial(ast.StatementAttribute, ast.StatementAttributeType.metadata)) |
-                                       pp.Group(pp.Literal("label").suppress() + labelid).addParseAction(partial(ast.StatementAttribute, ast.StatementAttributeType.label)) |
-                                       pp.Group(pp.Literal("print").suppress() + pp.ZeroOrMore(printitem)).addParseAction(partial(ast.StatementAttribute, ast.StatementAttributeType.print))) + RSBRACK
+statementattr = LSBRACK + pp.OneOrMore(pp.Literal("nonexec").suppress().addParseAction(partial(ast.StatementAttribute,
+                                                                                               ast.StatementAttributeType.nonexec)) |
+                                       pp.Literal("otherwise").suppress().addParseAction(partial(ast.StatementAttribute,
+                                                                                                 ast.StatementAttributeType.otherwise)) |
+                                       pp.Literal("variant").suppress().addParseAction(partial(ast.StatementAttribute,
+                                                                                               ast.StatementAttributeType.variant)) |
+                                       pp.Group(pp.Literal("metadata").suppress() + stringid).addParseAction(partial(ast.StatementAttribute,
+                                                                                                                     ast.StatementAttributeType.metadata)) |
+                                       pp.Group(pp.Literal("label").suppress() + labelid).addParseAction(partial(ast.StatementAttribute,
+                                                                                                                 ast.StatementAttributeType.label)) |
+                                       pp.Group(pp.Literal("print").suppress() + pp.ZeroOrMore(printitem)).addParseAction(partial(ast.StatementAttribute,
+                                                                                                                                  ast.StatementAttributeType.print))) + RSBRACK
 
 def idparseaction(x):
     direction = x[0]
@@ -139,37 +150,37 @@ attr = LSBRACK + pp.OneOrMore( assocattr | commattr | idattr | idemattr | iterat
 
 # Sort
 sort = pp.Forward()
-sort << sortid | sort + RCBRACK + sort + pp.ZeroOrMore("," + sort) + RCBRACK
+sort << (sortid + pp.Optional(LCBRACK + sort + pp.ZeroOrMore(COMMA + sort) + RCBRACK)).addParseAction(lambda x: ast.Sort(x[0], x[1:]))
 
 # Condition fragment
 conditionfragment = pp.Forward()
-conditionfragmentprime = conditionfragment | term + "=>" + term
-conditionfragment << term + "=" + term | \
-    term + ":=" + term | \
-    term + ":" + sort
+conditionfragmentprime = conditionfragment | term + RIGHTARROW + term
+conditionfragment << term + EQUAL + term | \
+    term + ASSIGN + term | \
+    term + COLON + sort
 
 # Condition
-condition = conditionfragment + pp.ZeroOrMore("/\\" + conditionfragment)
-conditionprime = conditionfragmentprime + pp.ZeroOrMore("/\\" + conditionfragmentprime)
+condition = conditionfragment + pp.ZeroOrMore(AND + conditionfragment)
+conditionprime = conditionfragmentprime + pp.ZeroOrMore(AND + conditionfragmentprime)
 
 # Label
-label = LSBRACK + labelid + RSBRACK + ":"
+label = LSBRACK + labelid + RSBRACK + COLON
 
 # Statement
-statement = pp.Literal("mb") + pp.Optional(label) + term + ":" + sort | \
-            pp.Literal("cmb") + pp.Optional(label) + term + ":" + sort + "if" + condition | \
-            pp.Literal("eq") + pp.Optional(label) + term + "=" + term | \
-            pp.Literal("ceq") + pp.Optional(label) + term + "=" + term + "if" + condition
+statement = pp.Literal("mb") + pp.Optional(label) + term + COLON + sort | \
+            pp.Literal("cmb") + pp.Optional(label) + term + COLON + sort + IF + condition | \
+            pp.Literal("eq") + pp.Optional(label) + term + EQ + term | \
+            pp.Literal("ceq") + pp.Optional(label) + term + EQ + term + IF + condition
 
-statementprime = pp.Literal("rl") + pp.Optional(label) + term + "=>" + term | \
-                 pp.Literal("crl") + pp.Optional(label) + term + "=>" + term + "if" + condition
+statementprime = pp.Literal("rl") + pp.Optional(label) + term + RIGHTARROW + term | \
+                 pp.Literal("crl") + pp.Optional(label) + term + RIGHTARROW + term + IF + condition
 
 # Mod elt
 modelt = pp.Forward()
-modeltprime = modelt | statementprime + pp.Optional(statementattr) + "."
+modeltprime = modelt | statementprime + pp.Optional(statementattr) + FULLSTOP
 
 # Kind
-kind = LSBRACK + sort + pp.ZeroOrMore("," + sort) + RSBRACK
+kind = LSBRACK + sort + pp.ZeroOrMore(COMMA + sort) + RSBRACK
 
 # Type
 maudetype = sort | kind
@@ -178,15 +189,15 @@ maudetype = sort | kind
 arrow = pp.Literal("->") | pp.Literal("~>")
 
 # To part renaming item
-topartrenamingitem = "to" + opform + pp.Optional(attr)
+topartrenamingitem = TO + opform + pp.Optional(attr)
 
 # Renaming Item
-renamingitem = pp.Literal("sort") + sort + pp.Literal("to") + sort | \
-               pp.Literal("label") + labelid + pp.Literal("to") + labelid | \
-               pp.Literal("op") + opform + topartrenamingitem | \
-               pp.Literal("op") + opform + ":" + pp.ZeroOrMore(maudetype) + arrow + maudetype + topartrenamingitem
+renamingitem = pp.Literal("sort") + sort + TO + sort | \
+               pp.Literal("label") + labelid + TO + labelid | \
+               OP + opform + topartrenamingitem | \
+               OP + opform + COLON + pp.ZeroOrMore(maudetype) + arrow + maudetype + topartrenamingitem
 # Renaming
-renaming = LPAREN + renamingitem + pp.ZeroOrMore("," + renamingitem) + RPAREN
+renaming = LPAREN + renamingitem + pp.ZeroOrMore(COMMA + renamingitem) + RPAREN
 
 # Mod Exp
 modexp = pp.Forward()
@@ -194,44 +205,44 @@ modexp << modid | \
     LPAREN + modexp + RPAREN | \
     modexp + "+" + modexp | \
     modexp + "*" + renaming | \
-    modexp + LCBRACK + viewid + pp.ZeroOrMore("," + viewid) + RCBRACK
+    modexp + LCBRACK + viewid + pp.ZeroOrMore(COMMA + viewid) + RCBRACK
 
 # View Elt
-viewelt = "var" + pp.OneOrMore(varid) + ":" + maudetype + "." | \
-          "sort" + sort + "to" + sort + "." | \
-          "label" + labelid + "to" + labelid + "." | \
-          "op" + opform + "to" + opform + "." | \
-          "op" + opform + ":" + pp.ZeroOrMore(maudetype) + arrow + maudetype + "to" + opform + "." | \
-          "op" + term + "to" + term + "."
+viewelt = "var" + pp.OneOrMore(varid) + COLON + maudetype + FULLSTOP | \
+          "sort" + sort + TO + sort + FULLSTOP | \
+          "label" + labelid + TO + labelid + FULLSTOP | \
+          OP + opform + TO + opform + FULLSTOP | \
+          OP + opform + COLON + pp.ZeroOrMore(maudetype) + arrow + maudetype + TO + opform + FULLSTOP | \
+          OP + term + TO + term + FULLSTOP
 
 # Mod Elt
-modelt = "including" + modexp + "." | \
-         "extending" + modexp + "." | \
-         "protecting" + modexp + "." | \
-         "sorts" + pp.OneOrMore(sort) + "." | \
-         "subsorts" + pp.OneOrMore(sort) + pp.OneOrMore("<" + pp.OneOrMore(sort)) + "." | \
-         "op" + opform + ":" + pp.ZeroOrMore(maudetype) + arrow + maudetype + pp.Optional(attr) + "." | \
-         "ops" + pp.OneOrMore(opid | pp.Literal("(") + opform + pp.Literal(")")) + ":" \
-         + pp.ZeroOrMore(maudetype) + arrow + maudetype + pp.Optional(attr) + "." | \
-         "vars" + pp.OneOrMore(varid) + ":" + maudetype + "." | \
-         statement + pp.Optional(statementattr) + "."
+modelt = "including" + modexp + FULLSTOP | \
+         "extending" + modexp + FULLSTOP | \
+         "protecting" + modexp + FULLSTOP | \
+         "sorts" + pp.OneOrMore(sort) + FULLSTOP | \
+         "subsorts" + pp.OneOrMore(sort) + pp.OneOrMore("<" + pp.OneOrMore(sort)) + FULLSTOP | \
+         OP + opform + COLON + pp.ZeroOrMore(maudetype) + arrow + maudetype + pp.Optional(attr) + FULLSTOP | \
+         "ops" + pp.OneOrMore(opid | LPAREN + opform + RPAREN) + COLON \
+         + pp.ZeroOrMore(maudetype) + arrow + maudetype + pp.Optional(attr) + FULLSTOP | \
+         "vars" + pp.OneOrMore(varid) + COLON + maudetype + FULLSTOP | \
+         statement + pp.Optional(statementattr) + FULLSTOP
 
 # ParameterDecl
 parameterdecl = parameterid + "::" + modexp
 
 # Parameter List
-parameterlist = LCBRACK + parameterdecl + pp.ZeroOrMore("," + parameterdecl) + RCBRACK
+parameterlist = LCBRACK + parameterdecl + pp.ZeroOrMore(COMMA + parameterdecl) + RCBRACK
 
 # View
-view = "view" + viewid + "from" + modexp + "to" + modexp + "is" + pp.ZeroOrMore(viewelt) + "endv"
+view = "view" + viewid + "from" + modexp + TO + modexp + IS + pp.ZeroOrMore(viewelt) + "endv"
 
 # Theory
-theory = "fth" + modid + "is" + pp.ZeroOrMore(modelt) + "endfth" | \
-         "th" + modid + "is" + pp.ZeroOrMore(modeltprime) + "endth"
+theory = "fth" + modid + IS + pp.ZeroOrMore(modelt) + "endfth" | \
+         "th" + modid + IS + pp.ZeroOrMore(modeltprime) + "endth"
 
 # Module
-module = "fmod" + modid + pp.Optional(parameterlist) + "is" + pp.ZeroOrMore(modelt) + "endfm" | \
-         "mod" + modid + pp.Optional(parameterlist) + "is" + pp.ZeroOrMore(modeltprime) + "endfm"
+module = "fmod" + modid + pp.Optional(parameterlist) + IS + pp.ZeroOrMore(modelt) + "endfm" | \
+         "mod" + modid + pp.Optional(parameterlist) + IS + pp.ZeroOrMore(modeltprime) + "endfm"
 
 # Debugger command
 debuggercommand = pp.Literal("resume .") | pp.Literal("abort .") | pp.Literal("step .") | pp.Literal("where .")
@@ -274,44 +285,43 @@ unificationequation = term + "=?" + term
 searchtype = pp.Literal("=>!") | pp.Literal("=>+") | pp.Literal("=>*") | pp.Literal("=>1")
 
 # Command
-inmodid = pp.Optional("in" + modid + ":")
+inmodid = pp.Optional(IN + modid + COLON)
 suchthatcondition = pp.Optional("such that" + condition)
 optionaldebug = pp.Optional("debug")
-optionalnat = pp.Optional("[" + nat + "]")
-fullstop = pp.Literal(".")
-show = pp.Literal("show")
-opidformlist = pp.OneOrMore(opid | ("(" + opform + ")"))
-command = pp.Literal("select") + modid + fullstop | \
-          pp.Literal("parse") + inmodid + term + fullstop | \
-          optionaldebug + pp.Literal("reduce") + inmodid + term + fullstop | \
-          optionaldebug + pp.Literal("rewrite") + optionalnat + inmodid + term + fullstop | \
+optionalnat = pp.Optional(LSBRACK + nat + RSBRACK)
+
+opidformlist = pp.OneOrMore(opid | (LPAREN + opform + RPAREN))
+command = pp.Literal("select") + modid + FULLSTOP | \
+          pp.Literal("parse") + inmodid + term + FULLSTOP | \
+          optionaldebug + pp.Literal("reduce") + inmodid + term + FULLSTOP | \
+          optionaldebug + pp.Literal("rewrite") + optionalnat + inmodid + term + FULLSTOP | \
           optionaldebug + pp.Literal("frewrite") + pp.Optional(
-              "[" + nat + pp.Optional("," + nat) + "]") + inmodid + term + fullstop | \
+              "[" + nat + pp.Optional("," + nat) + "]") + inmodid + term + FULLSTOP | \
           optionaldebug + pp.Literal("erewrite") + pp.Optional(
-              "[" + nat + pp.Optional("," + nat) + "]") + inmodid + term + fullstop | \
+              "[" + nat + pp.Optional("," + nat) + "]") + inmodid + term + FULLSTOP | \
           (pp.Literal("match") | pp.Literal(
-              "xmatch")) + optionalnat + inmodid + term + "<=?" + term + suchthatcondition + fullstop | \
+              "xmatch")) + optionalnat + inmodid + term + "<=?" + term + suchthatcondition + FULLSTOP | \
           "unify" + optionalnat + inmodid + unificationequation + pp.ZeroOrMore(
-              "/\\" + unificationequation) + fullstop | \
+              "/\\" + unificationequation) + FULLSTOP | \
           optionaldebug + "variant unify" + optionalnat + inmodid + unificationequation + pp.ZeroOrMore(
-              "/\\" + unificationequation) + fullstop | \
-          optionaldebug + "get variants" + optionalnat + inmodid + term + fullstop | \
-          "search" + optionalnat + inmodid + term + searchtype + term + suchthatcondition + fullstop | \
-          optionaldebug + "continue" + nat + fullstop | \
-          "loop" + inmodid + term + fullstop | \
-          "(" + tokenstring + ")" | \
+              "/\\" + unificationequation) + FULLSTOP | \
+          optionaldebug + "get variants" + optionalnat + inmodid + term + FULLSTOP | \
+          "search" + optionalnat + inmodid + term + searchtype + term + suchthatcondition + FULLSTOP | \
+          optionaldebug + "continue" + nat + FULLSTOP | \
+          "loop" + inmodid + term + FULLSTOP | \
+          LPAREN + tokenstring + RPAREN | \
           "trace" + (pp.Literal("select") | pp.Literal("deselect") | pp.Literal("include") | pp.Literal(
-              "exclude")) + opidformlist + fullstop | \
-          "print" + (pp.Literal("conceal") | pp.Literal("reveal")) + opidformlist + fullstop | \
-          "break" + (pp.Literal("select") | pp.Literal("deselect")) + opidformlist + fullstop | \
-          show + showitem + pp.Optional(modid) + fullstop | \
-          show + "view" + pp.Optional(viewid) + fullstop | \
-          show + "modules" + fullstop | \
-          show + "views" + fullstop | \
-          show + "search" + "graph" + fullstop | \
-          pp.Literal("show") + pp.Literal("path") + pp.Optional("labels") + nat + fullstop | \
-          pp.Literal("do") + pp.Literal("clear") + pp.Literal("memo") + fullstop | \
-          pp.Literal("set") + setoption + (pp.Literal("on") | pp.Literal("off")) + fullstop
+              "exclude")) + opidformlist + FULLSTOP | \
+          "print" + (pp.Literal("conceal") | pp.Literal("reveal")) + opidformlist + FULLSTOP | \
+          "break" + (pp.Literal("select") | pp.Literal("deselect")) + opidformlist + FULLSTOP | \
+          SHOW + showitem + pp.Optional(modid) + FULLSTOP | \
+          SHOW + "view" + pp.Optional(viewid) + FULLSTOP | \
+          SHOW + "modules" + FULLSTOP | \
+          SHOW + "views" + FULLSTOP | \
+          SHOW + "search" + "graph" + FULLSTOP | \
+          SHOW + pp.Literal("path") + pp.Optional("labels") + nat + FULLSTOP | \
+          pp.Literal("do") + pp.Literal("clear") + pp.Literal("memo") + FULLSTOP | \
+          pp.Literal("set") + setoption + (pp.Literal("on") | pp.Literal("off")) + FULLSTOP
 
 space = pp.Literal(" ").leaveWhitespace().suppress()
 

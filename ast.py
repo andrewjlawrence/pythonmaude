@@ -80,6 +80,21 @@ class Term(AST):
     def __str__(self):
         return "From str method of Term: listtree is %s" % (self.listtree)
 
+# Sort
+class Sort(AST):
+    def __init__(self, id, typelist):
+        self.id = id
+        self.typelist = typelist
+
+    def __eq__(self, other):
+        return self.id == other.id and self.typelist == other.typelist
+
+    def __repr__(self):
+        return "<Sort id: %s, typelist: %s>" % (self.id, self.typelist)
+
+    def __str__(self):
+        return "From str method of Sort: id is %s, typelist is %s" % (self.id, self.typelist)
+
 
 # Hooks
 class Hook(AST):
