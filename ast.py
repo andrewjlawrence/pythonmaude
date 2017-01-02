@@ -95,6 +95,7 @@ class Term(AST):
     def __str__(self):
         return "From str method of Term: listtree is %s" % (self.listtree)
 
+
 # Sort
 class Sort(AST):
     def __init__(self, id, typelist):
@@ -109,6 +110,22 @@ class Sort(AST):
 
     def __str__(self):
         return "From str method of Sort: id is %s, typelist is %s" % (self.id, self.typelist)
+
+
+# Subsort
+class Subsort(AST):
+    def __init__(self, subsort, sortlist):
+        self.subsort = subsort
+        self.sortlist = sortlist
+
+    def __eq__(self, other):
+        return self.subsort == other.subsort and self.sortlist == other.sortlist
+
+    def __repr__(self):
+        return "<Subsort subsort: %s, sortlist: %s>" % (self.subsort, self.sortlist)
+
+    def __str__(self):
+        return "From str method of Subsort: subsort is %s, sortlist is %s" % (self.subsort, self.sortlist)
 
 
 # Hooks
@@ -238,6 +255,7 @@ class StatementAttributeType(Enum):
     label = 5
     print = 6
 
+
 class StatementAttribute(AST):
     def __init__(self, intype):
         self.attrtype = intype
@@ -253,6 +271,63 @@ class StatementAttribute(AST):
 
     def __str__(self):
         return "From str method of StatementAttribute: attrtype is %s" % (self.attrtype.value)
+
+#
+# Module elements
+#
+
+class Include(AST):
+    def __init__(self, modexp):
+        self.modexp = modexp
+
+    def __eq__(self, other):
+            return self.modexp == other.modexp
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<Include modexp:%s>" % (self.modexp)
+
+    def __str__(self):
+        return "From str method of Include: modexp is %s" % (self.modexp)
+
+
+class Extend(AST):
+    def __init__(self, modexp):
+        self.modexp = modexp
+
+    def __eq__(self, other):
+            return self.modexp == other.modexp
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<Extend modexp:%s>" % (self.modexp)
+
+    def __str__(self):
+        return "From str method of Extend: modexp is %s" % (self.modexp)
+
+
+class Protect(AST):
+    def __init__(self, modexp):
+        self.modexp = modexp
+
+    def __eq__(self, other):
+            return self.modexp == other.modexp
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<Protect modexp:%s>" % (self.modexp)
+
+    def __str__(self):
+        return "From str method of Protect: modexp is %s" % (self.modexp)
+
+
+
 #
 # Attributes
 #
