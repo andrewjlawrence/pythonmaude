@@ -234,8 +234,6 @@ class TestStatement(unittest.TestCase):
     def testMbStatement(self):
         self.assertEqual(mp.mbstatement.parseString("mb term : NAT")[0],
                          ast.MbStatement(ast.Term([ast.Token("term")]), ast.Sort(ast.Ident("NAT"),[])))
-    def testCmbStatement(self):
-        self.assertEqual(mp.cmbstatement.parseString("cmb term : "))
 
     def testCeqStatement(self):
         self.assertEqual(mp.ceqstatement.parseString("ceq term1 = term2 if xistrue"),
@@ -244,9 +242,7 @@ class TestStatement(unittest.TestCase):
     def testCmbStatement(self):
         self.assertEqual(mp.cmbstatement.parseString("cmb term : NAT if xistrue"))
 
-class TestModule(unittest.TestCase):
-    def testModule(self):
-        self.assertEqual(mp.module.parseString("fmod "))
+
 
 if __name__ == '__main__':
     unittest.main()
