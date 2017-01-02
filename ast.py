@@ -188,6 +188,45 @@ class EqStatement(AST):
     def __str__(self):
         return "From str method of EqStatement: leftterm is %s, rightterm is %s" % (self.leftterm, self.rightterm)
 
+class CeqStatement(AST):
+    def __init__(self, leftterm, rightterm, condition):
+        self.leftterm = leftterm
+        self.rightterm = rightterm
+        self.condition = condition
+
+    def __eq__(self, other):
+        return self.leftterm == other.leftterm and \
+               self.rightterm == other.rightterm and \
+               self.condition == other.condition
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<CeqStatement leftterm:%s, rightterm:%s, condition:%s>" % (self.leftterm, self.rightterm, self.condition)
+
+    def __str__(self):
+        return "From str method of CeqStatement: leftterm is %s, rightterm is %s, condition is %s" % \
+               (self.leftterm, self.rightterm, self.condition)
+
+
+class MbStatement(AST):
+    def __init__(self, term, sort):
+        self.term = term
+        self.sort = sort
+
+    def __eq__(self, other):
+        return self.term == other.term and self.sort == other.sort
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<MbStatement term:%s, sort:%s>" % (self.term, self.sort)
+
+    def __str__(self):
+        return "From str method of MbStatement: term is %s, sort is %s" % (self.term, self.sort)
+
 #
 # Statement Attributes
 #

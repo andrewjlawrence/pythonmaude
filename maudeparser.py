@@ -10,14 +10,21 @@ labelid = pp.Word(pp.alphanums)
 nat = pp.Word(pp.nums).addParseAction(lambda x: int(x[0]))
 
 # Token
-token = pp.Word(pp.alphanums + '!"#$%&*+,-./:;<=>?@^_`{|}~').setResultsName("token").addParseAction(lambda x: ast.Token(x.asList()[0]))
+# TODO I removed the eq symbol from tokens. Should it be allowed?
+token = pp.Word(pp.alphanums + '!"#$%&*+,-./;<>?@^_`{|}~').setResultsName("token").addParseAction(lambda x: ast.Token(x.asList()[0]))
 
 # Special Symbols
 LPAREN,RPAREN,LCBRACK,RCBRACK,LSBRACK,RSBRACK,COMMA,FULLSTOP,EQ,COLON = map(pp.Suppress, "(){}[],.=:")
 
 # Key words
-IF,OP,TO,IS,SHOW,IN,AND = map(pp.Suppress, map(pp.Literal, ["if", "op", "to", "is", "show", "in", "/\\"]))
+IF,OP,OPS,TO,IS,SHOW,IN,AND = map(pp.Suppress, map(pp.Literal, ["if", "op", "ops", "to", "is", "show", "in", "/\\"]))
 RIGHTARROW,EQUAL,ASSIGN = map(pp.Suppress, map(pp.Literal, ["=>", "=", ":="]))
+FMOD,MOD,ENDFM = map(pp.suppress, map(pp.Literal, ["fmod", "mod", "endfm"]))
+VAR,VARS,SORT,SORTS,SUBSORTS,LABEL = map(pp.suppress, map(pp.Literal, ["var", "vars", "sort", "sorts", "subsorts", "label"]))
+INCLUDING,EXTENDING,PROTECTING = map(pp.suppress, map(pp.Literal, ["including", "extending", "protecting"]))
+VIEW,FROM,ENDV = map(pp.suppress, map(pp.Literal, ["view", "from", "endv"]))
+FTH,TH,ENDFTH,ENDTH = map(pp.suppress, map(pp.Literal, ["fth", "th", "endfth", "endth"]))
+
 
 # Token string
 # What about the empty token string?
@@ -168,10 +175,10 @@ label = LSBRACK + labelid.addParseAction(lambda x: ast.Label(x[0])) + RSBRACK + 
 
 # Statement
 # TODO these statements had optional labels. I have removed them temporarily.
-mbstatement = pp.Group(pp.Literal("mb").suppress() + term + COLON + sort)
-cmbstatement = pp.Group(pp.Literal("cmb").suppress() + term + COLON + sort + IF + condition)
-eqstatement = pp.Group(pp.Literal("eq").suppress() + term + EQ + term).addParseAction(lambda x: ast.EqStatement(x[0], x[1]))
-ceqstatement = pp.Group(pp.Literal("ceq").suppress() + term + EQ + term + IF + condition)
+mbstatement = pp.Group(pp.Literal("mb").suppress() + term + COLON + sort).addParseAction(lambda x: ast.MbStatement(x[0][0], x[0][1]))
+cmbstatement = pp.Group(pp.Literal("cmb").suppress() + term + COLON + sort + IF + condition).addParseAction(lambda x: ast.CmbStatement(x[0][0], x[0][1], x[0][2]))
+eqstatement = pp.Group(pp.Literal("eq").suppress() + term + EQ + term).addParseAction(lambda x: ast.EqStatement(x[0][0], x[0][1]))
+ceqstatement = pp.Group(pp.Literal("ceq").suppress() + term + EQ + term + IF + condition).addParseAction(lambda x: ast.CeqStatement(x[0][0], x[0][1], x[0][2]))
 statement = mbstatement | cmbstatement | eqstatement | ceqstatement
 
 rlstatement = pp.Group(pp.Literal("rl").suppress() + term + RIGHTARROW + term)
@@ -181,7 +188,7 @@ statementprime = rlstatement | crlstatement
 
 # Mod elt
 modelt = pp.Forward()
-modeltprime = modelt | statementprime + pp.Optional(statementattr) + FULLSTOP
+modeltprime = modelt | pp.Group(statementprime + pp.Optional(statementattr) + FULLSTOP)
 
 # Kind
 kind = LSBRACK + sort + pp.ZeroOrMore(COMMA + sort) + RSBRACK
@@ -196,8 +203,8 @@ arrow = pp.Literal("->") | pp.Literal("~>")
 topartrenamingitem = TO + opform + pp.Optional(attr)
 
 # Renaming Item
-renamingitem = pp.Literal("sort") + sort + TO + sort | \
-               pp.Literal("label") + labelid + TO + labelid | \
+renamingitem = SORT + sort + TO + sort | \
+               LABEL + labelid + TO + labelid | \
                OP + opform + topartrenamingitem | \
                OP + opform + COLON + pp.ZeroOrMore(maudetype) + arrow + maudetype + topartrenamingitem
 # Renaming
@@ -212,24 +219,24 @@ modexp << modid | \
     modexp + LCBRACK + viewid + pp.ZeroOrMore(COMMA + viewid) + RCBRACK
 
 # View Elt
-viewelt = "var" + pp.OneOrMore(varid) + COLON + maudetype + FULLSTOP | \
-          "sort" + sort + TO + sort + FULLSTOP | \
-          "label" + labelid + TO + labelid + FULLSTOP | \
-          OP + opform + TO + opform + FULLSTOP | \
-          OP + opform + COLON + pp.ZeroOrMore(maudetype) + arrow + maudetype + TO + opform + FULLSTOP | \
-          OP + term + TO + term + FULLSTOP
+viewelt = pp.Group(VAR + pp.OneOrMore(varid) + COLON + maudetype + FULLSTOP) | \
+          pp.Group(SORT + sort + TO + sort + FULLSTOP) | \
+          pp.Group(LABEL + labelid + TO + labelid + FULLSTOP) | \
+          pp.Group(OP + opform + TO + opform + FULLSTOP) | \
+          pp.Group(OP + opform + COLON + pp.ZeroOrMore(maudetype) + arrow + maudetype + TO + opform + FULLSTOP) | \
+          pp.Group(OP + term + TO + term + FULLSTOP)
 
 # Mod Elt
-modelt = "including" + modexp + FULLSTOP | \
-         "extending" + modexp + FULLSTOP | \
-         "protecting" + modexp + FULLSTOP | \
-         "sorts" + pp.OneOrMore(sort) + FULLSTOP | \
-         "subsorts" + pp.OneOrMore(sort) + pp.OneOrMore("<" + pp.OneOrMore(sort)) + FULLSTOP | \
-         OP + opform + COLON + pp.ZeroOrMore(maudetype) + arrow + maudetype + pp.Optional(attr) + FULLSTOP | \
-         "ops" + pp.OneOrMore(opid | LPAREN + opform + RPAREN) + COLON \
-         + pp.ZeroOrMore(maudetype) + arrow + maudetype + pp.Optional(attr) + FULLSTOP | \
-         "vars" + pp.OneOrMore(varid) + COLON + maudetype + FULLSTOP | \
-         statement + pp.Optional(statementattr) + FULLSTOP
+modelt = pp.Group(INCLUDING + modexp + FULLSTOP) | \
+         pp.Group(EXTENDING + modexp + FULLSTOP) | \
+         pp.Group(PROTECTING + modexp + FULLSTOP) | \
+         pp.Group(SORTS + pp.OneOrMore(sort) + FULLSTOP) | \
+         pp.Group(SUBSORTS + pp.OneOrMore(sort) + pp.OneOrMore("<" + pp.OneOrMore(sort)) + FULLSTOP) | \
+         pp.Group(OP + opform + COLON + pp.ZeroOrMore(maudetype) + arrow + maudetype + pp.Optional(attr) + FULLSTOP) | \
+         pp.Group(OPS + pp.OneOrMore(opid | LPAREN + opform + RPAREN) + COLON \
+         + pp.ZeroOrMore(maudetype) + arrow + maudetype + pp.Optional(attr) + FULLSTOP) | \
+         pp.Group(VARS + pp.OneOrMore(varid) + COLON + maudetype + FULLSTOP) | \
+         pp.Group(statement + pp.Optional(statementattr) + FULLSTOP)
 
 # ParameterDecl
 parameterdecl = parameterid + "::" + modexp
@@ -238,15 +245,15 @@ parameterdecl = parameterid + "::" + modexp
 parameterlist = LCBRACK + parameterdecl + pp.ZeroOrMore(COMMA + parameterdecl) + RCBRACK
 
 # View
-view = "view" + viewid + "from" + modexp + TO + modexp + IS + pp.ZeroOrMore(viewelt) + "endv"
+view = pp.Group(VIEW + viewid + FROM + modexp + TO + modexp + IS + pp.ZeroOrMore(viewelt) + ENDV)
 
 # Theory
-theory = "fth" + modid + IS + pp.ZeroOrMore(modelt) + "endfth" | \
-         "th" + modid + IS + pp.ZeroOrMore(modeltprime) + "endth"
+theory = pp.Group(FTH + modid + IS + pp.ZeroOrMore(modelt) + ENDFTH) | \
+         pp.Group(TH + modid + IS + pp.ZeroOrMore(modeltprime) + ENDTH)
 
 # Module
-module = "fmod" + modid + pp.Optional(parameterlist) + IS + pp.ZeroOrMore(modelt) + "endfm" | \
-         "mod" + modid + pp.Optional(parameterlist) + IS + pp.ZeroOrMore(modeltprime) + "endfm"
+module = pp.Group(FMOD + modid + pp.Optional(parameterlist) + IS + pp.ZeroOrMore(modelt) + ENDFM) | \
+         pp.Group(MOD + modid + pp.Optional(parameterlist) + IS + pp.ZeroOrMore(modeltprime) + ENDFM)
 
 # Debugger command
 debuggercommand = pp.Literal("resume .") | pp.Literal("abort .") | pp.Literal("step .") | pp.Literal("where .")

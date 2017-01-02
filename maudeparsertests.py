@@ -110,7 +110,7 @@ class TestHook(unittest.TestCase):
         self.assertEqual(mp.hook.parseString("op-hook(meh meh)")[0], ast.OPHook([ast.TokenString([ast.Token("meh"), ast.Token("meh")])]))
 
     def testTermHook(self):
-        self.assertEqual(mp.hook.parseString("term-hook(meh meh)")[0], ast.TermHook([ast.Token("meh"), ast.Token("meh")]))
+        self.assertEqual(mp.hook.parseString("term-hook(meh meh)")[0], ast.TermHook([ast.TokenString([ast.Token("meh"), ast.Token("meh")])]))
 
 
 class TestAttribute(unittest.TestCase):
@@ -219,7 +219,7 @@ class TestIdent(unittest.TestCase):
 
 class TestSort(unittest.TestCase):
     def testSort1(self):
-        print(mp.sort.parseString("LIST{NAT}")[0])
+        print(mp.eqstatement.parseString("eq term1 = term2")[0])
         self.assertEqual(mp.sort.parseString("MEHID")[0],
                          ast.Sort(ast.Ident("MEHID"), []))
 
@@ -229,9 +229,24 @@ class TestSort(unittest.TestCase):
 
 class TestStatement(unittest.TestCase):
     def testEqStatement(self):
-        self.assertEqual(mp.eqstatement.parseString("")[0],
-                        )
+        self.assertEqual(mp.eqstatement.parseString("eq term1 = term2")[0],
+                         ast.EqStatement(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")])))
+    def testMbStatement(self):
+        self.assertEqual(mp.mbstatement.parseString("mb term : NAT")[0],
+                         ast.MbStatement(ast.Term([ast.Token("term")]), ast.Sort(ast.Ident("NAT"),[])))
+    def testCmbStatement(self):
+        self.assertEqual(mp.cmbstatement.parseString("cmb term : "))
 
+    def testCeqStatement(self):
+        self.assertEqual(mp.ceqstatement.parseString("ceq term1 = term2 if xistrue"),
+                         ast.CeqStatement(ast.Term([ast.Token])))
+
+    def testCmbStatement(self):
+        self.assertEqual(mp.cmbstatement.parseString("cmb term : NAT if xistrue"))
+
+class TestModule(unittest.TestCase):
+    def testModule(self):
+        self.assertEqual(mp.module.parseString("fmod "))
 
 if __name__ == '__main__':
     unittest.main()
