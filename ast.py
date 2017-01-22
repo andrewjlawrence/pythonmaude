@@ -2,6 +2,7 @@
 from enum import Enum
 from functools import reduce
 
+
 class CommandType(Enum):
     incommand = 1
     loadcommand = 2
@@ -206,11 +207,86 @@ class TermHook(Hook):
     def __str__(self):
         return "From str method of TermHook: tree is %s" % (self.tree)
 
+
+#
+# Conditions
+#
+class Condition(AST):
+    def __init__(self, fragmentlist):
+        self.fragmentlist = fragmentlist
+
+    def __eq__(self, other):
+        return self.fragmentlist == other.fragmentlist
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<Condition fragmentlist:%s>" % (self.fragmentlist)
+
+    def __str__(self):
+        return "From str method of Condition: fragmentlist is %s" % (self.fragmentlist)
+
+
+class EqFragment(AST):
+    def __init__(self, leftterm: Term, rightterm: Term):
+        self.leftterm = leftterm
+        self.rightterm = rightterm
+
+    def __eq__(self, other):
+        return self.leftterm == other.leftterm and self.rightterm == other.rightterm
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<EQFragment leftterm:%s , rightterm:%s>" % (self.leftterm, self.rightterm)
+
+    def __str__(self):
+        return "From str method of EQFragment: leftterm is %s, rightterm is %s" % (self.leftterm, self.rightterm)
+
+
+class AssigmentFragment(AST):
+    def __init__(self, leftterm: Term, rightterm: Term):
+        self.leftterm = leftterm
+        self.rightterm = rightterm
+
+    def __eq__(self, other):
+        return self.leftterm == other.leftterm and self.rightterm == other.rightterm
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<AssigmentFragment leftterm:%s , rightterm:%s>" % (self.leftterm, self.rightterm)
+
+    def __str__(self):
+        return "From str method of AssigmentFragment: leftterm is %s, rightterm is %s" % (self.leftterm, self.rightterm)
+
+
+class SubsortFragment(AST):
+    def __init__(self, term: Term, sort: Sort):
+        self.term = term
+        self.sort = sort
+
+    def __eq__(self, other):
+        return self.term == other.term and self.sort == other.sort
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<SubsortFragment term:%s , sort:%s>" % (self.term, self.sort)
+
+    def __str__(self):
+        return "From str method of SubsortFragment: term is %s, sort is %s" % (self.term, self.sort)
+
+
 #
 # Statements
 #
 class EqStatement(AST):
-    def __init__(self, leftterm, rightterm):
+    def __init__(self, leftterm: Term, rightterm: Term):
         self.leftterm = leftterm
         self.rightterm = rightterm
 
@@ -226,8 +302,9 @@ class EqStatement(AST):
     def __str__(self):
         return "From str method of EqStatement: leftterm is %s, rightterm is %s" % (self.leftterm, self.rightterm)
 
+
 class CeqStatement(AST):
-    def __init__(self, leftterm, rightterm, condition):
+    def __init__(self, leftterm: Term, rightterm: Term, condition: Condition):
         self.leftterm = leftterm
         self.rightterm = rightterm
         self.condition = condition
@@ -249,7 +326,7 @@ class CeqStatement(AST):
 
 
 class MbStatement(AST):
-    def __init__(self, term, sort):
+    def __init__(self, term: Term, sort: Sort):
         self.term = term
         self.sort = sort
 
@@ -264,6 +341,29 @@ class MbStatement(AST):
 
     def __str__(self):
         return "From str method of MbStatement: term is %s, sort is %s" % (self.term, self.sort)
+
+
+class CmbStatement(AST):
+    def __init__(self, term: Term, sort: Sort, condition: Condition):
+        self.term = term
+        self.sort = sort
+        self.condition = condition
+
+    def __eq__(self, other):
+        return self.term == other.term and \
+               self.sort == other.sort and \
+               self.condition == other.condition
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<CeqStatement term:%s, sort:%s, condition:%s>" % (self.term, self.sort, self.condition)
+
+    def __str__(self):
+        return "From str method of CeqStatement: term is %s, sort is %s, condition is %s" % \
+               (self.term, self.sort, self.condition)
+
 
 #
 # Statement Attributes
@@ -296,7 +396,6 @@ class StatementAttribute(AST):
 #
 # Module elements
 #
-
 class Include(AST):
     def __init__(self, modexp):
         self.modexp = modexp
@@ -346,7 +445,6 @@ class Protect(AST):
 
     def __str__(self):
         return "From str method of Protect: modexp is %s" % (self.modexp)
-
 
 
 #

@@ -255,17 +255,41 @@ class TestStatement(unittest.TestCase):
         self.assertEqual(mp.eqstatement.parseString("eq term1 = term2")[0],
                          ast.EqStatement(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")])))
     def testMbStatement(self):
+        print(mp.conditionfragment.parseString("term1 = term2")[0])
         self.assertEqual(mp.mbstatement.parseString("mb term : NAT")[0],
                          ast.MbStatement(ast.Term([ast.Token("term")]), ast.Sort(ast.Ident("NAT"),[])))
 
-    def testCeqStatement(self):
-        self.assertEqual(mp.ceqstatement.parseString("ceq term1 = term2 if xistrue"),
-                         ast.CeqStatement(ast.Term([ast.Token])))
-
     def testCmbStatement(self):
-        self.assertEqual(mp.cmbstatement.parseString("cmb term : NAT if xistrue"))
+        self.assertEqual(mp.cmbstatement.parseString("cmb term : NAT if x = y")[0], [])
+"""
+Add these tests when conditions are implemented.
+    def testCeqStatement(self):
+        mp.ceqstatement.setDebug(True)
+        self.assertEqual(mp.ceqstatement.parseString("ceq term1 = term2 if xistrue")[0],
+                         ast.CeqStatement(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")])))
+                         )
+"""
+
+class TestConditionFragment(unittest.TestCase):
+    def testEqFragment1(self):
+        self.assertEqual(mp.conditionfragment.parseString("term1 = term2")[0],
+                         ast.EqFragment(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")])))
+
+    def testEqFragment2(self):
+        self.assertEqual(mp.conditionfragment.parseString("term1 = term2")[0].leftterm,
+                         ast.Term([ast.Token("term1")]))
+
+    def testEqFragment3(self):
+        self.assertEqual(mp.conditionfragment.parseString("term1 = term2")[0].rightterm,
+                        ast.Term([ast.Token("term2")]))
 
 
+"""
+class TestCondition(unittest.TestCase):
+    def testCondition(self):
+        self.assertEqual(mp.condition.parseString("term1 = term2")[0],
+                         ast.Condition())
+"""
 
 if __name__ == '__main__':
     unittest.main()

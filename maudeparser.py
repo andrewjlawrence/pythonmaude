@@ -18,14 +18,14 @@ LPAREN,RPAREN,LCBRACK,RCBRACK,LSBRACK,RSBRACK,COMMA,FULLSTOP,EQUAL, = map(pp.Sup
 COLON,LESSTHAN = map(pp.Suppress, ":<")
 
 # Key words
-IF,OP,OPS,TO,IS,SHOW,IN,AND = map(pp.Suppress, map(pp.Literal, ["if", "op", "ops", "to", "is", "show", "in", "/\\"]))
-RIGHTARROW,ASSIGN = map(pp.Suppress, map(pp.Literal, ["=>", ":="]))
-FMOD,MOD,ENDFM = map(pp.Suppress, map(pp.Literal, ["fmod", "mod", "endfm"]))
-VAR,VARS,SORT,SORTS,SUBSORTS,LABEL = map(pp.Suppress, map(pp.Literal, ["var", "vars", "sort", "sorts", "subsorts", "label"]))
-INCLUDING,EXTENDING,PROTECTING = map(pp.Suppress, map(pp.Literal, ["including", "extending", "protecting"]))
-VIEW,FROM,ENDV = map(pp.Suppress, map(pp.Literal, ["view", "from", "endv"]))
-FTH,TH,ENDFTH,ENDTH = map(pp.Suppress, map(pp.Literal, ["fth", "th", "endfth", "endth"]))
-MB,CMB,EQ,CEQ,RL,CRL = map(pp.Suppress, map(pp.Literal, ["mb", "cmb", "eq", "ceq", "rl", "crl"]))
+IF,OP,OPS,TO,IS,SHOW,IN,AND = map(pp.Suppress, map(pp.Keyword, ["if", "op", "ops", "to", "is", "show", "in", "/\\"]))
+RIGHTARROW,ASSIGN = map(pp.Suppress, map(pp.Keyword, ["=>", ":="]))
+FMOD,MOD,ENDFM = map(pp.Suppress, map(pp.Keyword, ["fmod", "mod", "endfm"]))
+VAR,VARS,SORT,SORTS,SUBSORTS,LABEL = map(pp.Suppress, map(pp.Keyword, ["var", "vars", "sort", "sorts", "subsorts", "label"]))
+INCLUDING,EXTENDING,PROTECTING = map(pp.Suppress, map(pp.Keyword, ["including", "extending", "protecting"]))
+VIEW,FROM,ENDV = map(pp.Suppress, map(pp.Keyword, ["view", "from", "endv"]))
+FTH,TH,ENDFTH,ENDTH = map(pp.Suppress, map(pp.Keyword, ["fth", "th", "endfth", "endth"]))
+MB,CMB,EQ,CEQ,RL,CRL = map(pp.Suppress, map(pp.Keyword, ["mb", "cmb", "eq", "ceq", "rl", "crl"]))
 
 
 # Token string
@@ -165,13 +165,13 @@ sort << (sortid +
 # Condition fragment
 conditionfragment = pp.Forward()
 conditionfragmentprime = conditionfragment | term + RIGHTARROW + term
-conditionfragment << term + EQUAL + term | \
-    term + ASSIGN + term | \
-    term + COLON + sort
+conditionfragment <<  pp.Group(term + EQUAL + term).addParseAction(lambda x: ast.EqFragment(x[0][0], x[0][1])) | \
+                      pp.Group(term + ASSIGN + term) | \
+                      pp.Group(term + COLON + sort)
 
 # Condition
-condition = conditionfragment + pp.ZeroOrMore(AND + conditionfragment)
-conditionprime = conditionfragmentprime + pp.ZeroOrMore(AND + conditionfragmentprime)
+condition = pp.Group(conditionfragment + pp.ZeroOrMore(AND + conditionfragment))
+conditionprime = pp.Group(conditionfragmentprime + pp.ZeroOrMore(AND + conditionfragmentprime))
 
 # Label
 label = LSBRACK + labelid.addParseAction(lambda x: ast.Label(x[0])) + RSBRACK + COLON
@@ -180,8 +180,8 @@ label = LSBRACK + labelid.addParseAction(lambda x: ast.Label(x[0])) + RSBRACK + 
 # TODO these statements had optional labels. I have removed them temporarily.
 mbstatement = pp.Group(MB + term + COLON + sort).addParseAction(lambda x: ast.MbStatement(x[0][0], x[0][1]))
 cmbstatement = pp.Group(CMB + term + COLON + sort + IF + condition).addParseAction(lambda x: ast.CmbStatement(x[0][0], x[0][1], x[0][2]))
-eqstatement = pp.Group(EQ+ term + EQUAL + term).addParseAction(lambda x: ast.EqStatement(x[0][0], x[0][1]))
-ceqstatement = pp.Group(CEQ+ term + EQUAL + term + IF + condition).addParseAction(lambda x: ast.CeqStatement(x[0][0], x[0][1], x[0][2]))
+eqstatement = pp.Group(EQ + term + EQUAL + term).addParseAction(lambda x: ast.EqStatement(x[0][0], x[0][1]))
+ceqstatement = pp.Group(CEQ + term + EQUAL + term + IF + condition).addParseAction(lambda x: ast.CeqStatement(x[0][0], x[0][1], x[0][2]))
 statement = mbstatement | cmbstatement | eqstatement | ceqstatement
 
 rlstatement = pp.Group(RL + term + RIGHTARROW + term)
