@@ -1,6 +1,6 @@
 # Copyright 2016 Andrew Lawrence
 from enum import Enum
-
+from functools import reduce
 
 class CommandType(Enum):
     incommand = 1
@@ -29,6 +29,15 @@ class Ident(AST):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<Ident name: %s>" % (self.name)
+
+    def __str__(self):
+        return "From str method of Ident: name is %s" % (self.name)
+
+    def __hash__(self):
+        return hash(self.name)
 
 
 # Literal
@@ -105,11 +114,20 @@ class Sort(AST):
     def __eq__(self, other):
         return self.id == other.id and self.typelist == other.typelist
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __repr__(self):
         return "<Sort id: %s, typelist: %s>" % (self.id, self.typelist)
 
     def __str__(self):
         return "From str method of Sort: id is %s, typelist is %s" % (self.id, self.typelist)
+
+    def __hash__(self):
+        listhash = 0
+        for x in self.typelist:
+            listhash ^ hash(self.typelist)
+        return hash(self.id) ^ listhash
 
 
 # Subsort
@@ -119,7 +137,10 @@ class Subsort(AST):
         self.sortlist = sortlist
 
     def __eq__(self, other):
-        return self.subsort == other.subsort and self.sortlist == other.sortlist
+        return self.subsort == other.subsort and any(i in self.sortlist for i in other.sortlist)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self):
         return "<Subsort subsort: %s, sortlist: %s>" % (self.subsort, self.sortlist)

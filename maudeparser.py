@@ -14,18 +14,18 @@ nat = pp.Word(pp.nums).addParseAction(lambda x: int(x[0]))
 token = pp.Word(pp.alphanums + '!"#$%&*+,-./;<>?@^_`{|}~').setResultsName("token").addParseAction(lambda x: ast.Token(x.asList()[0]))
 
 # Special Symbols
-LPAREN,RPAREN,LCBRACK,RCBRACK,LSBRACK,RSBRACK,COMMA,FULLSTOP,EQUAL,COLON = map(pp.Suppress, "(){}[],.=:")
-LESSTHAN = map(pp.Suppress, "<")
+LPAREN,RPAREN,LCBRACK,RCBRACK,LSBRACK,RSBRACK,COMMA,FULLSTOP,EQUAL, = map(pp.Suppress, "(){}[],.=")
+COLON,LESSTHAN = map(pp.Suppress, ":<")
 
 # Key words
 IF,OP,OPS,TO,IS,SHOW,IN,AND = map(pp.Suppress, map(pp.Literal, ["if", "op", "ops", "to", "is", "show", "in", "/\\"]))
 RIGHTARROW,ASSIGN = map(pp.Suppress, map(pp.Literal, ["=>", ":="]))
-FMOD,MOD,ENDFM = map(pp.suppress, map(pp.Literal, ["fmod", "mod", "endfm"]))
-VAR,VARS,SORT,SORTS,SUBSORTS,LABEL = map(pp.suppress, map(pp.Literal, ["var", "vars", "sort", "sorts", "subsorts", "label"]))
-INCLUDING,EXTENDING,PROTECTING = map(pp.suppress, map(pp.Literal, ["including", "extending", "protecting"]))
-VIEW,FROM,ENDV = map(pp.suppress, map(pp.Literal, ["view", "from", "endv"]))
-FTH,TH,ENDFTH,ENDTH = map(pp.suppress, map(pp.Literal, ["fth", "th", "endfth", "endth"]))
-MB,CMB,EQ,CEQ,RL,CRL = map(pp.suppress, map(pp.Literal, ["mb", "cmb", "eq", "ceq", "rl", "crl"]))
+FMOD,MOD,ENDFM = map(pp.Suppress, map(pp.Literal, ["fmod", "mod", "endfm"]))
+VAR,VARS,SORT,SORTS,SUBSORTS,LABEL = map(pp.Suppress, map(pp.Literal, ["var", "vars", "sort", "sorts", "subsorts", "label"]))
+INCLUDING,EXTENDING,PROTECTING = map(pp.Suppress, map(pp.Literal, ["including", "extending", "protecting"]))
+VIEW,FROM,ENDV = map(pp.Suppress, map(pp.Literal, ["view", "from", "endv"]))
+FTH,TH,ENDFTH,ENDTH = map(pp.Suppress, map(pp.Literal, ["fth", "th", "endfth", "endth"]))
+MB,CMB,EQ,CEQ,RL,CRL = map(pp.Suppress, map(pp.Literal, ["mb", "cmb", "eq", "ceq", "rl", "crl"]))
 
 
 # Token string
@@ -159,7 +159,8 @@ attr = LSBRACK + pp.OneOrMore( assocattr | commattr | idattr | idemattr | iterat
 
 # Sort
 sort = pp.Forward()
-sort << (sortid + pp.Optional(LCBRACK + sort + pp.ZeroOrMore(COMMA + sort) + RCBRACK)).addParseAction(lambda x: ast.Sort(x[0], x[1:]))
+sort << (sortid +
+         pp.Optional(LCBRACK + sort + pp.ZeroOrMore(COMMA + sort) + RCBRACK)).addParseAction(lambda x: ast.Sort(x[0], x[1:]))
 
 # Condition fragment
 conditionfragment = pp.Forward()
@@ -229,7 +230,7 @@ viewelt = pp.Group(VAR + pp.OneOrMore(varid) + COLON + maudetype + FULLSTOP) | \
           pp.Group(OP + term + TO + term + FULLSTOP)
 
 #Subsort
-subsort = pp.Group(pp.OneOrMore(sort) + pp.OneOrMore(LESSTHAN + pp.OneOrMore(sort))).addParseAction(lambda x:  ast.Subsort(x[0][0], x[0][1]))
+subsort = pp.Group(pp.OneOrMore(sort) + pp.Group(pp.OneOrMore(LESSTHAN + pp.OneOrMore(sort)))).addParseAction(lambda x:  ast.Subsort(x[0][0], x[0][1].asList()))
 
 # module elements
 includeelt = pp.Group(INCLUDING + modexp + FULLSTOP).addParseAction(lambda x: ast.Include(x[0][0]))

@@ -219,13 +219,36 @@ class TestIdent(unittest.TestCase):
 
 class TestSort(unittest.TestCase):
     def testSort1(self):
-        print(mp.eqstatement.parseString("eq term1 = term2")[0])
         self.assertEqual(mp.sort.parseString("MEHID")[0],
                          ast.Sort(ast.Ident("MEHID"), []))
 
     def testSort2(self):
+        print(mp.subsort.parseString("NAT < INT")[0])
         self.assertEqual(mp.sort.parseString("LIST{NAT}")[0],
                          ast.Sort(ast.Ident("LIST"), [ast.Sort(ast.Ident("NAT"), [])]))
+
+
+class TestSubsort(unittest.TestCase):
+    def testSubsort1(self):
+        self.assertEqual(mp.subsort.parseString("NAT < INT")[0].subsort,
+                         ast.Sort(ast.Ident("NAT"), []))
+
+    def testSubsort2(self):
+            self.assertEqual(ast.Subsort(ast.Sort(ast.Ident("NAT"), []), [ast.Sort(ast.Ident("INT"), [])]),
+                             ast.Subsort(ast.Sort(ast.Ident("NAT"), []), [ast.Sort(ast.Ident("INT"), [])]))
+
+
+    def testSubsort3(self):
+            self.assertEqual(ast.Subsort(mp.sort.parseString("NAT")[0], [mp.sort.parseString("INT")[0]]),
+                             ast.Subsort(ast.Sort(ast.Ident("NAT"), []), [ast.Sort(ast.Ident("INT"), [])] ))
+
+    def testSubsort4(self):
+        self.assertEqual(mp.subsort.parseString("NAT < INT")[0].sortlist,
+                         [ast.Sort(ast.Ident("INT"), [])])
+
+    def testSubsort5(self):
+            self.assertEqual(mp.subsort.parseString("NAT < INT")[0],
+                             ast.Subsort(ast.Sort(ast.Ident("NAT"), []), [ast.Sort(ast.Ident("INT"), [])]))
 
 class TestStatement(unittest.TestCase):
     def testEqStatement(self):
