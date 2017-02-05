@@ -170,8 +170,8 @@ conditionfragment <<  pp.Group(term + EQUAL + term).addParseAction(lambda x: ast
                       pp.Group(term + COLON + sort)
 
 # Condition
-condition = pp.Group(conditionfragment + pp.ZeroOrMore(AND + conditionfragment))
-conditionprime = pp.Group(conditionfragmentprime + pp.ZeroOrMore(AND + conditionfragmentprime))
+condition = pp.Group(conditionfragment + pp.ZeroOrMore(AND + conditionfragment)).addParseAction(lambda x: ast.Condition(x[0]))
+conditionprime = pp.Group(conditionfragmentprime + pp.ZeroOrMore(AND + conditionfragmentprime)).addParseAction(lambda x: ast.Condition(x[0]))
 
 # Label
 label = LSBRACK + labelid.addParseAction(lambda x: ast.Label(x[0])) + RSBRACK + COLON

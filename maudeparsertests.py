@@ -115,7 +115,7 @@ class TestHook(unittest.TestCase):
 
 class TestAttribute(unittest.TestCase):
     def testAssoc(self):
-        self.assertEqual(mp.attr.parseString("[assoc]")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
+        self.assertEqual(mp.attr.parseString("[ assoc ]")[0], ast.MaudeAttribute(ast.AttributeType.assoc))
 
     def testComm(self):
         self.assertEqual(mp.attr.parseString("[comm]")[0], ast.MaudeAttribute(ast.AttributeType.comm))
@@ -255,12 +255,19 @@ class TestStatement(unittest.TestCase):
         self.assertEqual(mp.eqstatement.parseString("eq term1 = term2")[0],
                          ast.EqStatement(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")])))
     def testMbStatement(self):
-        print(mp.conditionfragment.parseString("term1 = term2")[0])
+        print(mp.cmbstatement.parseString("cmb term : NAT if x = y")[0])
         self.assertEqual(mp.mbstatement.parseString("mb term : NAT")[0],
                          ast.MbStatement(ast.Term([ast.Token("term")]), ast.Sort(ast.Ident("NAT"),[])))
 
     def testCmbStatement(self):
-        self.assertEqual(mp.cmbstatement.parseString("cmb term : NAT if x = y")[0], [])
+        self.assertEqual(mp.cmbstatement.parseString("cmb term : NAT if x = y")[0], ast.CmbStatement(ast.Term([ast.Token("term")]),
+                                                                                                     ast.Sort(ast.Ident("NAT"),[]),
+                                                                                                     ast.Condition([ast.EqFragment(ast.Term([ast.Token("x")]),ast.Term([ast.Token("y")]))])))
+
+    def testCmbStatement2(self):
+        self.assertEqual(mp.cmbstatement.parseString("cmb term : NAT if x = y")[0].condition,
+                         ast.Condition([ast.EqFragment(ast.Term([ast.Token("x")]), ast.Term([ast.Token("y")]))]))
+
 """
 Add these tests when conditions are implemented.
     def testCeqStatement(self):
@@ -284,12 +291,10 @@ class TestConditionFragment(unittest.TestCase):
                         ast.Term([ast.Token("term2")]))
 
 
-"""
 class TestCondition(unittest.TestCase):
     def testCondition(self):
         self.assertEqual(mp.condition.parseString("term1 = term2")[0],
-                         ast.Condition())
-"""
+                         ast.Condition([ast.EqFragment(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")]))]))
 
 if __name__ == '__main__':
     unittest.main()

@@ -361,7 +361,7 @@ class CmbStatement(AST):
         return "<CeqStatement term:%s, sort:%s, condition:%s>" % (self.term, self.sort, self.condition)
 
     def __str__(self):
-        return "From str method of CeqStatement: term is %s, sort is %s, condition is %s" % \
+        return "From str method of CeqStatement: term is %s,\nsort is %s,\ncondition is %s" % \
                (self.term, self.sort, self.condition)
 
 
