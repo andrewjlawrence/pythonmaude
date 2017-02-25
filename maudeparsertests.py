@@ -342,7 +342,10 @@ class TestFModule(unittest.TestCase):
                                                                        "->",
                                                                        ast.Sort(ast.Ident("NAT"), []),
                                                                        []),
-                                                                ast.Vars([ast.Ident("X1")], ast.Sort(ast.Ident("NAT"), []))
+                                                                ast.Vars([ast.Ident("X1")], ast.Sort(ast.Ident("NAT"), [])),
+                                                                ast.Statement(
+                                                                    ast.EqStatement(ast.Term([ast.Token("term1")]),
+                                                                                    ast.Term([ast.Token("term2")])), [])
                                                                 ]))
 
 if __name__ == '__main__':

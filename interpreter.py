@@ -2,13 +2,16 @@
 import ast, maudeparser, pyparsing, sys, string
 import os
 from loader import Loader
+from ast import EqStatement,Sort,Vars,Ident,Sorts
+from context import Context
+
 
 directorystack = []
 
+context = Context()
 
 def onquit(quitcommand):
     sys.exit(0)
-
 
 def onchangedirectory(cdcommand):
     if os.path.exists(cdcommand.path):
@@ -16,12 +19,12 @@ def onchangedirectory(cdcommand):
     else:
         print("Error invalid path")
 
-
 def onload(loadcommand):
-
-    maudeparser.module.parsefile(loadcommand.filename)
-
-
+    module = maudeparser.module.parsefile(loadcommand.filename)
+    #for element in module.elementlist:
+    #    if type(element) == EqStatement:
+    #        context.addEq(element)
+    #    elif type(element) == Sorts:
 
 def onin(incommand):
     pass
