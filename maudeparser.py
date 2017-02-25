@@ -2,7 +2,6 @@
 import pyparsing as pp
 import ast as ast
 from functools import partial
-
 # Label identifier. Simple identifier
 labelid = pp.Word(pp.alphanums)
 
@@ -11,7 +10,7 @@ nat = pp.Word(pp.nums).addParseAction(lambda x: int(x[0]))
 
 # Token
 # TODO I removed the eq symbol from tokens. Should it be allowed?
-token = pp.Word(pp.alphanums + '!"#$%&*+,-./;<>?@^_`{|}~').setResultsName("token").addParseAction(lambda x: ast.Token(x.asList()[0]))
+token = pp.Word(pp.alphanums + '!"#$%&*+,-/;<>?@^_`{|}~').setResultsName("token").addParseAction(lambda x: ast.Token(x.asList()[0]))
 
 # Special Symbols
 LPAREN,RPAREN,LCBRACK,RCBRACK,LSBRACK,RSBRACK,COMMA,FULLSTOP,EQUAL, = map(pp.Suppress, "(){}[],.=")
@@ -40,19 +39,19 @@ t_list = LPAREN + pp.ZeroOrMore(term) + RPAREN
 term << pp.OneOrMore(token | t_list).addParseAction(lambda x: ast.Term(x.asList()))
 
 # Operation identifier. Simple identifier with possible underscores.
-opid = pp.Word(pp.alphanums + "_")
+opid = pp.Word(pp.alphanums + "_").addParseAction(lambda x: ast.Ident(x[0]))
 
 # Operation formula
 opform = pp.Forward()
 opformbody = opid | pp.Group(LPAREN + opform + RPAREN)
-opform << opformbody + opformbody + pp.ZeroOrMore(opformbody)
+opform << pp.OneOrMore(opformbody)
 
 # Variable and Sort ID. An identifier consisting of a variable name
 # followed by a colon followed by a sort name
 varandsortid = pp.Word(pp.alphanums) + COLON + pp.Word(pp.alphanums)
 
 # Variable ID. Simple identifier. Capitalised.
-varid = pp.Word(pp.srange("[A-Z]"), pp.alphanums)
+varid = pp.Word(pp.srange("[A-Z]"), pp.alphanums).addParseAction(lambda x: ast.Ident(x[0]))
 
 # Sort ID.
 sortid = pp.Word(pp.srange("[A-Z]"), pp.alphanums).addParseAction(lambda x: ast.Ident(x[0]))
@@ -170,7 +169,7 @@ conditionfragment <<  pp.Group(term + EQUAL + term).addParseAction(lambda x: ast
                       pp.Group(term + COLON + sort)
 
 # Condition
-condition = pp.Group(conditionfragment + pp.ZeroOrMore(AND + conditionfragment)).addParseAction(lambda x: ast.Condition(x[0]))
+condition = pp.Group(conditionfragment + pp.ZeroOrMore(AND + conditionfragment)).addParseAction(lambda x: ast.Condition(x[0].asList()))
 conditionprime = pp.Group(conditionfragmentprime + pp.ZeroOrMore(AND + conditionfragmentprime)).addParseAction(lambda x: ast.Condition(x[0]))
 
 # Label
@@ -184,7 +183,7 @@ eqstatement = pp.Group(EQ + term + EQUAL + term).addParseAction(lambda x: ast.Eq
 ceqstatement = pp.Group(CEQ + term + EQUAL + term + IF + condition).addParseAction(lambda x: ast.CeqStatement(x[0][0], x[0][1], x[0][2]))
 statement = mbstatement | cmbstatement | eqstatement | ceqstatement
 
-rlstatement = pp.Group(RL + term + RIGHTARROW + term)
+rlstatement = pp.Group(RL + term + RIGHTARROW + term).addParseAction(lambda x: ast.RlStatement(x[0][0], x[0][1]))
 crlstatement = pp.Group(CRL + term + RIGHTARROW + term + IF + condition)
 statementprime = rlstatement | crlstatement
 
@@ -232,22 +231,29 @@ viewelt = pp.Group(VAR + pp.OneOrMore(varid) + COLON + maudetype + FULLSTOP) | \
 #Subsort
 subsort = pp.Group(pp.OneOrMore(sort) + pp.Group(pp.OneOrMore(LESSTHAN + pp.OneOrMore(sort)))).addParseAction(lambda x:  ast.Subsort(x[0][0], x[0][1].asList()))
 
-# module elements
+# Module elements
 includeelt = pp.Group(INCLUDING + modexp + FULLSTOP).addParseAction(lambda x: ast.Include(x[0][0]))
 extendelt = pp.Group(EXTENDING + modexp + FULLSTOP).addParseAction(lambda x: ast.Extend(x[0][0]))
 protectelt = pp.Group(PROTECTING + modexp + FULLSTOP).addParseAction(lambda x: ast.Protect(x[0][0]))
+sortselt =  pp.Group(SORTS + pp.OneOrMore(sort) + FULLSTOP).addParseAction(lambda x: ast.Sorts(x[0].asList()))
+subsortselt = pp.Group(SUBSORTS + subsort + FULLSTOP)
+opelt = pp.Group(OP + opform + COLON + pp.Group(pp.ZeroOrMore(maudetype)) +
+                 arrow + maudetype + pp.Optional(attr,default=[]) + FULLSTOP).addParseAction(lambda x: ast.Op(x[0].asList()[0],
+                                                                                                   x[0].asList()[1],
+                                                                                                   x[0].asList()[2],
+                                                                                                   x[0].asList()[3],
+                                                                                                   x[0].asList()[4]))
+opselt = pp.Group(OPS + pp.OneOrMore(opid | LPAREN + opform + RPAREN) + COLON \
+                  + pp.ZeroOrMore(maudetype) + arrow + maudetype + pp.Optional(attr) + FULLSTOP)
+varselt = pp.Group(VARS + pp.Group(pp.OneOrMore(varid)) + COLON +
+                   maudetype + FULLSTOP).addParseAction(lambda x: ast.Vars(x[0].asList()[0],
+                                                        x[0].asList()[1]))
+statementelt = pp.Group(statement +
+                        pp.Optional(statementattr,default=[]) + FULLSTOP).addParseAction(lambda x: ast.Statement(x[0].asList()[0],
+                                                                                                                 x[0].asList()[1]))
 
 # Mod Elt
-modelt = includeelt | \
-         extendelt | \
-         protectelt | \
-         pp.Group(SORTS + pp.OneOrMore(sort) + FULLSTOP) | \
-         pp.Group(SUBSORTS + subsort + FULLSTOP) | \
-         pp.Group(OP + opform + COLON + pp.ZeroOrMore(maudetype) + arrow + maudetype + pp.Optional(attr) + FULLSTOP) | \
-         pp.Group(OPS + pp.OneOrMore(opid | LPAREN + opform + RPAREN) + COLON \
-         + pp.ZeroOrMore(maudetype) + arrow + maudetype + pp.Optional(attr) + FULLSTOP) | \
-         pp.Group(VARS + pp.OneOrMore(varid) + COLON + maudetype + FULLSTOP) | \
-         pp.Group(statement + pp.Optional(statementattr) + FULLSTOP)
+modelt = includeelt | extendelt | protectelt | sortselt | subsortselt | opelt | opselt | varselt | statementelt
 
 # ParameterDecl
 parameterdecl = pp.Group(parameterid + "::" + modexp)
@@ -263,8 +269,11 @@ theory = pp.Group(FTH + modid + IS + pp.ZeroOrMore(modelt) + ENDFTH) | \
          pp.Group(TH + modid + IS + pp.ZeroOrMore(modeltprime) + ENDTH)
 
 # Module
-module = pp.Group(FMOD + modid + pp.Optional(parameterlist) + IS + pp.ZeroOrMore(modelt) + ENDFM) | \
-         pp.Group(MOD + modid + pp.Optional(parameterlist) + IS + pp.ZeroOrMore(modeltprime) + ENDFM)
+module = pp.Group(FMOD + modid + pp.Optional(parameterlist,default=[]) +
+                  IS + pp.Group(pp.ZeroOrMore(modelt)) + ENDFM).addParseAction(lambda x: ast.Module(x[0].asList()[0],
+                                                                                                    x[0].asList()[1],
+                                                                                                    x[0].asList()[2])) | \
+         pp.Group(MOD + modid + pp.Optional(parameterlist, default=[]) + IS + pp.Group(pp.ZeroOrMore(modeltprime)) + ENDFM)
 
 # Debugger command
 debuggercommand = pp.Literal("resume .") | pp.Literal("abort .") | pp.Literal("step .") | pp.Literal("where .")

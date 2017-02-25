@@ -26,7 +26,7 @@ class Ident(AST):
         self.name = name
 
     def __eq__(self, other):
-        return self.name == other.name
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -53,7 +53,7 @@ class Label(AST):
         self.id = id
 
     def __eq__(self, other):
-        return self.id == other.id
+        return self.__dict__ == other.__dict__
 
     def __repr__(self):
         return "<Label id: %s>" % (self.id)
@@ -68,7 +68,7 @@ class Token(AST):
         self.token = token
 
     def __eq__(self, other):
-        return self.token == other.token
+        return self.__dict__ == other.__dict__
 
     def __repr__(self):
         return "<Token token: %s>" % (self.token)
@@ -82,7 +82,7 @@ class TokenString(AST):
         self.listtree = listtree
 
     def __eq__(self, other):
-        return self.listtree == other.listtree
+        return self.__dict__ == other.__dict__
 
     def __repr__(self):
         return "<TokenString listtree: %s>" % (self.listtree)
@@ -97,7 +97,7 @@ class Term(AST):
         self.listtree = listtree
 
     def __eq__(self, other):
-        return self.listtree == other.listtree
+        return self.__dict__ == other.__dict__
 
     def __repr__(self):
         return "<Term listtree: %s>" % (self.listtree)
@@ -113,7 +113,7 @@ class Sort(AST):
         self.typelist = typelist
 
     def __eq__(self, other):
-        return self.id == other.id and self.typelist == other.typelist
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -156,7 +156,7 @@ class Hook(AST):
         self.tree = tree
 
     def __eq__(self, other):
-        return self.tree == other.tree
+        return self.__dict__ == other.__dict__
 
     def __repr__(self):
         return "<Hook tree: %s>" % (self.tree)
@@ -216,7 +216,7 @@ class Condition(AST):
         self.fragmentlist = fragmentlist
 
     def __eq__(self, other):
-        return self.fragmentlist == other.fragmentlist
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -234,7 +234,7 @@ class EqFragment(AST):
         self.rightterm = rightterm
 
     def __eq__(self, other):
-        return self.leftterm == other.leftterm and self.rightterm == other.rightterm
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -252,7 +252,7 @@ class AssigmentFragment(AST):
         self.rightterm = rightterm
 
     def __eq__(self, other):
-        return self.leftterm == other.leftterm and self.rightterm == other.rightterm
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -270,7 +270,7 @@ class SubsortFragment(AST):
         self.sort = sort
 
     def __eq__(self, other):
-        return self.term == other.term and self.sort == other.sort
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -291,7 +291,7 @@ class EqStatement(AST):
         self.rightterm = rightterm
 
     def __eq__(self, other):
-        return self.leftterm == other.leftterm and self.rightterm == other.rightterm
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -310,9 +310,7 @@ class CeqStatement(AST):
         self.condition = condition
 
     def __eq__(self, other):
-        return self.leftterm == other.leftterm and \
-               self.rightterm == other.rightterm and \
-               self.condition == other.condition
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -331,7 +329,7 @@ class MbStatement(AST):
         self.sort = sort
 
     def __eq__(self, other):
-        return self.term == other.term and self.sort == other.sort
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -350,9 +348,7 @@ class CmbStatement(AST):
         self.condition = condition
 
     def __eq__(self, other):
-        return self.term == other.term and \
-               self.sort == other.sort and \
-               self.condition == other.condition
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -364,6 +360,23 @@ class CmbStatement(AST):
         return "From str method of CeqStatement: term is %s,\nsort is %s,\ncondition is %s" % \
                (self.term, self.sort, self.condition)
 
+
+class RlStatement(AST):
+    def __init__(self, leftterm: Term, rightterm: Term):
+        self.leftterm = leftterm
+        self.rightterm = rightterm
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<RlStatement leftterm:%s, rightterm:%s>" % (self.leftterm, self.rightterm)
+
+    def __str__(self):
+        return "From str method of RlStatement: leftterm is %s, rightterm is %s" % (self.leftterm, self.rightterm)
 
 #
 # Statement Attributes
@@ -382,7 +395,7 @@ class StatementAttribute(AST):
         self.attrtype = intype
 
     def __eq__(self, other):
-        return self.attrtype == other.attrtype
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -401,7 +414,7 @@ class Include(AST):
         self.modexp = modexp
 
     def __eq__(self, other):
-            return self.modexp == other.modexp
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -418,7 +431,7 @@ class Extend(AST):
         self.modexp = modexp
 
     def __eq__(self, other):
-            return self.modexp == other.modexp
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -435,7 +448,7 @@ class Protect(AST):
         self.modexp = modexp
 
     def __eq__(self, other):
-            return self.modexp == other.modexp
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -447,6 +460,84 @@ class Protect(AST):
         return "From str method of Protect: modexp is %s" % (self.modexp)
 
 
+class Sorts(AST):
+    def __init__(self, sortlist):
+        self.sortlist = sortlist
+
+    def __eq__(self, other):
+        return self.sortlist == other.sortlist
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<Sorts sortlist:%s>" % (self.sortlist)
+
+    def __str__(self):
+        return "From str method of Sorts: sortlist is %s" % (self.sortlist)
+
+
+class Op(AST):
+    def __init__(self, opform, insortlist, arrow, outsort : Sort, attrs):
+        self.opform = opform
+        self.insortlist = insortlist
+        self.arrow = arrow
+        self.outsort = outsort
+        self.attrs = attrs
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<Op opform:%s insortlist:%s arrow:%s outsort:%s attrs:%s>" % (self.opform,
+                                                                              self.insortlist,
+                                                                              self.arrow,
+                                                                              self.outsort,
+                                                                              self.attrs)
+
+    def __str__(self):
+        return "From str method of Op: opform is %s" % (self.opform)
+
+
+
+
+class Vars(AST):
+    def __init__(self, varlist, maudetype):
+        self.varlist = varlist
+        self.maudetype = maudetype
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<Vars varlist:%s maudetype:%s>" % (self.sortlist, self.maudetype)
+
+    def __str__(self):
+        return "From str method of Vars: varlist is %s, maudetype is %s" % (self.sortlist, self.maudetype)
+
+
+class Statement(AST):
+    def __init__(self, statement, attributes):
+        self.statement = statement
+        self.attributes = attributes
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "<Statement statement:%s attributes:%s>" % (self.statement, self.attributes)
+
+    def __str__(self):
+        return "From str method of Statement: statement is %s, attributes is %s" % (self.statement, self.attributes)
 #
 # Attributes
 #
@@ -493,7 +584,7 @@ class MaudeAttribute(AST):
         self.attrtype = intype
 
     def __eq__(self, other):
-        return self.attrtype == other.attrtype
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -512,7 +603,7 @@ class ID(MaudeAttribute):
         self.tree = tree
 
     def __eq__(self, other):
-        return self.attrtype == other.attrtype and self.tree == other.tree
+        return self.__dict__ == other.__dict__
 
     def __repr__(self):
         return "<ID attrtype:%s, tree: %s>" % (self.attrtype.value, self.tree)
@@ -527,7 +618,7 @@ class MetaData(MaudeAttribute):
         self.tree = tree
 
     def __eq__(self, other):
-        return self.attrtype == other.attrtype and self.tree == other.tree
+        return self.__dict__ == other.__dict__
 
     def __repr__(self):
         return "<MetaData attrtype:%s, tree: %s>" % (self.attrtype.value, self.tree)
@@ -542,7 +633,7 @@ class Strat(MaudeAttribute):
         self.listtree = listtree
 
     def __eq__(self, other):
-        return self.attrtype == other.attrtype and self.listtree == other.listtree
+        return self.__dict__ == other.__dict__
 
     def __repr__(self):
         return "<Strat attrtype:%s, listtree: %s>" % (self.attrtype.value, self.listtree)
@@ -557,7 +648,7 @@ class Poly(MaudeAttribute):
         self.listtree = listtree
 
     def __eq__(self, other):
-        return self.attrtype == other.attrtype and self.listtree == other.listtree
+        return self.__dict__ == other.__dict__
 
     def __repr__(self):
         return "<Poly attrtype:%s, listtree: %s>" % (self.attrtype.value, self.listtree)
@@ -590,7 +681,7 @@ class Prec(MaudeAttribute):
         self.tree = tree
 
     def __eq__(self, other):
-        return self.attrtype == other.attrtype and self.tree == other.tree
+        return self.__dict__ == other.__dict__
 
 
 class Gather(MaudeAttribute):
@@ -599,7 +690,7 @@ class Gather(MaudeAttribute):
         self.listtree = listtree
 
     def __eq__(self, other):
-        return self.attrtype == other.attrtype and self.listtree == other.listtree
+        return self.__dict__ == other.__dict__
 
 
 class Format(MaudeAttribute):
@@ -608,7 +699,7 @@ class Format(MaudeAttribute):
         self.listtree = listtree
 
     def __eq__(self, other):
-        return self.attrtype == other.attrtype and self.listtree == other.listtree
+        return self.__dict__ == other.__dict__
 
 
 class Special(MaudeAttribute):
@@ -617,7 +708,7 @@ class Special(MaudeAttribute):
         self.listtree = listtree
 
     def __eq__(self, other):
-        return self.attrtype == other.attrtype and self.listtree == other.listtree
+        return self.__dict__ == other.__dict__
 
     def __repr__(self):
         return "<Special attrtype:%s, listtree: %s>" % (self.attrtype.value, self.listtree)
@@ -626,13 +717,32 @@ class Special(MaudeAttribute):
         return "From str method of Special: attrtype is %s" % (self.attrtype.value)
 
 
+# Modules
+class Module(AST):
+    def __init__(self, moduleid, parameterlist, elementlist):
+        self.moduleid = moduleid
+        self.parameterlist = parameterlist
+        self.elementlist = elementlist
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    def __repr__(self):
+        return "<Module module:%s parameterlist:%s elementlist:%s>" % (self.moduleid, self.parameterlist, self.elementlist)
+
+    def __str__(self):
+        return "From str method of Module: module is %s, parameterlist is %s, elementlist is %s" % (self.moduleid,
+                                                                                                    self.parameterlist,
+                                                                                                    self.elementlist)
+
+
 # System commands
 class InCommand(AST):
     def __init__(self, filename):
         self.filename = filename
 
     def __eq__(self, other):
-        return self.filename == other.filename
+        return self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -646,7 +756,7 @@ class LoadCommand(AST):
         self.filename = filename
 
     def __eq__(self, other):
-        return self.filename == other.filename
+        return self.__dict__ == other.__dict__
 
     def commandtype(self):
         return CommandType.loadcommand
@@ -689,7 +799,7 @@ class CdCommand(AST):
         self.path = path
 
     def __eq__(self, other):
-        return self.path == other.path
+        return self.__dict__ == other.__dict__
 
     def commandtype(self):
         return CommandType.cdcommand
@@ -700,7 +810,7 @@ class PushCommand(AST):
         self.path = path
 
     def __eq__(self, other):
-        return self.path == other.path
+        return self.__dict__ == other.__dict__
 
     def commandtype(self):
         return CommandType.pushcommand
@@ -712,7 +822,7 @@ class LsCommand(AST):
         self.path = path
 
     def __eq__(self, other):
-        return self.path == other.path and self.lsflags == other.lsflags
+        return self.__dict__ == other.__dict__
 
     def commandtype(self):
         return CommandType.lscommand

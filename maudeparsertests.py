@@ -255,7 +255,6 @@ class TestStatement(unittest.TestCase):
         self.assertEqual(mp.eqstatement.parseString("eq term1 = term2")[0],
                          ast.EqStatement(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")])))
     def testMbStatement(self):
-        print(mp.cmbstatement.parseString("cmb term : NAT if x = y")[0])
         self.assertEqual(mp.mbstatement.parseString("mb term : NAT")[0],
                          ast.MbStatement(ast.Term([ast.Token("term")]), ast.Sort(ast.Ident("NAT"),[])))
 
@@ -268,6 +267,10 @@ class TestStatement(unittest.TestCase):
         self.assertEqual(mp.cmbstatement.parseString("cmb term : NAT if x = y")[0].condition,
                          ast.Condition([ast.EqFragment(ast.Term([ast.Token("x")]), ast.Term([ast.Token("y")]))]))
 
+
+    def testRlStatement(self):
+        self.assertEqual(mp.rlstatement.parseString("rl x => y")[0],
+                         ast.RlStatement(ast.Term([ast.Token("x")]), ast.Term([ast.Token("y")])))
 """
 Add these tests when conditions are implemented.
     def testCeqStatement(self):
@@ -296,6 +299,36 @@ class TestCondition(unittest.TestCase):
         self.assertEqual(mp.condition.parseString("term1 = term2")[0],
                          ast.Condition([ast.EqFragment(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")]))]))
 
+    def testConditionFragmentlist(self):
+        self.assertEqual(mp.condition.parseString("term1 = term2")[0].fragmentlist,
+                         ast.Condition([ast.EqFragment(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")]))]).fragmentlist)
+
+class TestModuleElement(unittest.TestCase):
+    def testSorts(self):
+        self.assertEqual(mp.sortselt.parseString("sorts SORTX SORTY .")[0],
+                         ast.Sorts([ast.Sort(ast.Ident("SORTX"),[]), ast.Sort(ast.Ident("SORTY"),[])]))
+
+    def testOp(self):
+        self.assertEqual(mp.opelt.parseString("op plus : NAT NAT -> NAT .")[0],
+                         ast.Op(ast.Ident("plus"),
+                                [ast.Sort(ast.Ident("NAT"), []), ast.Sort(ast.Ident("NAT"), [])],
+                                "->",
+                                ast.Sort(ast.Ident("NAT"), []),
+                                []))
+
+    def testVars(self):
+        self.assertEqual(mp.varselt.parseString("vars X1 : NAT .")[0],
+                         ast.Vars([ast.Ident("X1")], ast.Sort(ast.Ident("NAT"), [])))
+
+    def testStatement(self):
+        self.assertEqual(mp.statementelt.parseString("eq term1 = term2 .")[0],
+                         ast.Statement(ast.EqStatement(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")])),[]))
+
+class TestFModule(unittest.TestCase):
+    def testemptyfmod(self):
+        self.assertEqual(mp.module.parseString("fmod MYMODULE is endfm .")[0],
+                         ast.Module(ast.Ident("MYMODULE"), [], []))
+        
 if __name__ == '__main__':
     unittest.main()
 
