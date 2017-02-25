@@ -328,7 +328,23 @@ class TestFModule(unittest.TestCase):
     def testemptyfmod(self):
         self.assertEqual(mp.module.parseString("fmod MYMODULE is endfm .")[0],
                          ast.Module(ast.Ident("MYMODULE"), [], []))
-        
+
+    def testemptymodule(self):
+        self.assertEqual(mp.module.parseFile("./testdata/emptymodule.maude")[0],
+                         ast.Module(ast.Ident("MYMODULE"), [], []))
+
+    def testsimplemodule(self):
+        self.assertEqual(mp.module.parseFile("./testdata/simplemodule.maude")[0],
+                         ast.Module(ast.Ident("MYMODULE"), [], [ast.Sorts([ast.Sort(ast.Ident("SORTX"),[]), ast.Sort(ast.Ident("SORTY"),[])]),
+                                                                ast.Op(ast.Ident("plus"),
+                                                                       [ast.Sort(ast.Ident("NAT"), []),
+                                                                        ast.Sort(ast.Ident("NAT"), [])],
+                                                                       "->",
+                                                                       ast.Sort(ast.Ident("NAT"), []),
+                                                                       []),
+                                                                ast.Vars([ast.Ident("X1")], ast.Sort(ast.Ident("NAT"), []))
+                                                                ]))
+
 if __name__ == '__main__':
     unittest.main()
 

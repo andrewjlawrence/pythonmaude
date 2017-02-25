@@ -1,6 +1,7 @@
 # Copyright 2016 Andrew Lawrence
 import ast, maudeparser, pyparsing, sys, string
 import os
+from loader import Loader
 
 directorystack = []
 
@@ -17,7 +18,9 @@ def onchangedirectory(cdcommand):
 
 
 def onload(loadcommand):
-    pass
+
+    maudeparser.module.parsefile(loadcommand.filename)
+
 
 
 def onin(incommand):

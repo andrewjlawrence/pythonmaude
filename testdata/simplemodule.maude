@@ -1,0 +1,5 @@
+fmod MYMODULE is
+    sorts SORTX SORTY .
+    op plus : NAT NAT -> NAT .
+    vars X1 : NAT .
+endfm .
