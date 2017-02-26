@@ -20,7 +20,12 @@ def onchangedirectory(cdcommand):
         print("Error invalid path")
 
 def onload(loadcommand):
-    module = maudeparser.module.parsefile(loadcommand.filename)
+    if os.path.isfile(loadcommand.filename):
+        module = maudeparser.module.parseFile(loadcommand.filename)
+        module.elementlist
+        print("Successfully loaded module %s" % module.moduleid)
+    else:
+        raise FileNotFoundError("File not found %s" % loadcommand.filename)
     #for element in module.elementlist:
     #    if type(element) == EqStatement:
     #        context.addEq(element)
@@ -75,12 +80,8 @@ class CommandEvaluator:
         self.lasterror = ""
 
     def eval(self, x):
-        try:
-            case[x.commandtype()](x)
-        except SystemExit as s:
-            raise s
-        except:
-            self.lasterror = ""
+        case[x.commandtype()](x)
+
 
 evaluator = CommandEvaluator()
 while True:
@@ -88,5 +89,7 @@ while True:
         evaluator.eval(maudeparser.systemcommand.parseString(input("Maude> "))[0])
     except pyparsing.ParseException:
         print("Unknown command")
+    except FileNotFoundError as error:
+        print(error)
     except MaudeException:
         print(MaudeException)

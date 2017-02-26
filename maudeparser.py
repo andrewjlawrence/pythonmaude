@@ -71,7 +71,7 @@ stringid = pp.dblQuotedString
 # File name. OS dependent
 windowsfilename = pp.Word(pp.alphanums) + FULLSTOP + pp.Word(pp.alphanums, max=3)
 linuxfilename = pp.Word(pp.alphanums)
-filename = pp.Word(pp.alphanums)
+filename = pp.Word(pp.alphanums + ".")
 
 # path. OS dependent.
 path = pp.Word(pp.alphanums + "./")
