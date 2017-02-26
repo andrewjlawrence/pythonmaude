@@ -1,4 +1,4 @@
-# Copyright 2016 Andrew Lawrence
+# Copyright 2017 Andrew Lawrence
 from enum import Enum
 from functools import reduce
 
@@ -285,7 +285,7 @@ class SubsortFragment(AST):
 #
 # Statements
 #
-class EqStatement(AST):
+class Equation(AST):
     def __init__(self, leftterm: Term, rightterm: Term):
         self.leftterm = leftterm
         self.rightterm = rightterm
@@ -303,7 +303,7 @@ class EqStatement(AST):
         return "From str method of EqStatement: leftterm is %s, rightterm is %s" % (self.leftterm, self.rightterm)
 
 
-class CeqStatement(AST):
+class ConditionalEquation(AST):
     def __init__(self, leftterm: Term, rightterm: Term, condition: Condition):
         self.leftterm = leftterm
         self.rightterm = rightterm
@@ -484,6 +484,7 @@ class Op(AST):
         self.arrow = arrow
         self.outsort = outsort
         self.attrs = attrs
+        self.parser = self.opformtoparser()
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -501,7 +502,13 @@ class Op(AST):
     def __str__(self):
         return "From str method of Op: opform is %s" % (self.opform)
 
+    def getsorts(self):
+        outlist = self.insortlist
+        outlist.append(self.outsort)
+        return outlist
 
+    def opformtoparser(self):
+        pass
 
 
 class Vars(AST):
@@ -521,6 +528,14 @@ class Vars(AST):
     def __str__(self):
         return "From str method of Vars: varlist is %s, maudetype is %s" % (self.sortlist, self.maudetype)
 
+
+class Var(AST):
+    def __init__(self, id, maudetype):
+        self.id = id
+        self.maudetype = maudetype
+
+    def getsort(self):
+        return self.maudetype.id
 
 class Statement(AST):
     def __init__(self, statement, attributes):

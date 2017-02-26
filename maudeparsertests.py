@@ -1,4 +1,4 @@
-# Copyright 2016 Andrew Lawrence
+# Copyright 2017 Andrew Lawrence
 import pyparsing
 import maudeparser as mp
 import ast
@@ -253,7 +253,8 @@ class TestSubsort(unittest.TestCase):
 class TestStatement(unittest.TestCase):
     def testEqStatement(self):
         self.assertEqual(mp.eqstatement.parseString("eq term1 = term2")[0],
-                         ast.EqStatement(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")])))
+                         ast.Equation(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")])))
+
     def testMbStatement(self):
         self.assertEqual(mp.mbstatement.parseString("mb term : NAT")[0],
                          ast.MbStatement(ast.Term([ast.Token("term")]), ast.Sort(ast.Ident("NAT"),[])))
@@ -261,7 +262,8 @@ class TestStatement(unittest.TestCase):
     def testCmbStatement(self):
         self.assertEqual(mp.cmbstatement.parseString("cmb term : NAT if x = y")[0], ast.CmbStatement(ast.Term([ast.Token("term")]),
                                                                                                      ast.Sort(ast.Ident("NAT"),[]),
-                                                                                                     ast.Condition([ast.EqFragment(ast.Term([ast.Token("x")]),ast.Term([ast.Token("y")]))])))
+                                                                                                     ast.Condition([ast.EqFragment(ast.Term([ast.Token("x")]),
+                                                                                                                                   ast.Term([ast.Token("y")]))])))
 
     def testCmbStatement2(self):
         self.assertEqual(mp.cmbstatement.parseString("cmb term : NAT if x = y")[0].condition,
@@ -322,9 +324,10 @@ class TestModuleElement(unittest.TestCase):
 
     def testStatement(self):
         self.assertEqual(mp.statementelt.parseString("eq term1 = term2 .")[0],
-                         ast.Statement(ast.EqStatement(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")])),[]))
+                         ast.Statement(ast.Equation(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")])),[]))
 
 class TestFModule(unittest.TestCase):
+
     def testemptyfmod(self):
         self.assertEqual(mp.module.parseString("fmod MYMODULE is endfm .")[0],
                          ast.Module(ast.Ident("MYMODULE"), [], []))
@@ -335,17 +338,17 @@ class TestFModule(unittest.TestCase):
 
     def testsimplemodule(self):
         self.assertEqual(mp.module.parseFile("./testdata/simplemodule.maude")[0],
-                         ast.Module(ast.Ident("MYMODULE"), [], [ast.Sorts([ast.Sort(ast.Ident("SORTX"),[]), ast.Sort(ast.Ident("SORTY"),[])]),
-                                                                ast.Op(ast.Ident("plus"),
-                                                                       [ast.Sort(ast.Ident("NAT"), []),
-                                                                        ast.Sort(ast.Ident("NAT"), [])],
-                                                                       "->",
-                                                                       ast.Sort(ast.Ident("NAT"), []),
-                                                                       []),
-                                                                ast.Vars([ast.Ident("X1")], ast.Sort(ast.Ident("NAT"), [])),
-                                                                ast.Statement(
-                                                                    ast.EqStatement(ast.Term([ast.Token("term1")]),
-                                                                                    ast.Term([ast.Token("term2")])), [])
+                        ast.Module(ast.Ident("MYMODULE"), [], [ast.Sorts([ast.Sort(ast.Ident("SORTX"),[]), ast.Sort(ast.Ident("SORTY"),[])]),
+                                                               ast.Op(ast.Ident("plus"),
+                                                                      [ast.Sort(ast.Ident("NAT"), []),
+                                                                       ast.Sort(ast.Ident("NAT"), [])],
+                                                                      "->",
+                                                                      ast.Sort(ast.Ident("NAT"), []),
+                                                                      []),
+                                                               ast.Vars([ast.Ident("X1")], ast.Sort(ast.Ident("NAT"), [])),
+                                                               ast.Statement(
+                                                                    ast.Equation(ast.Term([ast.Token("term1")]),
+                                                                                 ast.Term([ast.Token("term2")])), [])
                                                                 ]))
 
 if __name__ == '__main__':

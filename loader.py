@@ -1,3 +1,5 @@
+# Copyright 2017 Andrew Lawrence
+
 import os
 
 class Loader:

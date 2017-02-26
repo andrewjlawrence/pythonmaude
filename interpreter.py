@@ -1,10 +1,10 @@
-# Copyright 2016 Andrew Lawrence
+# Copyright 2017 Andrew Lawrence
 import ast, maudeparser, pyparsing, sys, string
 import os
 from loader import Loader
-from ast import EqStatement,Sort,Vars,Ident,Sorts
+from ast import Equation,Sort,Vars,Ident,Sorts
 from context import Context
-
+from exceptions import MaudeException
 
 directorystack = []
 
@@ -88,3 +88,5 @@ while True:
         evaluator.eval(maudeparser.systemcommand.parseString(input("Maude> "))[0])
     except pyparsing.ParseException:
         print("Unknown command")
+    except MaudeException:
+        print(MaudeException)

@@ -1,20 +1,32 @@
-from ast import Op,Sort,Ident,EqStatement
+# Copyright 2017 Andrew Lawrence
+
+from ast import Op,Sort,Var,Equation
+from exceptions import MaudeException
+
 
 class Context:
     def __init__(self):
-        self.sorts = set()
+        self.sorts = dict()
         self.ops = set()
         self.eqs = set()
         self.vars = set()
 
-    def addOp(self, op:Op):
-        self.ops.add(op)
+    def addop(self, op: Op):
+        for sort in op.getsorts():
+            if sort in self.sorts:
+                self.ops.add(op)
+            else:
+                raise MaudeException("Unknown sort: %s" % sort)
 
-    def addSort(self, sort:Sort):
-        self.sort.add(sort)
+    def addsort(self, sort: Sort):
+        self.sorts[sort.id] = sort.typelist
 
-    def addVar(self, var:Ident):
-        self.vars.add(var)
+    def addvar(self, var: Var):
+        if var.getsort() in self.sorts:
+            self.vars.add(var)
+        else:
+            raise MaudeException("Unknown sort: %s" % var.getsort())
 
-    def addEq(self, eq:EqStatement):
+    def addeq(self, eq: Equation):
         self.eqs.add(eq)
+

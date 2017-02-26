@@ -1,4 +1,4 @@
-# Copyright 2016 Andrew Lawrence
+# Copyright 2017 Andrew Lawrence
 import pyparsing as pp
 import ast as ast
 from functools import partial
@@ -179,8 +179,8 @@ label = LSBRACK + labelid.addParseAction(lambda x: ast.Label(x[0])) + RSBRACK + 
 # TODO these statements had optional labels. I have removed them temporarily.
 mbstatement = pp.Group(MB + term + COLON + sort).addParseAction(lambda x: ast.MbStatement(x[0][0], x[0][1]))
 cmbstatement = pp.Group(CMB + term + COLON + sort + IF + condition).addParseAction(lambda x: ast.CmbStatement(x[0][0], x[0][1], x[0][2]))
-eqstatement = pp.Group(EQ + term + EQUAL + term).addParseAction(lambda x: ast.EqStatement(x[0][0], x[0][1]))
-ceqstatement = pp.Group(CEQ + term + EQUAL + term + IF + condition).addParseAction(lambda x: ast.CeqStatement(x[0][0], x[0][1], x[0][2]))
+eqstatement = pp.Group(EQ + term + EQUAL + term).addParseAction(lambda x: ast.Equation(x[0][0], x[0][1]))
+ceqstatement = pp.Group(CEQ + term + EQUAL + term + IF + condition).addParseAction(lambda x: ast.ConditionalEquation(x[0][0], x[0][1], x[0][2]))
 statement = mbstatement | cmbstatement | eqstatement | ceqstatement
 
 rlstatement = pp.Group(RL + term + RIGHTARROW + term).addParseAction(lambda x: ast.RlStatement(x[0][0], x[0][1]))
