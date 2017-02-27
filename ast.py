@@ -535,10 +535,10 @@ class Vars(AST):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return "<Vars varlist:%s maudetype:%s>" % (self.sortlist, self.maudetype)
+        return "<Vars varlist:%s maudetype:%s>" % (self.varlist, self.maudetype)
 
     def __str__(self):
-        return "From str method of Vars: varlist is %s, maudetype is %s" % (self.sortlist, self.maudetype)
+        return "From str method of Vars: varlist is %s, maudetype is %s" % (self.varlist, self.maudetype)
 
 
 class Var(AST):

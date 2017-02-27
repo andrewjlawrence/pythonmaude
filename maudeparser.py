@@ -107,8 +107,8 @@ def idhookparseaction(x):
         return ast.IDHook(x[0], [])
 
 idhook = pp.Group(pp.Literal("id-hook").suppress() + token + pp.Optional(brackettokenstring)).addParseAction(lambda x: idhookparseaction(x[0]))
-ophook = pp.Group(pp.Literal("op-hook").suppress() + brackettokenstring).addParseAction(lambda x: ast.OPHook(x[0]))
-termhook = pp.Group(pp.Literal("term-hook").suppress() + brackettokenstring).addParseAction(lambda x: ast.TermHook(x[0]))
+ophook = pp.Group(pp.Literal("op-hook").suppress() + brackettokenstring).addParseAction(lambda x: ast.OPHook(x[0].asList()))
+termhook = pp.Group(pp.Literal("term-hook").suppress() + brackettokenstring).addParseAction(lambda x: ast.TermHook(x[0].asList()))
 hook = idhook | ophook | termhook
 
 brackethooklist = LPAREN + pp.OneOrMore(hook) + RPAREN

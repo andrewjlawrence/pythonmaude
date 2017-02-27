@@ -342,18 +342,38 @@ class TestFModule(unittest.TestCase):
 
     def testsimplemodule(self):
         self.assertEqual(mp.module.parseFile("./testdata/simplemodule.maude", parseAll=True)[0],
-                        ast.Module(ast.Ident("MYMODULE", 1, 6), [], [ast.Sorts([ast.Sort(ast.Ident("SORTX", 1, 1),[]), ast.Sort(ast.Ident("SORTY", 1, 1),[])]),
-                                                               ast.Op(ast.Ident("plus", 1, 1),
-                                                                      [ast.Sort(ast.Ident("NAT", 1, 1), []),
-                                                                       ast.Sort(ast.Ident("NAT", 1, 1), [])],
-                                                                      "->",
-                                                                      ast.Sort(ast.Ident("NAT", 1, 1), []),
-                                                                      []),
-                                                               ast.Vars([ast.Ident("X1", 1, 1)], ast.Sort(ast.Ident("NAT", 1, 1), [])),
-                                                               ast.Statement(
-                                                                    ast.Equation(ast.Term([ast.Token("term1")]),
-                                                                                 ast.Term([ast.Token("term2")])), [])
-                                                                ]))
+                        ast.Module(ast.Ident("MYMODULE", 1, 6), [], [ast.Sorts(
+                                                                     [ast.Sort(ast.Ident("SORTX", 2, 11), []),
+                                                                      ast.Sort(ast.Ident("SORTY", 2, 17), [])]),
+                                                                     ast.Op(ast.Ident("plus", 3, 8),
+                                                                            [ast.Sort(ast.Ident("NAT", 3, 15), []),
+                                                                             ast.Sort(ast.Ident("NAT", 3, 19), [])],
+                                                                            "->",
+                                                                            ast.Sort(ast.Ident("NAT", 3, 26), []),
+                                                                            []),
+                                                                     ast.Vars([ast.Ident("X1", 4, 10)],
+                                                                              ast.Sort(ast.Ident("NAT", 4, 15), [])),
+                                                                     ast.Statement(
+                                                                         ast.Equation(ast.Term([ast.Token("term1")]),
+                                                                                      ast.Term([ast.Token("term2")])),
+                                                                         [])
+                                                                     ]
+                                   ))
+
+    def testsimplemodule2(self):
+        self.assertEqual(mp.module.parseFile("./testdata/simplemodule.maude", parseAll=True)[0].elementlist,
+                         [ast.Sorts([ast.Sort(ast.Ident("SORTX", 2, 11), []), ast.Sort(ast.Ident("SORTY", 2, 17), [])]),
+                          ast.Op(ast.Ident("plus", 3, 8),
+                                [ast.Sort(ast.Ident("NAT", 3, 15), []),
+                                 ast.Sort(ast.Ident("NAT", 3, 19), [])],
+                                "->",
+                                ast.Sort(ast.Ident("NAT", 3, 26), []),
+                                []),
+                          ast.Vars([ast.Ident("X1", 4, 10)], ast.Sort(ast.Ident("NAT", 4, 15), [])),
+                          ast.Statement(
+                             ast.Equation(ast.Term([ast.Token("term1")]),
+                                          ast.Term([ast.Token("term2")])), [])
+                         ])
 
 if __name__ == '__main__':
     unittest.main()
