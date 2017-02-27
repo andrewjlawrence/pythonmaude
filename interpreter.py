@@ -21,7 +21,7 @@ def onchangedirectory(cdcommand):
 
 def onload(loadcommand):
     if os.path.isfile(loadcommand.filename):
-        module = maudeparser.module.parseFile(loadcommand.filename)
+        module = maudeparser.module.parseFile(loadcommand.filename, parseAll=True)
         module.elementlist
         print("Successfully loaded module %s" % module.moduleid)
     else:

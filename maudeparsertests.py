@@ -215,17 +215,16 @@ class TestStatementAttribute(unittest.TestCase):
 class TestIdent(unittest.TestCase):
     def testSortID(self):
         self.assertEqual(mp.sortid.parseString("MEHID")[0],
-                         ast.Ident("MEHID"))
+                         ast.Ident("MEHID", 1, 1))
 
 class TestSort(unittest.TestCase):
     def testSort1(self):
         self.assertEqual(mp.sort.parseString("MEHID")[0],
-                         ast.Sort(ast.Ident("MEHID"), []))
+                         ast.Sort(ast.Ident("MEHID", 1, 1), []))
 
     def testSort2(self):
-        print(mp.subsort.parseString("NAT < INT")[0])
         self.assertEqual(mp.sort.parseString("LIST{NAT}")[0],
-                         ast.Sort(ast.Ident("LIST"), [ast.Sort(ast.Ident("NAT"), [])]))
+                         ast.Sort(ast.Ident("LIST", 1, 1), [ast.Sort(ast.Ident("NAT", 1, 6), [])]))
 
 
 class TestSubsort(unittest.TestCase):
@@ -305,47 +304,50 @@ class TestCondition(unittest.TestCase):
         self.assertEqual(mp.condition.parseString("term1 = term2")[0].fragmentlist,
                          ast.Condition([ast.EqFragment(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")]))]).fragmentlist)
 
+
 class TestModuleElement(unittest.TestCase):
     def testSorts(self):
-        self.assertEqual(mp.sortselt.parseString("sorts SORTX SORTY .")[0],
-                         ast.Sorts([ast.Sort(ast.Ident("SORTX"),[]), ast.Sort(ast.Ident("SORTY"),[])]))
+        self.assertEqual(mp.sortselt.parseString("sorts SORTX SORTY .", parseAll=True)[0],
+                         ast.Sorts([ast.Sort(ast.Ident("SORTX", 1 , 7),[]),
+                                    ast.Sort(ast.Ident("SORTY", 1, 13),[])]))
 
     def testOp(self):
-        self.assertEqual(mp.opelt.parseString("op plus : NAT NAT -> NAT .")[0],
-                         ast.Op(ast.Ident("plus"),
-                                [ast.Sort(ast.Ident("NAT"), []), ast.Sort(ast.Ident("NAT"), [])],
+        self.assertEqual(mp.opelt.parseString("op plus : NAT NAT -> NAT .", parseAll=True)[0],
+                         ast.Op(ast.Ident("plus", 1 ,1),
+                                [ast.Sort(ast.Ident("NAT", 1, 10), []), ast.Sort(ast.Ident("NAT", 1, 14), [])],
                                 "->",
-                                ast.Sort(ast.Ident("NAT"), []),
+                                ast.Sort(ast.Ident("NAT", 1, 21), []),
                                 []))
 
     def testVars(self):
-        self.assertEqual(mp.varselt.parseString("vars X1 : NAT .")[0],
+        self.assertEqual(mp.varselt.parseString("vars X1 : NAT .", parseAll=True)[0],
                          ast.Vars([ast.Ident("X1")], ast.Sort(ast.Ident("NAT"), [])))
 
     def testStatement(self):
-        self.assertEqual(mp.statementelt.parseString("eq term1 = term2 .")[0],
+        self.assertEqual(mp.statementelt.parseString("eq term1 = term2 .", parseAll=True)[0],
                          ast.Statement(ast.Equation(ast.Term([ast.Token("term1")]), ast.Term([ast.Token("term2")])),[]))
+
 
 class TestFModule(unittest.TestCase):
 
     def testemptyfmod(self):
-        self.assertEqual(mp.module.parseString("fmod MYMODULE is endfm .")[0],
-                         ast.Module(ast.Ident("MYMODULE"), [], []))
+        self.assertEqual(mp.module.parseString("fmod MYMODULE is endfm", parseAll=True)[0],
+                         ast.Module(ast.Ident("MYMODULE", 1, 6), [], []))
 
     def testemptymodule(self):
-        self.assertEqual(mp.module.parseFile("./testdata/emptymodule.maude")[0],
-                         ast.Module(ast.Ident("MYMODULE"), [], []))
+        self.assertEqual(mp.module.parseFile("./testdata/emptymodule.maude", parseAll=True)[0],
+                         ast.Module(ast.Ident("MYMODULE", 1, 6), [], []))
 
     def testsimplemodule(self):
-        self.assertEqual(mp.module.parseFile("./testdata/simplemodule.maude")[0],
-                        ast.Module(ast.Ident("MYMODULE"), [], [ast.Sorts([ast.Sort(ast.Ident("SORTX"),[]), ast.Sort(ast.Ident("SORTY"),[])]),
-                                                               ast.Op(ast.Ident("plus"),
-                                                                      [ast.Sort(ast.Ident("NAT"), []),
-                                                                       ast.Sort(ast.Ident("NAT"), [])],
+        self.assertEqual(mp.module.parseFile("./testdata/simplemodule.maude", parseAll=True)[0],
+                        ast.Module(ast.Ident("MYMODULE", 1, 6), [], [ast.Sorts([ast.Sort(ast.Ident("SORTX", 1, 1),[]), ast.Sort(ast.Ident("SORTY", 1, 1),[])]),
+                                                               ast.Op(ast.Ident("plus", 1, 1),
+                                                                      [ast.Sort(ast.Ident("NAT", 1, 1), []),
+                                                                       ast.Sort(ast.Ident("NAT", 1, 1), [])],
                                                                       "->",
-                                                                      ast.Sort(ast.Ident("NAT"), []),
+                                                                      ast.Sort(ast.Ident("NAT", 1, 1), []),
                                                                       []),
-                                                               ast.Vars([ast.Ident("X1")], ast.Sort(ast.Ident("NAT"), [])),
+                                                               ast.Vars([ast.Ident("X1", 1, 1)], ast.Sort(ast.Ident("NAT", 1, 1), [])),
                                                                ast.Statement(
                                                                     ast.Equation(ast.Term([ast.Token("term1")]),
                                                                                  ast.Term([ast.Token("term2")])), [])

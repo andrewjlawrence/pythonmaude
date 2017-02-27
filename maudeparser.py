@@ -39,7 +39,9 @@ t_list = LPAREN + pp.ZeroOrMore(term) + RPAREN
 term << pp.OneOrMore(token | t_list).addParseAction(lambda x: ast.Term(x.asList()))
 
 # Operation identifier. Simple identifier with possible underscores.
-opid = pp.Word(pp.alphanums + "_").addParseAction(lambda x: ast.Ident(x[0]))
+opid = pp.Group(pp.Word(pp.alphanums + "_")).addParseAction(lambda st,locn,toks: ast.Ident(toks[0],
+                                                                                           pp.line(locn, st),
+                                                                                           pp.col(locn, st)))
 
 # Operation formula
 opform = pp.Forward()
@@ -51,10 +53,14 @@ opform << pp.OneOrMore(opformbody)
 varandsortid = pp.Word(pp.alphanums) + COLON + pp.Word(pp.alphanums)
 
 # Variable ID. Simple identifier. Capitalised.
-varid = pp.Word(pp.srange("[A-Z]"), pp.alphanums).addParseAction(lambda x: ast.Ident(x[0]))
+varid = pp.Word(pp.srange("[A-Z]"), pp.alphanums).addParseAction(lambda st,locn,toks:ast.Ident(toks[0],
+                                                                                               pp.lineno(locn, st),
+                                                                                               pp.col(locn, st)))
 
 # Sort ID.
-sortid = pp.Word(pp.srange("[A-Z]"), pp.alphanums).addParseAction(lambda x: ast.Ident(x[0]))
+sortid = pp.Word(pp.srange("[A-Z]"), pp.alphanums).addParseAction(lambda st,locn,toks: ast.Ident(toks[0],
+                                                                                                 pp.lineno(locn, st),
+                                                                                                 pp.col(locn, st)))
 
 # Parameter ID.
 parameterid = pp.Word(pp.srange("[A-Z]"), exact=1)
@@ -63,7 +69,9 @@ parameterid = pp.Word(pp.srange("[A-Z]"), exact=1)
 viewid = pp.Word(pp.srange("[A-Z]"), pp.alphanums)
 
 # Module ID
-modid = pp.Word(pp.srange("[A-Z0-9]")).addParseAction(lambda x: ast.Ident(x[0]))
+modid = pp.Word(pp.srange("[A-Z0-9]")).addParseAction(lambda st,locn,toks: ast.Ident(toks[0],
+                                                                                     pp.lineno(locn, st),
+                                                                                     pp.col(locn, st)))
 
 # String ID
 stringid = pp.dblQuotedString

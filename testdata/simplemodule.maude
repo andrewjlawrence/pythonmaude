@@ -3,4 +3,4 @@ fmod MYMODULE is
     op plus : NAT NAT -> NAT .
     vars X1 : NAT .
     eq term1 = term2 .
-endfm .
+endfm

@@ -17,12 +17,16 @@ class CommandType(Enum):
 
 # Abstract syntax tree
 class AST:
-    pass
+    def __init__(self, lineno=0, colno=0):
+        self.lineno = lineno
+        self.colno = colno
+
 
 
 # Identifier
 class Ident(AST):
-    def __init__(self, name):
+    def __init__(self, name, lineno, colno):
+        AST.__init__(self, lineno, colno)
         self.name = name
 
     def __eq__(self, other):
@@ -32,10 +36,14 @@ class Ident(AST):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return "<Ident name: %s>" % (self.name)
+        return "<Ident name:%s lineno:%s colno:%s>" % (self.name,
+                                                       self.lineno,
+                                                       self.colno)
 
     def __str__(self):
-        return "From str method of Ident: name is %s" % (self.name)
+        return "From str method of Ident: name is %s, lineno is %s, colno is %s" % (self.name,
+                                                                                    self.lineno,
+                                                                                    self.colno)
 
     def __hash__(self):
         return hash(self.name)
