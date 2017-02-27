@@ -40,7 +40,7 @@ term << pp.OneOrMore(token | t_list).addParseAction(lambda x: ast.Term(x.asList(
 
 # Operation identifier. Simple identifier with possible underscores.
 opid = pp.Word(pp.alphanums + "_").addParseAction(lambda st,locn,toks: ast.Ident(toks[0],
-                                                                                 pp.line(locn, st),
+                                                                                 pp.lineno(locn, st),
                                                                                  pp.col(locn, st)))
 
 # Operation formula
@@ -76,9 +76,7 @@ modid = pp.Word(pp.srange("[A-Z0-9]")).addParseAction(lambda st,locn,toks: ast.I
                                                                                      pp.col(locn, st)))
 
 # String ID
-stringid = pp.dblQuotedString.addParseAction(lambda st,locn,toks: ast.Ident(toks[0],
-                                                                            pp.lineno(locn, st),
-                                                                            pp.col(locn, st)))
+stringid = pp.dblQuotedString
 
 # File name. OS dependent
 windowsfilename = pp.Word(pp.alphanums) + FULLSTOP + pp.Word(pp.alphanums, max=3)

@@ -309,10 +309,17 @@ class TestModuleElement(unittest.TestCase):
     def testOp(self):
         self.assertEqual(mp.opelt.parseString("op plus : NAT NAT -> NAT .", parseAll=True)[0],
                          ast.Op(ast.Ident("plus", 1 ,4),
+                                [ast.Sort(ast.Ident("NAT", 1, 11), []), ast.Sort(ast.Ident("NAT", 1, 15), [])],
+                                "->",
+                                ast.Sort(ast.Ident("NAT", 1, 22), []),
+                                []))
+    def testOpOpForm(self):
+        self.assertEqual(mp.opelt.parseString("op plus : NAT NAT -> NAT .", parseAll=True)[0].opform,
+                         ast.Op(ast.Ident("plus", 1 ,4),
                                 [ast.Sort(ast.Ident("NAT", 1, 10), []), ast.Sort(ast.Ident("NAT", 1, 14), [])],
                                 "->",
                                 ast.Sort(ast.Ident("NAT", 1, 21), []),
-                                []))
+                                []).opform)
 
     def testVars(self):
         self.assertEqual(mp.varselt.parseString("vars X1 : NAT .", parseAll=True)[0],
