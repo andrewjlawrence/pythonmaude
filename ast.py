@@ -1,7 +1,7 @@
 # Copyright 2017 Andrew Lawrence
 from enum import Enum
 from functools import reduce
-
+from exceptions import MaudeException
 
 class CommandType(Enum):
     incommand = 1
@@ -525,8 +525,9 @@ class Op(AST):
 
 class Vars(AST):
     def __init__(self, varlist, maudetype):
-        self.varlist = varlist
-        self.maudetype = maudetype
+        self.varlist = list()
+        for var in varlist:
+            self.varlist.append(Var(var, maudetype))
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -535,10 +536,10 @@ class Vars(AST):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return "<Vars varlist:%s maudetype:%s>" % (self.varlist, self.maudetype)
+        return "<Vars varlist:%s>" % (self.varlist)
 
     def __str__(self):
-        return "From str method of Vars: varlist is %s, maudetype is %s" % (self.varlist, self.maudetype)
+        return "From str method of Vars: varlist is %s" % (self.varlist)
 
 
 class Var(AST):
@@ -546,8 +547,19 @@ class Var(AST):
         self.id = id
         self.maudetype = maudetype
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
     def getsort(self):
         return self.maudetype.id
+
+    def __repr__(self):
+        return "<Var id:%s, maudetype:%s>" % (self.id, self.maudetype)
+
+    def __str__(self):
+        return "From str method of Vars: varlist is %s" % (self.varlist)
+
+
 
 class Statement(AST):
     def __init__(self, statement, attributes):
@@ -746,21 +758,52 @@ class Special(MaudeAttribute):
 
 # Modules
 class Module(AST):
-    def __init__(self, moduleid, parameterlist, elementlist):
+    def __init__(self, moduleid, parameterlist):
         self.moduleid = moduleid
         self.parameterlist = parameterlist
-        self.elementlist = elementlist
+        self.sorts = dict()
+        self.ops = set()
+        self.eqs = set()
+        self.vars = set()
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
     def __repr__(self):
-        return "<Module module:%s parameterlist:%s elementlist:%s>" % (self.moduleid, self.parameterlist, self.elementlist)
+        return "<Module module:%s parameterlist:%s sorts:%s>" % (self.moduleid,
+                                                                 self.parameterlist,
+                                                                 self.sorts,
+                                                                 self.ops,
+                                                                 self.eqs,
+                                                                 self.vars)
 
     def __str__(self):
         return "From str method of Module: module is %s, parameterlist is %s, elementlist is %s" % (self.moduleid,
                                                                                                     self.parameterlist,
-                                                                                                    self.elementlist)
+                                                                                                    self.elementlist,
+                                                                                                    self.sorts,
+                                                                                                    self.ops,
+                                                                                                    self.vars)
+
+    def addop(self, op: Op):
+        for sort in op.getsorts():
+            if sort in self.sorts:
+                self.ops.add(op)
+            else:
+                raise MaudeException("Unknown sort: %s" % sort)
+
+    def addsort(self, sort: Sort):
+        self.sorts[sort.id] = sort.typelist
+
+    def addvar(self, var: Var):
+        if var.getsort() in self.sorts:
+            self.vars.add(var)
+        else:
+            raise MaudeException("Unknown sort: %s" % var.getsort())
+
+    def addeq(self, eq: Equation):
+        self.eqs.add(eq)
+
 
 
 # System commands

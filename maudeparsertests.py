@@ -334,11 +334,11 @@ class TestFModule(unittest.TestCase):
 
     def testemptyfmod(self):
         self.assertEqual(mp.module.parseString("fmod MYMODULE is endfm", parseAll=True)[0],
-                         ast.Module(ast.Ident("MYMODULE", 1, 6), [], []))
+                         ast.Module(ast.Ident("MYMODULE", 1, 6), []))
 
     def testemptymodule(self):
         self.assertEqual(mp.module.parseFile("./testdata/emptymodule.maude", parseAll=True)[0],
-                         ast.Module(ast.Ident("MYMODULE", 1, 6), [], []))
+                         ast.Module(ast.Ident("MYMODULE", 1, 6), []))
 
     def testsimplemodule(self):
         self.assertEqual(mp.module.parseFile("./testdata/simplemodule.maude", parseAll=True)[0],

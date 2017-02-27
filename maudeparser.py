@@ -278,11 +278,28 @@ view = pp.Group(VIEW + viewid + FROM + modexp + TO + modexp + IS + pp.ZeroOrMore
 theory = pp.Group(FTH + modid + IS + pp.ZeroOrMore(modelt) + ENDFTH) | \
          pp.Group(TH + modid + IS + pp.ZeroOrMore(modeltprime) + ENDTH)
 
+
+def constructFunctionalModule(moduleid, parameterlist, elementlist):
+    module = ast.Module(moduleid, parameterlist)
+    for element in elementlist:
+        if type(element) == ast.Sorts:
+            for sort in element.sortlist:
+                module.addsort(sort)
+        if type(element) == ast.Vars:
+            for var in element.varlist:
+                module.addvar(var)
+        if type(element) == ast.Op:
+            module.addop(element)
+        if type(element) == ast.Equation:
+            module.addeq(element)
+
+    return module
+
 # Module
 module = pp.Group(FMOD + modid + pp.Optional(parameterlist,default=[]) +
-                  IS + pp.Group(pp.ZeroOrMore(modelt)) + ENDFM).addParseAction(lambda x: ast.Module(x[0].asList()[0],
-                                                                                                    x[0].asList()[1],
-                                                                                                    x[0].asList()[2])) | \
+                  IS + pp.Group(pp.ZeroOrMore(modelt)) + ENDFM).addParseAction(lambda x: constructFunctionalModule(x[0].asList()[0],
+                                                                                                                   x[0].asList()[1],
+                                                                                                                   x[0].asList()[2])) | \
          pp.Group(MOD + modid + pp.Optional(parameterlist, default=[]) + IS + pp.Group(pp.ZeroOrMore(modeltprime)) + ENDFM)
 
 # Debugger command
