@@ -508,7 +508,11 @@ class Op(AST):
                                                                               self.attrs)
 
     def __str__(self):
-        return "From str method of Op: opform is %s" % (self.opform)
+        return "From str method of Op: opform is %s, insortlist is %s, arrow is %s, outsort is %s, attrs is %s" % (self.opform,
+                                                                                                                   self.insortlist,
+                                                                                                                   self.arrow,
+                                                                                                                   self.outsort,
+                                                                                                                   self.attrs)
 
     def getsorts(self):
         outlist = self.insortlist

@@ -39,9 +39,9 @@ t_list = LPAREN + pp.ZeroOrMore(term) + RPAREN
 term << pp.OneOrMore(token | t_list).addParseAction(lambda x: ast.Term(x.asList()))
 
 # Operation identifier. Simple identifier with possible underscores.
-opid = pp.Group(pp.Word(pp.alphanums + "_")).addParseAction(lambda st,locn,toks: ast.Ident(toks[0],
-                                                                                           pp.line(locn, st),
-                                                                                           pp.col(locn, st)))
+opid = pp.Word(pp.alphanums + "_").addParseAction(lambda st,locn,toks: ast.Ident(toks[0],
+                                                                                 pp.line(locn, st),
+                                                                                 pp.col(locn, st)))
 
 # Operation formula
 opform = pp.Forward()
@@ -66,7 +66,9 @@ sortid = pp.Word(pp.srange("[A-Z]"), pp.alphanums).addParseAction(lambda st,locn
 parameterid = pp.Word(pp.srange("[A-Z]"), exact=1)
 
 # View ID
-viewid = pp.Word(pp.srange("[A-Z]"), pp.alphanums)
+viewid = pp.Word(pp.srange("[A-Z]"), pp.alphanums).addParseAction(lambda st,locn,toks: ast.Ident(toks[0],
+                                                                                                 pp.lineno(locn, st),
+                                                                                                 pp.col(locn, st)))
 
 # Module ID
 modid = pp.Word(pp.srange("[A-Z0-9]")).addParseAction(lambda st,locn,toks: ast.Ident(toks[0],
@@ -74,7 +76,9 @@ modid = pp.Word(pp.srange("[A-Z0-9]")).addParseAction(lambda st,locn,toks: ast.I
                                                                                      pp.col(locn, st)))
 
 # String ID
-stringid = pp.dblQuotedString
+stringid = pp.dblQuotedString.addParseAction(lambda st,locn,toks: ast.Ident(toks[0],
+                                                                            pp.lineno(locn, st),
+                                                                            pp.col(locn, st)))
 
 # File name. OS dependent
 windowsfilename = pp.Word(pp.alphanums) + FULLSTOP + pp.Word(pp.alphanums, max=3)

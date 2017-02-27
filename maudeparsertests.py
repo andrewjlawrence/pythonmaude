@@ -230,24 +230,19 @@ class TestSort(unittest.TestCase):
 class TestSubsort(unittest.TestCase):
     def testSubsort1(self):
         self.assertEqual(mp.subsort.parseString("NAT < INT")[0].subsort,
-                         ast.Sort(ast.Ident("NAT"), []))
+                         ast.Sort(ast.Ident("NAT", 1, 1), []))
 
     def testSubsort2(self):
-            self.assertEqual(ast.Subsort(ast.Sort(ast.Ident("NAT"), []), [ast.Sort(ast.Ident("INT"), [])]),
-                             ast.Subsort(ast.Sort(ast.Ident("NAT"), []), [ast.Sort(ast.Ident("INT"), [])]))
-
+            self.assertEqual(ast.Subsort(mp.sort.parseString("NAT")[0], [mp.sort.parseString("INT")[0]]),
+                             ast.Subsort(ast.Sort(ast.Ident("NAT", 1, 1), []), [ast.Sort(ast.Ident("INT", 1, 1), [])] ))
 
     def testSubsort3(self):
-            self.assertEqual(ast.Subsort(mp.sort.parseString("NAT")[0], [mp.sort.parseString("INT")[0]]),
-                             ast.Subsort(ast.Sort(ast.Ident("NAT"), []), [ast.Sort(ast.Ident("INT"), [])] ))
+        self.assertEqual(mp.subsort.parseString("NAT < INT")[0].sortlist,
+                         [ast.Sort(ast.Ident("INT", 1, 7), [])])
 
     def testSubsort4(self):
-        self.assertEqual(mp.subsort.parseString("NAT < INT")[0].sortlist,
-                         [ast.Sort(ast.Ident("INT"), [])])
-
-    def testSubsort5(self):
             self.assertEqual(mp.subsort.parseString("NAT < INT")[0],
-                             ast.Subsort(ast.Sort(ast.Ident("NAT"), []), [ast.Sort(ast.Ident("INT"), [])]))
+                             ast.Subsort(ast.Sort(ast.Ident("NAT", 1, 1), []), [ast.Sort(ast.Ident("INT", 1, 7), [])]))
 
 class TestStatement(unittest.TestCase):
     def testEqStatement(self):
@@ -256,11 +251,11 @@ class TestStatement(unittest.TestCase):
 
     def testMbStatement(self):
         self.assertEqual(mp.mbstatement.parseString("mb term : NAT")[0],
-                         ast.MbStatement(ast.Term([ast.Token("term")]), ast.Sort(ast.Ident("NAT"),[])))
+                         ast.MbStatement(ast.Term([ast.Token("term")]), ast.Sort(ast.Ident("NAT", 1, 11),[])))
 
     def testCmbStatement(self):
         self.assertEqual(mp.cmbstatement.parseString("cmb term : NAT if x = y")[0], ast.CmbStatement(ast.Term([ast.Token("term")]),
-                                                                                                     ast.Sort(ast.Ident("NAT"),[]),
+                                                                                                     ast.Sort(ast.Ident("NAT", 1, 12),[]),
                                                                                                      ast.Condition([ast.EqFragment(ast.Term([ast.Token("x")]),
                                                                                                                                    ast.Term([ast.Token("y")]))])))
 
@@ -313,7 +308,7 @@ class TestModuleElement(unittest.TestCase):
 
     def testOp(self):
         self.assertEqual(mp.opelt.parseString("op plus : NAT NAT -> NAT .", parseAll=True)[0],
-                         ast.Op(ast.Ident("plus", 1 ,1),
+                         ast.Op(ast.Ident("plus", 1 ,4),
                                 [ast.Sort(ast.Ident("NAT", 1, 10), []), ast.Sort(ast.Ident("NAT", 1, 14), [])],
                                 "->",
                                 ast.Sort(ast.Ident("NAT", 1, 21), []),
@@ -321,7 +316,7 @@ class TestModuleElement(unittest.TestCase):
 
     def testVars(self):
         self.assertEqual(mp.varselt.parseString("vars X1 : NAT .", parseAll=True)[0],
-                         ast.Vars([ast.Ident("X1")], ast.Sort(ast.Ident("NAT"), [])))
+                         ast.Vars([ast.Ident("X1", 1, 6)], ast.Sort(ast.Ident("NAT", 1, 11), [])))
 
     def testStatement(self):
         self.assertEqual(mp.statementelt.parseString("eq term1 = term2 .", parseAll=True)[0],
