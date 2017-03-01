@@ -341,24 +341,22 @@ class TestFModule(unittest.TestCase):
                          ast.Module(ast.Ident("MYMODULE", 1, 6), []))
 
     def testsimplemodule(self):
+        module = ast.Module(ast.Ident("MYMODULE", 1, 6), [])
+        module.addsort(ast.Sort(ast.Ident("SORTX", 2, 11), []))
+        module.addsort(ast.Sort(ast.Ident("SORTY", 2, 17), []))
+        module.addop(ast.Op(ast.Ident("plus", 3, 8),
+                            [ast.Sort(ast.Ident("SORTX", 3, 15), []),
+                             ast.Sort(ast.Ident("SORTY", 3, 19), [])],
+                             "->",
+                             ast.Sort(ast.Ident("SORTY", 3, 26), []),
+                            []))
+        module.addvar(ast.Var([ast.Ident("X1", 4, 10)],
+                               ast.Sort(ast.Ident("NAT", 4, 15), [])))
+        module.addeq(ast.Equation(ast.Term([ast.Token("term1")]),
+                                  ast.Term([ast.Token("term2")])))
+
         self.assertEqual(mp.module.parseFile("./testdata/simplemodule.maude", parseAll=True)[0],
-                        ast.Module(ast.Ident("MYMODULE", 1, 6), [], [ast.Sorts(
-                                                                     [ast.Sort(ast.Ident("SORTX", 2, 11), []),
-                                                                      ast.Sort(ast.Ident("SORTY", 2, 17), [])]),
-                                                                     ast.Op(ast.Ident("plus", 3, 8),
-                                                                            [ast.Sort(ast.Ident("NAT", 3, 15), []),
-                                                                             ast.Sort(ast.Ident("NAT", 3, 19), [])],
-                                                                            "->",
-                                                                            ast.Sort(ast.Ident("NAT", 3, 26), []),
-                                                                            []),
-                                                                     ast.Vars([ast.Ident("X1", 4, 10)],
-                                                                              ast.Sort(ast.Ident("NAT", 4, 15), [])),
-                                                                     ast.Statement(
-                                                                         ast.Equation(ast.Term([ast.Token("term1")]),
-                                                                                      ast.Term([ast.Token("term2")])),
-                                                                         [])
-                                                                     ]
-                                   ))
+                         module)
 
     def testsimplemodule2(self):
         self.assertEqual(mp.module.parseFile("./testdata/simplemodule.maude", parseAll=True)[0].elementlist,

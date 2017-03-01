@@ -30,7 +30,7 @@ class Ident(AST):
         self.name = name
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return self.name == other.name
 
     def __ne__(self, other):
         return not self.__eq__(other)
