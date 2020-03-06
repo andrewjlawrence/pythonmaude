@@ -89,13 +89,31 @@ class UnificationError(Exception):
         self.message = message
 
 def solve(termpairlist : List[Tuple[Term, Term]], subst : Substitution) -> Substitution:
-    pass
+    if not termpairlist:
+        return subst
+    elif termpairlist[0][0] is VTerm:
+        if termpairlist[0][0] == termpairlist[0][1]:
+            return solve(termpairlist[1:], subst)
+        else:
+            return elim(termpairlist[0][0],termpairlist[0][1], termpairlist[1:], subst)
+    elif termpairlist[0][1] is VTerm:
+        return elim(termpairlist[0][1],termpairlist[0][0], termpairlist[1:], subst)
+    else:
+        assert termpairlist[0][0] is TTerm
+        assert termpairlist[0][1] is TTerm
+        if termpairlist[0][0].term == termpairlist[0][1].term:
+            solve ##### Complete this line
 
-def elim(vname : VName, term : Term, termpairlist : List[Tuple[Term, Term]], subst : Substitution) -> Substitution
+
+def elim(vname : VName, term : Term, termpairlist : List[Tuple[Term, Term]], subst : Substitution) -> Substitution:
     if term.occurs(vname):
         raise UnificationError("meh")
     else:
-        xt = 
+        xtsubst = Substitution()
+        xtsubst.add_mapping(vname,term)
+        liftedlist = list(map(lambda termpair: (xtsubst.lift(termpair[0]), xtsubst.lift(termpair[1])), termpairlist))
+        solve(liftedlist, [(vname, term)] + list(map(lambda pair: (pair[0], xtsubst.lift(pair[1])), subst)))
 
-def unify(terma : Term, termb  : Term):
+
+def unify(terma : Term, termb: Term):
     solve([(terma, termb)], [])
