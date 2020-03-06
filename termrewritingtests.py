@@ -19,6 +19,14 @@ class TermTestCase(unittest.TestCase):
         tterm = termrewriting.TTerm("Cat", list())
         self.assertEqual(tterm.term, "Cat")
 
+class SubstTestCase(unittest.TestCase):
+    def test_substconstruction(self):
+        subst = termrewriting.Substitution()
+
+    def test_substindomain(self):
+        subst = termrewriting.Substitution()
+        subst.add_mapping("")
+
 
 if __name__ == '__main__':
     unittest.main()

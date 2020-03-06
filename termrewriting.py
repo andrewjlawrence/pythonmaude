@@ -9,7 +9,7 @@ class VName:
     # A variable name is of type string * int
     def __init__(self, name : str, index : int):
         assert(type(name) == str)
-        assert(type(name) == int)
+        assert(type(index) == int)
         assert name
         self.name = name
         self.index = index
@@ -21,7 +21,7 @@ class TermType(Enum):
 
 
 class Term(abc.ABC):
-    @abstractmethod
+    @abc.abstractmethod
     def occurs(self, vname : VName) -> bool:
         pass
 
@@ -31,7 +31,7 @@ class Term(abc.ABC):
 # Or some kind of union could be utilized.
 class VTerm(Term):
     def __init__(self, vname : VName):
-        assert(vname is VName)
+        assert(type(vname) == VName)
         self.vname = vname
         self.type = TermType.VarTerm
 
@@ -41,9 +41,9 @@ class VTerm(Term):
 
 class TTerm(Term):
     def __init__(self, term : str, termlist : List[Term]):
-        assert(term is str)
+        assert(type(term) == str)
         assert term
-        assert(termlist is list)
+        assert(type(termlist) is list)
         self.term = term
         self.termlist = termlist
         self.type = TermType.TermList
@@ -58,9 +58,9 @@ class Substitution:
         self._associationlist = list()
 
     def add_mapping(self, varname : VName, term : Term):
-        assert(varname is VName)
-        assert(term is VTerm or
-               term is TTerm)
+        assert(type(varname) == VName)
+        assert(type(term) == VTerm or
+               type(term) == TTerm)
         self._associationlist.append((varname, term))
 
     def __getitem__(self, key : VName) -> Term:
@@ -68,7 +68,7 @@ class Substitution:
 
     #  indom check if a variable is in the domain of a substitution
     def indom(self, varname : VName) -> bool:
-        assert(varname is VName)
+        assert(type(varname) == VName)
         return [x for (x,y) in self._associationlist if varname == x]
 
     def app(self, vterm : VTerm):
@@ -78,7 +78,7 @@ class Substitution:
         return vterm
 
     def lift(self, term : Term) -> Term:
-        assert(term is Term)
+        assert(type(term) == Term)
         if term is VTerm:
             return self.app(term)
         else:
