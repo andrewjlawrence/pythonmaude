@@ -1,22 +1,22 @@
 import unittest
 import termrewriting
-
+from termrewriting import TTerm,VTerm,VName
 
 class VariableNameTestCase(unittest.TestCase):
     def test_construction(self):
-        vname = termrewriting.VName("term1", 1)
+        vname = VName("term1", 1)
         self.assertEqual(vname.index, 1)
         self.assertEqual(vname.name, "term1")
 
 
 class TermTestCase(unittest.TestCase):
     def test_vtermconstruction(self):
-        vterm = termrewriting.VTerm(termrewriting.VName("term1", 1))
+        vterm = VTerm(VName("term1", 1))
         self.assertEqual(vterm.vname.index, 1)
         self.assertEqual(vterm.vname.name, "term1")
 
     def test_ttermconstruction(self):
-        tterm = termrewriting.TTerm("Cat", list())
+        tterm = TTerm("Cat", list())
         self.assertEqual(tterm.term, "Cat")
 
 class SubstTestCase(unittest.TestCase):
@@ -25,17 +25,17 @@ class SubstTestCase(unittest.TestCase):
 
     def test_substindomain(self):
         subst = termrewriting.Substitution()
-        rterm = termrewriting.VTerm(termrewriting.VName("range term", 1))
-        dvarname = termrewriting.VName("domain varname", 1)
+        rterm = VTerm(VName("range term", 1))
+        dvarname = VName("domain varname", 1)
         subst.add_mapping(dvarname, rterm)
-        self.assertTrue(subst.indom(termrewriting.VName("domain varname", 1)))
+        self.assertTrue(subst.indom(VName("domain varname", 1)))
 
     def test_application(self):
         subst = termrewriting.Substitution()
-        rterm = termrewriting.VTerm(termrewriting.VName("range term", 1))
-        dvarname = termrewriting.VName("domain varname", 1)
+        rterm = VTerm(VName("range term", 1))
+        dvarname = VName("domain varname", 1)
         subst.add_mapping(dvarname, rterm)
-        lterm  = termrewriting.VTerm(dvarname)
+        lterm  = VTerm(dvarname)
         appresult = subst.app(lterm)
         self.assertEqual(rterm, appresult)
 
@@ -43,10 +43,10 @@ class SubstTestCase(unittest.TestCase):
         # Lifting a variable term is the same as performing a
         # simple application
         subst = termrewriting.Substitution()
-        rterm = termrewriting.VTerm(termrewriting.VName("range term", 1))
-        dvarname = termrewriting.VName("domain varname", 1)
+        rterm = VTerm(VName("range term", 1))
+        dvarname = VName("domain varname", 1)
         subst.add_mapping(dvarname, rterm)
-        lterm  = termrewriting.VTerm(dvarname)
+        lterm  = VTerm(dvarname)
         appresult = subst.lift(lterm)
         self.assertEqual(rterm, appresult)
 
@@ -54,14 +54,34 @@ class SubstTestCase(unittest.TestCase):
         # Lifting a variable term is the same as performing a
         # simple application
         subst = termrewriting.Substitution()
-        rterm1 = termrewriting.VTerm(termrewriting.VName("range term", 1))
-        rterm = termrewriting.TTerm("rterm name", [rterm1])
-        dvarname = termrewriting.VName("domain varname", 1)
+        rterm1 = VTerm(termrewriting.VName("range term", 1))
+        rterm = TTerm("rterm name", [rterm1])
+        dvarname = VName("domain varname", 1)
         subst.add_mapping(dvarname, rterm)
-        lterm  = termrewriting.TTerm("catterm", [termrewriting.VTerm(dvarname)])
+        lterm  = TTerm("lterm name", [VTerm(dvarname)])
         appresult = subst.lift(lterm)
-        self.assertEqual(rterm, appresult)
+        self.assertEqual(TTerm("lterm name",[rterm]), appresult)
 
+
+# f(x,y) =? f(g(cz), cx)
+# results in a substitution [x -> g(cz), y -> cx]
+class UnifyTestCase(unittest.TestCase):
+
+    def test_unify(self):
+        xt = VTerm(VName("x",1))
+        yt = VTerm(VName("y",1))
+        ft1 = TTerm("f", [xt, yt])
+
+        cz = TTerm("cz", [])
+        gt = TTerm("g", [cz])
+        cx = TTerm("cx", [])
+        ft2 = TTerm("f",[gt, cx])
+
+        subst = termrewriting.unify(ft1, ft2)
+        print(subst)
+        self.assertEqual(len(subst) , 2)
+        self.assertEqual(subst.app(xt), gt)
+        self.assertEqual(subst.app(yt), cx)
 
 if __name__ == '__main__':
     unittest.main()

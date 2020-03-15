@@ -14,11 +14,23 @@ class VName:
         self.name = name
         self.index = index
 
+    def __key(self):
+        return (self.name, self.index)
+
+    def __hash__(self):
+        return hash(self.__key())
+
     def __eq__(self, other):
         if not isinstance(other, VName):
             # don't attempt to compare against unrelated types
             return NotImplemented
-        return self.name == other.name and self.index == other.index
+        return self.__key() == other.__key()
+
+    def __str__(self):
+        return "<VName name : {0} , index : {1} >".format(self.name, self.index)
+
+    def __repr__(self):
+        return "<VName name : {0} , index : {1} >".format(self.name, self.index)
 
 class TermType(Enum):
     VarTerm = 1
@@ -44,7 +56,22 @@ class VTerm(Term):
         return self.vname == vname
 
     def __str__(self):
-        return "<termrewriting.VTerm vname : {0}, type : {1}>".format(self.vname, self.type)
+        return "<VTerm vname : {0}, type : {1}>".format(self.vname, self.type)
+
+    def __repr__(self):
+        return "<VTerm vname : {0}, type : {1}>".format(self.vname, self.type)
+
+    def __key(self):
+        return (self.vname, self.type)
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        if not isinstance(other, VTerm):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+        return self.__key() == other.__key()
 
 
 class TTerm(Term):
@@ -60,25 +87,48 @@ class TTerm(Term):
         return [x for x in list(map(lambda x: x.occurs(vname), self.termlist)) if x]
 
     def __str__(self):
-        return "<termrewriting.TTerm vname : {0}, type : {1}, termlist : {2}>".format(self.vname, self.type, self.termlist)
+        return "<TTerm vname : {0}, type : {1}, termlist : {2}>".format(self.term, self.type, self.termlist)
 
     def __repr__(self):
-        return "<termrewriting.TTerm vname : {0}, type : {1}, termlist : {2}>".format(self.vname, self.type, self.termlist)
+        return "<TTerm vname : {0}, type : {1}, termlist : {2}>".format(self.term, self.type, self.termlist)
+
+    def __key(self):
+        return (self.term, tuple(self.termlist), self.type)
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        if not isinstance(other, TTerm):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+        return self.__key() == other.__key()
+
 
 # Substituions are implemented as association lists
 # of type (vname * term) list
 class Substitution:
-    def __init__(self):
-        self._associationlist = list()
+    def __init__(self, asso_list=[]):
+        self._associationlist = asso_list
+
+    def __getitem__(self, key : VName) -> Term:
+        return self._associationlist[key]
+
+    def __len__(self):
+        return len(self._associationlist)
+
+    def __str__(self):
+        return "<Substitutuon associationlist : {0} >".format(self._associationlist)
+
+    def __repr__(self):
+        return "<Substitutuon associationlist : {0} >".format(self._associationlist)
 
     def add_mapping(self, varname : VName, term : Term):
         assert(type(varname) == VName)
         assert(type(term) == VTerm or
                type(term) == TTerm)
-        self._associationlist.append((varname, term))
-
-    def __getitem__(self, key : VName) -> Term:
-        return self._associationlist[key]
+        if not (varname, term) in self._associationlist:
+            self._associationlist.append((varname, term))
 
     #  indom check if a variable is in the domain of a substitution
     def indom(self, varname : VName) -> bool:
@@ -106,36 +156,39 @@ class UnificationError(Exception):
     def __init__(self, message):
         self.message = message
 
-
+def uniqueappend(list1, list2):
+    for ele in list2:
+        if not ele in list1:
+            list1.append(ele)
+    return list1
 
 def solve(termpairlist : List[Tuple[Term, Term]], subst : Substitution) -> Substitution:
     if not termpairlist:
         return subst
-    elif termpairlist[0][0] is VTerm:
+    elif type(termpairlist[0][0]) == VTerm:
         if termpairlist[0][0] == termpairlist[0][1]:
             return solve(termpairlist[1:], subst)
         else:
             return elim(termpairlist[0][0],termpairlist[0][1], termpairlist[1:], subst)
-    elif termpairlist[0][1] is VTerm:
+    elif type(termpairlist[0][1]) == VTerm:
         return elim(termpairlist[0][1],termpairlist[0][0], termpairlist[1:], subst)
     else:
-        assert termpairlist[0][0] is TTerm
-        assert termpairlist[0][1] is TTerm
+        assert type(termpairlist[0][0]) == TTerm
+        assert type(termpairlist[0][1]) == TTerm
         if termpairlist[0][0].term == termpairlist[0][1].term:
-            solve(zip(termpairlist[0][0].termlist, termpairlist[0][1].termlist) + termpairlist[1:])
+            return solve(list(zip(termpairlist[0][0].termlist, termpairlist[0][1].termlist)) + termpairlist[1:], subst)
         else:
             raise UnificationError("meh")
 
-
-def elim(vname : VName, term : Term, termpairlist : List[Tuple[Term, Term]], subst : Substitution) -> Substitution:
-    if term.occurs(vname):
+def elim(vterm : VTerm, term : Term, termpairlist : List[Tuple[Term, Term]], subst : Substitution) -> Substitution:
+    if term.occurs(vterm.vname):
         raise UnificationError("meh")
     else:
         xtsubst = Substitution()
-        xtsubst.add_mapping(vname,term)
+        xtsubst.add_mapping(vterm.vname,term)
         liftedlist = list(map(lambda termpair: (xtsubst.lift(termpair[0]), xtsubst.lift(termpair[1])), termpairlist))
-        solve(liftedlist, [(vname, term)] + list(map(lambda pair: (pair[0], xtsubst.lift(pair[1])), subst)))
+        return solve(liftedlist, Substitution(uniqueappend([(vterm.vname, term)], list(map(lambda pair: (pair[0], xtsubst.lift(pair[1])), subst)))))
 
 
-def unify(terma : Term, termb: Term):
-    solve([(terma, termb)], [])
+def unify(terma : Term, termb: Term) -> Substitution:
+    return solve([(terma, termb)],  Substitution())
