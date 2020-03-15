@@ -14,6 +14,11 @@ class VName:
         self.name = name
         self.index = index
 
+    def __eq__(self, other):
+        if not isinstance(other, VName):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+        return self.name == other.name and self.index == other.index
 
 class TermType(Enum):
     VarTerm = 1
@@ -38,6 +43,9 @@ class VTerm(Term):
     def occurs(self, vname :VName) -> bool:
         return self.vname == vname
 
+    def __str__(self):
+        return "<termrewriting.VTerm vname : {0}, type : {1}>".format(self.vname, self.type)
+
 
 class TTerm(Term):
     def __init__(self, term : str, termlist : List[Term]):
@@ -50,6 +58,12 @@ class TTerm(Term):
 
     def occurs(self, vname : VName) -> bool:
         return [x for x in list(map(lambda x: x.occurs(vname), self.termlist)) if x]
+
+    def __str__(self):
+        return "<termrewriting.TTerm vname : {0}, type : {1}, termlist : {2}>".format(self.vname, self.type, self.termlist)
+
+    def __repr__(self):
+        return "<termrewriting.TTerm vname : {0}, type : {1}, termlist : {2}>".format(self.vname, self.type, self.termlist)
 
 # Substituions are implemented as association lists
 # of type (vname * term) list
@@ -71,22 +85,28 @@ class Substitution:
         assert(type(varname) == VName)
         return [x for (x,y) in self._associationlist if varname == x]
 
+    # Apply the substitution to a variable term
     def app(self, vterm : VTerm):
         for (var,term) in self._associationlist:
             if var == vterm.vname:
                 return term
         return vterm
 
+    # Lift a term and apply the subsitution to
+    # all of the subterms
     def lift(self, term : Term) -> Term:
-        assert(type(term) == Term)
-        if term is VTerm:
+        assert(issubclass(type(term), Term))
+        if type(term) == VTerm:
             return self.app(term)
         else:
             term.termlist = list(map(lambda terminlist: self.lift(terminlist), term.termlist))
+            return term
 
 class UnificationError(Exception):
     def __init__(self, message):
         self.message = message
+
+
 
 def solve(termpairlist : List[Tuple[Term, Term]], subst : Substitution) -> Substitution:
     if not termpairlist:
@@ -102,7 +122,9 @@ def solve(termpairlist : List[Tuple[Term, Term]], subst : Substitution) -> Subst
         assert termpairlist[0][0] is TTerm
         assert termpairlist[0][1] is TTerm
         if termpairlist[0][0].term == termpairlist[0][1].term:
-            solve ##### Complete this line
+            solve(zip(termpairlist[0][0].termlist, termpairlist[0][1].termlist) + termpairlist[1:])
+        else:
+            raise UnificationError("meh")
 
 
 def elim(vname : VName, term : Term, termpairlist : List[Tuple[Term, Term]], subst : Substitution) -> Substitution:
