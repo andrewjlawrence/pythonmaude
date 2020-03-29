@@ -108,7 +108,9 @@ class TTerm(Term):
 # Substituions are implemented as association lists
 # of type (vname * term) list
 class Substitution:
-    def __init__(self, asso_list=[]):
+    def __init__(self, asso_list=None):
+        if asso_list is None:
+            asso_list = []
         self._associationlist = asso_list
 
     def __getitem__(self, key : VName) -> Term:
@@ -145,7 +147,7 @@ class Substitution:
     # Lift a term and apply the subsitution to
     # all of the subterms
     def lift(self, term : Term) -> Term:
-        assert(issubclass(type(term), Term))
+        #assert(issubclass(type(term), Term))
         if type(term) == VTerm:
             return self.app(term)
         else:
@@ -162,6 +164,9 @@ def uniqueappend(list1, list2):
             list1.append(ele)
     return list1
 
+#
+# This is the syntactic unification based on chapter 2.5 of term rewriting and all that.
+#
 def solve(termpairlist : List[Tuple[Term, Term]], subst : Substitution) -> Substitution:
     if not termpairlist:
         return subst
@@ -192,3 +197,64 @@ def elim(vterm : VTerm, term : Term, termpairlist : List[Tuple[Term, Term]], sub
 
 def unify(terma : Term, termb: Term) -> Substitution:
     return solve([(terma, termb)],  Substitution())
+
+
+#
+# The following algorithm is a special case of unificTION
+#
+def matchs(termpairlist : List[Tuple[Term, Term]],  subst : Substitution) -> Substitution:
+    if not termpairlist:
+        return subst
+    elif type(termpairlist[0][0]) == VTerm:
+        if subst.indom(termpairlist[0][0].vname):
+            if subst.apply(termpairlist[0][0].vname) == termpairlist[0][1]:
+                return matchs(termpairlist[1:], subst)
+            else:
+                raise UnificationError("meh")
+        else:
+            subst.add_mapping(termpairlist[0][0].vname, termpairlist[0][1])
+            return matchs(termpairlist[1:], subst)
+    elif type(termpairlist[0][1]) == VTerm:
+        raise UnificationError("meh")
+    else:
+        assert type(termpairlist[0][0]) == TTerm
+        assert type(termpairlist[0][1]) == TTerm
+        if termpairlist[0][0].term == termpairlist[0][1].term:
+            return matchs(list(zip(termpairlist[0][0].termlist, termpairlist[0][1].termlist)) + termpairlist[1:], subst)
+        else:
+            raise UnificationError("meh")
+
+class NormalizationError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+def match(pat : Term, obj : Term) -> Substitution:
+    return matchs([(pat, obj)], Substitution())
+
+
+def rewrite(termlist : List[Tuple[Term, Term]], term : Term) -> Term:
+    if termlist:
+        try:
+            return match(termlist[0][0], term).lift(termlist[0][1])
+        except UnificationError:
+            return rewrite(termlist[1:], term)
+    else:
+        raise NormalizationError("meh")
+
+
+def normalize(termlist, term):
+    if type(term) == VTerm:
+        return term
+    else:
+        newlist = list()
+        for termtonormalize in term.termlist:
+            newlist.append(normalize(termlist,termtonormalize))
+        term.termlist = newlist
+        try:
+            return normalize(termlist, rewrite(termlist, term))
+        except NormalizationError:
+            return term
+
+
+
