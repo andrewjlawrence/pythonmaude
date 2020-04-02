@@ -12,11 +12,8 @@ BOOST_AUTO_TEST_CASE(TTermTest)
 {
     VariableName vname("cat",1);
     VTerm vterm(vname);
-    std::vector<boost::variant<
-      VTerm
-    > > subterms;
-    //subterms.push_back(vterm);
+    TermList_t subterms;
+    subterms.push_back(vterm);
     TTerm tterm(std::string("dog"), subterms);
-
     BOOST_TEST(tterm.occurs(vname));
 }

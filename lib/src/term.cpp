@@ -18,10 +18,7 @@ bool VTerm::occurs(const VariableName& vname) const
 
 
 TTerm::TTerm(const std::string& termname,
-             const std::vector<boost::variant<
-      VTerm,
-      TTerm
-    > >& subterms)
+             const TermList_t& subterms)
 :term(termname), subterms(subterms)
 {
 }
@@ -45,8 +42,8 @@ bool TTerm::occurs(const VariableName& vname) const
             switch (x.which()) {
                 case 0: 
                     result = boost::get<VTerm>(x).occurs(vname);
-                case 1: 
-                    result = boost::get<TTerm>(x).occurs(vname);
+//                case 1: 
+//                    result = boost::get<TTerm>(x).occurs(vname);
             }
             return result;
         }

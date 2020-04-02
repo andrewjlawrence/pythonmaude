@@ -9,10 +9,12 @@
 class VTerm;
 class TTerm;
 
-typedef boost::variant<
-      VTerm,
-      TTerm
-    > Term_t;
+using Term_t = boost::variant<
+      boost::recursive_wrapper<VTerm>,
+      boost::recursive_wrapper<TTerm>
+    >;
+
+using TermList_t = std::vector<Term_t>;
 
 class VTerm
 {
@@ -28,20 +30,14 @@ class TTerm
 {
 public:
     TTerm(const std::string& termname,
-          const std::vector<boost::variant<
-      VTerm,
-      TTerm
-    > >& subterms);
+          const TermList_t& subterms);
 
     const std::string& getTerm() const;
     const std::vector<Term_t>&  getSubterms() const;
     bool occurs(const VariableName& vname) const;
 private:
     std::string term;
-    std::vector<boost::variant<
-      VTerm,
-      TTerm
-    > > subterms;
+    TermList_t subterms;
 };
 
 #endif 
