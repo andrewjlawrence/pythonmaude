@@ -42,8 +42,8 @@ bool TTerm::occurs(const VariableName& vname) const
             switch (x.which()) {
                 case 0: 
                     result = boost::get<VTerm>(x).occurs(vname);
-//                case 1: 
-//                    result = boost::get<TTerm>(x).occurs(vname);
+                case 1: 
+                    result = boost::get<TTerm>(x).occurs(vname);
             }
             return result;
         }
