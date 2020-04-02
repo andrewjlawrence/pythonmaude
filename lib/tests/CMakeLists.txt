@@ -6,7 +6,7 @@ include_directories (${TERMREWRITING_SOURCE_DIR}/inc
                      )
 
 add_definitions (-DBOOST_TEST_DYN_LINK)
-add_executable (Test variablenametests.cpp termtests.cpp main.cpp)
+add_executable (Test variablenametests.cpp termtests.cpp substitutiontests.cpp  main.cpp)
 target_link_libraries (Test
                        termrewriting
                        ${Boost_FILESYSTEM_LIBRARY}

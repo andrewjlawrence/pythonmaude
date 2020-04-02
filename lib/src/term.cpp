@@ -40,13 +40,32 @@ bool TTerm::occurs(const VariableName& vname) const
         [&vname](const Term_t& x){
             bool result(false);
             switch (x.which()) {
-                case 0: 
+                case VTerm_e: 
                     result = boost::get<VTerm>(x).occurs(vname);
-                case 1: 
+                    break;
+                case TTerm_e: 
                     result = boost::get<TTerm>(x).occurs(vname);
+                    break;
+                default:
+                    result = false;
+                    break;
             }
             return result;
         }
     );
 }
 
+Term_t& TTerm::operator[](size_t index)
+{
+    return subterms[index];
+}
+    
+const Term_t& TTerm::operator[](size_t index) const
+{
+    return subterms[index];
+}
+
+bool VTerm::operator==(const VTerm& other) const
+{
+    return this->varname == other.varname;
+}
