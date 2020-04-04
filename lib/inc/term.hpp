@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 #include "variablename.hpp"
 #include <boost/variant.hpp>
 
@@ -21,6 +22,14 @@ enum TermType {
 
 using TermList_t = std::vector<Term_t>;
 
+/**
+ * Function to print the termlists
+ */
+std::ostream& operator<<(std::ostream& os, const TermList_t& terms);
+
+/**
+ * Class to store a term that consists solely of a variable
+ */
 class VTerm
 {
 public:
@@ -32,10 +41,18 @@ public:
      * Comparison operator
      */
     bool operator==(const VTerm& other) const;
+
+    /**
+     * Friend output stream operator to print VTerms
+     */
+    friend std::ostream& operator<<(std::ostream& os, const VTerm& dt);
 private:
     VariableName varname;
 };
 
+/**
+ * Class to store nary terms
+ */
 class TTerm
 {
 public:
@@ -48,6 +65,13 @@ public:
     const Term_t& operator[](size_t index) const;
 
     bool occurs(const VariableName& vname) const;
+
+    /**
+     * Comparison operator
+     */
+    bool operator==(const TTerm& other) const;
+
+    friend std::ostream& operator<<(std::ostream& os, const TTerm& dt);
 private:
     std::string term;
     TermList_t subterms;

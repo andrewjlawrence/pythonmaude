@@ -20,3 +20,8 @@ bool VariableName::operator==(const VariableName& other) const
 {
     return this->name == other.name && this->index == other.index;
 }
+
+std::ostream& operator<<(std::ostream& os, const VariableName& varname)
+{
+    return os << varname.getName();
+}

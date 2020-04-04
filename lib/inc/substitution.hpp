@@ -56,15 +56,15 @@ class Substitution:
             return term
 #endif
 
+using Association_t = std::pair<VariableName, Term_t>;
+using AssociationList_t = std::vector<Association_t>;
+
 /**
  *  A substitution maps a bunch of variables to some terms.
  */
 class Substitution
 {
 public:
-    using Association_t = std::pair<VariableName, Term_t>;
-    using AssociationList_t = std::vector<Association_t>;
-
     /**
      * Add a mapping to the substitution
      * @param vname The variable name to use on the left handside of the mapping.

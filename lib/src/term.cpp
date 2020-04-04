@@ -65,7 +65,38 @@ const Term_t& TTerm::operator[](size_t index) const
     return subterms[index];
 }
 
+bool TTerm::operator==(const TTerm& other) const
+{
+    return this->term == other.term && this->subterms == other.subterms;
+}
+
+std::ostream& operator<<(std::ostream& os, const TTerm& dt)
+{
+    return os << "< TTerm term: " << dt.term << " subterms " << dt.subterms << " >";
+}
+
 bool VTerm::operator==(const VTerm& other) const
 {
     return this->varname == other.varname;
+}
+
+std::ostream& operator<<(std::ostream& os, const VTerm& dt)
+{
+    os << "< VTerm variable name: " << dt.getVariableName() << " >";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const TermList_t& terms)
+{
+    os << "[ ";
+    for (int i = 0; i < terms.size(); i++)
+    {
+        os << terms[i];
+        if (i+1 != terms.size())
+        {
+            os << ", ";
+        }
+    }
+    os << "]";
+    return os;
 }
