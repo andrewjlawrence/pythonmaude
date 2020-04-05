@@ -34,19 +34,36 @@ const Term_t Substitution::app(const VTerm& vterm) const
     }
 }
 
-const Term_t Substitution::lift(Term_t& term) const
+const Term_t Substitution::lift( const Term_t& term) const
 {
     switch (term.which())
     {
     case VTerm_e:
         return app(boost::get<VTerm>(term));
     case TTerm_e:
-        for (size_t i = 0; i < boost::get<TTerm>(term).getSubterms().size(); i++ )
+    {
+        TTerm tterm = boost::get<TTerm>(term);
+        for (size_t i = 0; i < tterm.getSubterms().size(); i++ )
         {
-            boost::get<TTerm>(term)[i] = lift(boost::get<TTerm>(term)[i]);
+            tterm[i] = lift(tterm[i]);
         }
-        return term;
+        return tterm;
+        break;
+    }
     default:
         return term;
     }
+}
+
+std::ostream& operator<<(std::ostream& os, const Substitution& dt)
+{
+    os << "< Subst elemenst ";
+    for (auto asso : dt.associationList)
+    {
+        os << " first " << asso.first;
+        os << " second " << asso.second;
+        os << " ";
+    }
+    os << " >";
+    return os;
 }

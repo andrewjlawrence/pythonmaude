@@ -93,7 +93,12 @@ public:
      * Both this method and the above are making copies and could be
      * refactored to be faster.
      */
-    const Term_t lift(Term_t& vterm) const;
+    const Term_t lift(const Term_t& vterm) const;
+
+    /**
+     * Friend output stream operator to print substitutions
+     */
+    friend std::ostream& operator<<(std::ostream& os, const Substitution& dt);
 private:
     AssociationList_t associationList;
 };
