@@ -350,12 +350,12 @@ class TestFModule(unittest.TestCase):
                              "->",
                              ast.Sort(ast.Ident("SORTY", 3, 26), []),
                             []))
-        module.addvar(ast.Var([ast.Ident("X1", 4, 10)],
-                               ast.Sort(ast.Ident("NAT", 4, 15), [])))
+        module.addvar(ast.Var(ast.Ident("X1", 4, 10),
+                              ast.Sort(ast.Ident("NAT", 4, 15), [])))
         module.addeq(ast.Equation(ast.Term([ast.Token("term1")]),
                                   ast.Term([ast.Token("term2")])))
-
-        self.assertEqual(mp.module.parseFile("./testdata/simplemodule.maude", parseAll=True)[0],
+        resultingmodule = mp.module.parseFile("./testdata/simplemodule.maude", parseAll=True)[0]
+        self.assertEqual(resultingmodule,
                          module)
 
     def testsimplemodule2(self):

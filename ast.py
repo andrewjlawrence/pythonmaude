@@ -84,6 +84,9 @@ class Token(AST):
     def __str__(self):
         return "From str method of Token: token is %s" % (self.token)
 
+    def __hash__(self):
+        return hash(self.token)
+
 
 class TokenString(AST):
     def __init__(self, listtree):
@@ -112,6 +115,9 @@ class Term(AST):
 
     def __str__(self):
         return "From str method of Term: listtree is %s" % (self.listtree)
+
+    def __hash__(self):
+        return hash(tuple(self.listtree))
 
 
 # Sort
@@ -310,6 +316,9 @@ class Equation(AST):
     def __str__(self):
         return "From str method of EqStatement: leftterm is %s, rightterm is %s" % (self.leftterm, self.rightterm)
 
+    def __hash__(self):
+        return hash((self.leftterm, self.rightterm))
+
 
 class ConditionalEquation(AST):
     def __init__(self, leftterm: Term, rightterm: Term, condition: Condition):
@@ -484,6 +493,9 @@ class Sorts(AST):
     def __str__(self):
         return "From str method of Sorts: sortlist is %s" % (self.sortlist)
 
+    def __hash__(self):
+        return hash(tuple(self.sortlist))
+
 
 class Op(AST):
     def __init__(self, opform, insortlist, arrow, outsort : Sort, attrs):
@@ -513,6 +525,8 @@ class Op(AST):
                                                                                                                    self.arrow,
                                                                                                                    self.outsort,
                                                                                                                    self.attrs)
+    def __hash__(self):
+        return hash((self.opform, tuple(self.insortlist), self.arrow, self.outsort, tuple(self.attrs)))
 
     def getsorts(self):
         outlist = self.insortlist
@@ -559,6 +573,8 @@ class Var(AST):
     def __str__(self):
         return "From str method of Vars: varlist is %s" % (self.varlist)
 
+    def __hash__(self):
+        return hash((self.id, self.maudetype))
 
 
 class Statement(AST):
@@ -765,6 +781,7 @@ class Module(AST):
         self.ops = set()
         self.eqs = set()
         self.vars = set()
+        self.rules = set()
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -786,25 +803,22 @@ class Module(AST):
                                                                                                     self.vars)
 
     def addop(self, op: Op):
-        for sort in op.getsorts():
-            if sort in self.sorts:
-                self.ops.add(op)
-            else:
-                raise MaudeException("Unknown sort: %s" % sort)
+        self.ops.add(op)
 
     def addsort(self, sort: Sort):
         self.sorts[sort.id] = sort.typelist
 
     def addvar(self, var: Var):
-        if var.getsort() in self.sorts:
-            self.vars.add(var)
-        else:
-            raise MaudeException("Unknown sort: %s" % var.getsort())
+        self.vars.add(var)
 
     def addeq(self, eq: Equation):
         self.eqs.add(eq)
 
+    def addrl(self, rule : RlStatement):
+        self.eqs.add(rule)
 
+    def validate(self) -> bool:
+        pass
 
 # System commands
 class InCommand(AST):

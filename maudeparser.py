@@ -292,7 +292,8 @@ def constructFunctionalModule(moduleid, parameterlist, elementlist):
             module.addop(element)
         if type(element) == ast.Equation:
             module.addeq(element)
-
+        if type(element) == ast.RlStatement:
+            module.addrl(element)
     return module
 
 # Module
