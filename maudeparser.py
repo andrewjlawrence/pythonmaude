@@ -263,7 +263,7 @@ statementelt = pp.Group(statement +
                                                                                                                  x[0].asList()[1]))
 
 # Mod Elt
-modelt = includeelt | extendelt | protectelt | sortselt | subsortselt | opelt | opselt | varselt | statementelt
+modelt << (includeelt | extendelt | protectelt | sortselt | subsortselt | opelt | opselt | varselt | statementelt)
 
 # ParameterDecl
 parameterdecl = pp.Group(parameterid + "::" + modexp)
@@ -301,7 +301,10 @@ module = pp.Group(FMOD + modid + pp.Optional(parameterlist,default=[]) +
                   IS + pp.Group(pp.ZeroOrMore(modelt)) + ENDFM).addParseAction(lambda x: constructFunctionalModule(x[0].asList()[0],
                                                                                                                    x[0].asList()[1],
                                                                                                                    x[0].asList()[2])) | \
-         pp.Group(MOD + modid + pp.Optional(parameterlist, default=[]) + IS + pp.Group(pp.ZeroOrMore(modeltprime)) + ENDFM)
+         pp.Group(MOD + modid + pp.Optional(parameterlist, default=[]) + IS + pp.Group(pp.ZeroOrMore(modeltprime)) \
+                  + ENDFM).addParseAction(lambda x: constructFunctionalModule(x[0].asList()[0],
+                                                                              x[0].asList()[1],
+                                                                              x[0].asList()[2]))
 
 # Debugger command
 debuggercommand = pp.Literal("resume .") | pp.Literal("abort .") | pp.Literal("step .") | pp.Literal("where .")

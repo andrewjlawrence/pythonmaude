@@ -395,6 +395,9 @@ class RlStatement(AST):
     def __str__(self):
         return "From str method of RlStatement: leftterm is %s, rightterm is %s" % (self.leftterm, self.rightterm)
 
+    def __hash__(self):
+        return hash((self.leftterm, self.rightterm))
+
 #
 # Statement Attributes
 #
@@ -782,17 +785,18 @@ class Module(AST):
         self.eqs = set()
         self.vars = set()
         self.rules = set()
+        self. termparser = None
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
     def __repr__(self):
-        return "<Module module:%s parameterlist:%s sorts:%s>" % (self.moduleid,
-                                                                 self.parameterlist,
-                                                                 self.sorts,
-                                                                 self.ops,
-                                                                 self.eqs,
-                                                                 self.vars)
+        return "<Module module:%s parameterlist: %s sorts: %s ops: %s eqs: %s vars: %s>" % (self.moduleid,
+                                                                                            self.parameterlist,
+                                                                                            self.sorts,
+                                                                                            self.ops,
+                                                                                            self.eqs,
+                                                                                            self.vars)
 
     def __str__(self):
         return "From str method of Module: module is %s, parameterlist is %s, elementlist is %s" % (self.moduleid,
@@ -815,7 +819,13 @@ class Module(AST):
         self.eqs.add(eq)
 
     def addrl(self, rule : RlStatement):
-        self.eqs.add(rule)
+        self.rules.add(rule)
+
+    def set_termparser(self, termparser):
+        self.termparser = termparser
+
+    def get_termparser(self):
+        return self.termparser
 
     def validate(self) -> bool:
         pass
