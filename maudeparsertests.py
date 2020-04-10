@@ -336,6 +336,13 @@ class TestModuleElementPrime(unittest.TestCase):
                          ast.Sorts([ast.Sort(ast.Ident("SORTX", 1 , 7),[]),
                                     ast.Sort(ast.Ident("SORTY", 1, 13),[])]))
 
+    def testRules(self):
+        result = mp.modeltprime.parseString("sorts SORTX SORTY .", parseAll=True)[0]
+        self.assertEqual(mp.modeltprime.parseString("sorts SORTX SORTY .", parseAll=True)[0],
+                         ast.Sorts([ast.Sort(ast.Ident("SORTX", 1 , 7),[]),
+                                    ast.Sort(ast.Ident("SORTY", 1, 13),[])]))
+
+
 
 class TestFModule(unittest.TestCase):
 
@@ -363,11 +370,12 @@ class TestFModule(unittest.TestCase):
                             []))
         module.addvar(ast.Var(ast.Ident("X1", 4, 10),
                               ast.Sort(ast.Ident("NAT", 4, 15), [])))
-        module.addrl(ast.RlStatement(ast.Term([ast.Token("term1")]),
-                                       ast.Term([ast.Token("term2")])))
+        rulestatement = ast.RlStatement(ast.Term([ast.Token("term1")]),
+                                      ast.Term([ast.Token("term2")]))
+        module.addstatement(ast.Statement(rulestatement, None))
         resultingmodule = mp.module.parseFile("./testdata/simplemodule.maude", parseAll=True)[0]
-        self.assertEqual(resultingmodule,
-                         module)
+        self.assertEqual(module,
+                         resultingmodule)
 
     def testsimplemodule2(self):
         self.assertEqual(mp.module.parseFile("./testdata/simplefmodule.maude", parseAll=True)[0].elementlist,

@@ -596,6 +596,12 @@ class Statement(AST):
 
     def __str__(self):
         return "From str method of Statement: statement is %s, attributes is %s" % (self.statement, self.attributes)
+
+    def __hash__(self):
+        if self.attributes:
+            return hash((tuple(self.statement), tuple(self.attributes)))
+        else:
+            return hash(self.statement)
 #
 # Attributes
 #
@@ -782,21 +788,20 @@ class Module(AST):
         self.parameterlist = parameterlist
         self.sorts = dict()
         self.ops = set()
-        self.eqs = set()
         self.vars = set()
-        self.rules = set()
+        self.statements = set()
         self. termparser = None
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
     def __repr__(self):
-        return "<Module module:%s parameterlist: %s sorts: %s ops: %s eqs: %s vars: %s>" % (self.moduleid,
+        return "<Module module:%s parameterlist: %s sorts: %s ops: %s vars: %s, rules: %s>" % (self.moduleid,
                                                                                             self.parameterlist,
                                                                                             self.sorts,
                                                                                             self.ops,
-                                                                                            self.eqs,
-                                                                                            self.vars)
+                                                                                            self.vars,
+                                                                                            self.statements)
 
     def __str__(self):
         return "From str method of Module: module is %s, parameterlist is %s, elementlist is %s" % (self.moduleid,
@@ -818,8 +823,8 @@ class Module(AST):
     def addeq(self, eq: Equation):
         self.eqs.add(eq)
 
-    def addrl(self, rule : RlStatement):
-        self.rules.add(rule)
+    def addstatement(self, statement : Statement):
+        self.statements.add(statement)
 
     def set_termparser(self, termparser):
         self.termparser = termparser

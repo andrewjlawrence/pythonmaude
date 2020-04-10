@@ -197,10 +197,17 @@ rlstatement = pp.Group(RL + term + RIGHTARROW + term).addParseAction(lambda x: a
 crlstatement = pp.Group(CRL + term + RIGHTARROW + term + IF + condition)
 statementprime = rlstatement | crlstatement
 
+def makeStatement(statementparse):
+    attrs = None
+    if len(statementparse.asList()) == 2:
+        attrs = statementparse.asList()[1]
+    result = ast.Statement(statementparse[0].asList()[0],
+                         attrs)
+    return result
 
 # Mod elt
 modelt = pp.Forward()
-modeltprime = modelt | pp.Group(statementprime + pp.Optional(statementattr) + FULLSTOP)
+modeltprime = modelt | (pp.Group(statementprime + pp.Optional(statementattr) + FULLSTOP)).addParseAction(makeStatement)
 
 # Kind
 kind = LSBRACK + sort + pp.ZeroOrMore(COMMA + sort) + RSBRACK
@@ -258,6 +265,7 @@ opselt = pp.Group(OPS + pp.OneOrMore(opid | LPAREN + opform + RPAREN) + COLON \
 varselt = pp.Group(VARS + pp.Group(pp.OneOrMore(varid)) + COLON +
                    maudetype + FULLSTOP).addParseAction(lambda x: ast.Vars(x[0].asList()[0],
                                                         x[0].asList()[1]))
+
 statementelt = pp.Group(statement +
                         pp.Optional(statementattr,default=[]) + FULLSTOP).addParseAction(lambda x: ast.Statement(x[0].asList()[0],
                                                                                                                  x[0].asList()[1]))
@@ -290,10 +298,8 @@ def constructFunctionalModule(moduleid, parameterlist, elementlist):
                 module.addvar(var)
         if type(element) == ast.Op:
             module.addop(element)
-        if type(element) == ast.Equation:
-            module.addeq(element)
-        if type(element) == ast.RlStatement:
-            module.addrl(element)
+        if type(element) == ast.Statement:
+            module.addstatement(element)
     return module
 
 # Module
