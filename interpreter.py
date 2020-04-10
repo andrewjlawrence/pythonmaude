@@ -22,7 +22,7 @@ def onchangedirectory(cdcommand):
 def onload(loadcommand):
     if os.path.isfile(loadcommand.filename):
         module = maudeparser.module.parseFile(loadcommand.filename, parseAll=True)
-
+        context.add_module(module)
         print("Successfully loaded module %s" % module.moduleid)
     else:
         raise FileNotFoundError("File not found %s" % loadcommand.filename)

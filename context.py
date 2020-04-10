@@ -1,32 +1,21 @@
 # Copyright 2017 Andrew Lawrence
 
-from ast import Op,Sort,Var,Equation
+from ast import Module
 from exceptions import MaudeException
+import termparser
 
 
 class Context:
     def __init__(self):
-        self.sorts = dict()
-        self.ops = set()
-        self.eqs = set()
-        self.vars = set()
+        self._modules = set()
+        self._termparser = None
 
-    def addop(self, op: Op):
-        for sort in op.getsorts():
-            if sort in self.sorts:
-                self.ops.add(op)
-            else:
-                raise MaudeException("Unknown sort: %s" % sort)
+    def add_module(self, module: Module):
+        self._modules.add(module)
+        self._termparser = termparser.generateTermParsers(self._modules)
 
-    def addsort(self, sort: Sort):
-        self.sorts[sort.id] = sort.typelist
 
-    def addvar(self, var: Var):
-        if var.getsort() in self.sorts:
-            self.vars.add(var)
-        else:
-            raise MaudeException("Unknown sort: %s" % var.getsort())
+    def get_termparser(self):
+        return self._termparser
 
-    def addeq(self, eq: Equation):
-        self.eqs.add(eq)
 

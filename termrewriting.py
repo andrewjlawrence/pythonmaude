@@ -220,6 +220,7 @@ def matchs(termpairlist : List[Tuple[Term, Term]],  subst : Substitution) -> Sub
         assert type(termpairlist[0][0]) == TTerm
         assert type(termpairlist[0][1]) == TTerm
         if termpairlist[0][0].term == termpairlist[0][1].term:
+            print("matching TTerms")
             return matchs(list(zip(termpairlist[0][0].termlist, termpairlist[0][1].termlist)) + termpairlist[1:], subst)
         else:
             raise UnificationError("meh")

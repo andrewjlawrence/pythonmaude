@@ -119,7 +119,7 @@ class RewriteTestCase(unittest.TestCase):
         two = succ(one)
         three = succ(two)
 
-        add12 = TTerm("add", [one, two])
+        add12 = TTerm("add", [one, one])
 
         rewritesystem = [addbaserule, addindrule]
 
@@ -148,7 +148,7 @@ class RewriteTestCase(unittest.TestCase):
         two = succ(one)
         three = succ(two)
 
-        add12 = TTerm("add", [zero, two])
+        add12 = TTerm("add", [one,one])
 
         rewritesystem = [addbaserule, addindrule]
 
