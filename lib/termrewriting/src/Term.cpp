@@ -1,5 +1,6 @@
 #include "term.hpp"
 #include <algorithm>
+#include <sstream>
 
 VTerm::VTerm(const VariableName& variableName)
 :varname(variableName)
@@ -16,6 +17,12 @@ bool VTerm::occurs(const VariableName& vname) const
     return varname == vname;
 }
 
+const std::string VTerm::toString() const
+{
+    std::stringstream output;
+    output << "< VTerm variablename: " << varname << " >";
+    return output.str();
+}
 
 TTerm::TTerm(const std::string& termname,
              const TermList_t& subterms)

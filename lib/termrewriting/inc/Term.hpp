@@ -46,6 +46,11 @@ public:
      * Friend output stream operator to print VTerms
      */
     friend std::ostream& operator<<(std::ostream& os, const VTerm& dt);
+
+    /**
+     * Convert the object to a string.
+     */
+    const std::string toString() const;
 private:
     VariableName varname;
 };
