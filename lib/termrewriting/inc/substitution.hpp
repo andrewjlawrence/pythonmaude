@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 #include "term.hpp"
+#include "tterm.hpp"
+#include "vterm.hpp"
+
 
 using Association_t = std::pair<VariableName, Term_t>;
 using AssociationList_t = std::vector<Association_t>;

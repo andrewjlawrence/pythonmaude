@@ -1,5 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include "term.hpp"
+#include "vterm.hpp"
+#include "tterm.hpp"
 
 BOOST_AUTO_TEST_CASE(VTermTest)
 {

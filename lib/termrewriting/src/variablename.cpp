@@ -1,4 +1,4 @@
-#include "variablename.hpp"
+#include "VariableName.hpp"
 #include <sstream>
 
 VariableName::VariableName()

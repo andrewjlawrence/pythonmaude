@@ -8,7 +8,7 @@ message(STATUS "Boost_Python = ${Boost_PYTHON3.8_LIBRARY}")
                  
 set(CMAKE_CXX_STANDARD 17)
 
-add_library(termrewriting STATIC src/termrewriting.cpp src/variablename.cpp src/term.cpp src/substitution.cpp)
+add_library(termrewriting STATIC src/Termrewriting.cpp src/VariableName.cpp src/Term.cpp src/Substitution.cpp src/TTerm.cpp src/VTerm.cpp)
 include_directories(${Boost_INCLUDE_DIRS})
 target_include_directories(termrewriting PUBLIC inc  )
 add_subdirectory(tests)

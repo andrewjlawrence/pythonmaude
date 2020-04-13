@@ -39,10 +39,10 @@ const Term_t Substitution::lift( const Term_t& term) const
     switch (term.which())
     {
     case VTerm_e:
-        return app(boost::get<VTerm>(term));
+        return app(term.asVTerm());
     case TTerm_e:
     {
-        TTerm tterm = boost::get<TTerm>(term);
+        TTerm tterm = term.asTTerm();
         for (size_t i = 0; i < tterm.getSubterms().size(); i++ )
         {
             tterm[i] = lift(tterm[i]);

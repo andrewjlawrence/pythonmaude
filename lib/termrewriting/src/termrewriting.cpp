@@ -9,7 +9,7 @@ Substitution TermRewriting::matchs(const RewriteSystem_t& rewriteSystem,
         if(rewriteSystem[0].first.which() == VTerm_e)
         {
             const VariableName& varname = 
-                boost::get<VTerm>(rewriteSystem[0].first).getVariableName();
+                rewriteSystem[0].first.asVTerm().getVariableName();
             if(substitution.inDomain(varname))
             {
                 if (substitution.app(varname) == rewriteSystem[0].second)
@@ -39,8 +39,8 @@ Substitution TermRewriting::matchs(const RewriteSystem_t& rewriteSystem,
         else
         {
             std::cout << std::string("matchs on tterm") << std::endl;
-            const TTerm& ltterm = boost::get<TTerm>(rewriteSystem[0].first);
-            const TTerm& rtterm = boost::get<TTerm>(rewriteSystem[0].second); 
+            const TTerm& ltterm = rewriteSystem[0].first.asTTerm();
+            const TTerm& rtterm = rewriteSystem[0].second.asTTerm(); 
             if (ltterm.getTerm() == rtterm.getTerm())
             {
                 RewriteSystem_t newSystem;
@@ -107,7 +107,7 @@ Term_t TermRewriting::normalize(const RewriteSystem_t& termlist, const Term_t& t
     }
     else
     {
-        TTerm tterm = boost::get<TTerm>(term);
+        TTerm tterm = term.asTTerm();
         for (int i = 0; i < tterm.getSubterms().size(); i++)
         {
             std::cout << "Normalizing subterm" << std::endl;
@@ -139,59 +139,3 @@ NormalizationError::NormalizationError(const std::string msg)
 {
 
 }
-
-#if 0
-def matchs(termpairlist : List[Tuple[Term, Term]],  subst : Substitution) -> Substitution:
-    if not termpairlist:
-        return subst
-    elif type(termpairlist[0][0]) == VTerm:
-        if subst.indom(termpairlist[0][0].vname):
-            if subst.apply(termpairlist[0][0].vname) == termpairlist[0][1]:
-                return matchs(termpairlist[1:], subst)
-            else:
-                raise UnificationError("meh")
-        else:
-            subst.add_mapping(termpairlist[0][0].vname, termpairlist[0][1])
-            return matchs(termpairlist[1:], subst)
-    elif type(termpairlist[0][1]) == VTerm:
-        raise UnificationError("meh")
-    else:
-        assert type(termpairlist[0][0]) == TTerm
-        assert type(termpairlist[0][1]) == TTerm
-        if termpairlist[0][0].term == termpairlist[0][1].term:
-            return matchs(list(zip(termpairlist[0][0].termlist, termpairlist[0][1].termlist)) + termpairlist[1:], subst)
-        else:
-            raise UnificationError("meh")
-
-class NormalizationError(Exception):
-    def __init__(self, message):
-        self.message = message
-
-
-def match(pat : Term, obj : Term) -> Substitution:
-    return matchs([(pat, obj)], Substitution())
-
-
-def rewrite(termlist : List[Tuple[Term, Term]], term : Term) -> Term:
-    if termlist:
-        try:
-            return match(termlist[0][0], term).lift(termlist[0][1])
-        except UnificationError:
-            return rewrite(termlist[1:], term)
-    else:
-        raise NormalizationError("meh")
-
-
-def normalize(termlist, term):
-    if type(term) == VTerm:
-        return term
-    else:
-        newlist = list()
-        for termtonormalize in term.termlist:
-            newlist.append(normalize(termlist,termtonormalize))
-        term.termlist = newlist
-        try:
-            return normalize(termlist, rewrite(termlist, term))
-        except NormalizationError:
-            return term
-#endif
