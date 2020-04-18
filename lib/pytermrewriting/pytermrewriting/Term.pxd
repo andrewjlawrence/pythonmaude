@@ -3,19 +3,26 @@ from libcpp.string cimport string
 from libc cimport stdint
 from libcpp cimport bool
 
-# Declare the class with cdef
-cdef extern from <boost/variant.hpp> namespace boost:
-    cdef cppclass variant[T1, T2]:
-        variant() except +
+# Forward declare the TTerm and VTerm classes
+cdef extern from "tterm.hpp":
+    cdef cppclass TTerm:
+        pass
 
+cdef extern from "vterm.hpp":
+    cdef cppclass VTerm:
+        pass
 
-# Declare the class with cdef
+# Now define the term class.
 cdef extern from "term.hpp":
-    cdef cppclass VariableName:
-        VariableName() except +
-        VariableName(const string&,
-                     const stdint.uint32_t) except +
-        const string& getName() const
-        stdint.uint32_t getIndex() const
-        const string& toString() const
-        bool operator==(const VariableName&) const
+    cdef cppclass Term:
+        Term() except +
+        Term(const VTerm&) except +
+        Term(const TTerm&)
+        ~Term()
+        int which() const
+        const TTerm& asTTerm() const except +
+        const VTerm& asVTerm() const except +
+        Term& operator=(const TTerm&)
+        Term& operator=(const VTerm&)
+        bool operator==(const Term&) const
+        string toString() const
